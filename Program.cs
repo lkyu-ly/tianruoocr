@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿using System;
+﻿﻿﻿﻿﻿﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -11,20 +11,32 @@ using TrOCR.Helper;
 
 namespace TrOCR
 {
-
+    /// <summary>
+    /// 应用程序的主入口点和核心初始化类
+    /// 负责应用程序启动、异常处理、配置初始化、更新检查等核心功能
+    /// </summary>
     internal static class Program
     {
+        /// <summary>
+        /// DPI缩放因子
+        /// </summary>
         public static float Factor = 1.0f;
 
+        /// <summary>
+        /// 应用程序入口点
+        /// </summary>
+        /// <param name="args">命令行参数</param>
         [STAThread]
         public static void Main(string[] args)
         {
         	try
         	{
+        		// 设置异常处理模式和事件处理程序
         		Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         		Application.ThreadException += Application_ThreadException;
         		AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
       
+        		// 检查是否已经运行了程序实例
         		var eventName = "TianruoOcrInstance_" + Application.ExecutablePath.Replace(Path.DirectorySeparatorChar, '_');
         		var programStarted = new EventWaitHandle(false, EventResetMode.AutoReset, eventName, out var needNew);
         		if (!needNew)
@@ -33,8 +45,12 @@ namespace TrOCR
         			CommonHelper.ShowHelpMsg("软件已经运行");
         			return;
         		}
+        		
+        		// 初始化配置文件
         		InitConfig();
         		DealErrorConfig();
+        		
+        		// 设置应用程序视觉样式
         		Application.EnableVisualStyles();
         		Application.SetCompatibleTextRenderingDefault(false);
         		var version = Environment.OSVersion.Version;
@@ -44,6 +60,8 @@ namespace TrOCR
         		{
         			CommonHelper.SetProcessDPIAware();
         		}
+        		
+        		// 处理启动参数
         		if (args.Length != 0 && args[0] == "更新")
         		{
         			new FmSetting
@@ -51,6 +69,8 @@ namespace TrOCR
         				Start_set = ""
         			}.ShowDialog();
         		}
+        		
+        		// 启动更新检查任务并运行主窗体
         		Task.Factory.StartNew(CheckUpdate);
         		Application.Run(new FmMain());
         	}
@@ -80,11 +100,21 @@ namespace TrOCR
         	}
         }
       
+        /// <summary>
+        /// 处理线程异常事件
+        /// </summary>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">线程异常事件参数</param>
         private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
         	MessageBox.Show("捕获到线程异常: " + e.Exception.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
       
+        /// <summary>
+        /// 处理未处理的异常事件
+        /// </summary>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">未处理异常事件参数</param>
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
         	MessageBox.Show("捕获到未经处理的异常: " + e.ExceptionObject.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -92,6 +122,9 @@ namespace TrOCR
 
         
 
+        /// <summary>
+        /// 检查应用程序更新
+        /// </summary>
         public static void CheckUpdate()
         {
             try
@@ -117,6 +150,7 @@ namespace TrOCR
                     var newVersion = tagName.TrimStart('v', 'V');
                     var curVersion = Application.ProductVersion;
                     
+                    // 检查是否有新版本
                     if (!CheckVersion(newVersion, curVersion))
                     {
                         CommonHelper.ShowHelpMsg("当前已是最新版本");
@@ -181,6 +215,12 @@ namespace TrOCR
             }
         }
 
+        /// <summary>
+        /// 比较版本号大小
+        /// </summary>
+        /// <param name="newVersion">新版本号</param>
+        /// <param name="curVersion">当前版本号</param>
+        /// <returns>如果有新版本返回true，否则返回false</returns>
         private static bool CheckVersion(string newVersion, string curVersion)
         {
             var arr1 = newVersion.Split('.');
@@ -195,6 +235,9 @@ namespace TrOCR
             return false;
         }
 
+        /// <summary>
+        /// 初始化配置文件(config.ini)，如果配置文件不存在则创建它
+        /// </summary>
         private static void InitConfig()
         {
             var path = AppDomain.CurrentDomain.BaseDirectory + "Data\\config.ini";
@@ -209,6 +252,7 @@ namespace TrOCR
                 {
                 }
 
+                // 设置默认配置值
                 IniHelper.SetValue("配置", "接口", "搜狗");
                 IniHelper.SetValue("配置", "开机自启", "True");
                 IniHelper.SetValue("配置", "快速翻译", "True");
@@ -249,8 +293,12 @@ namespace TrOCR
             }
         }
 
+        /// <summary>
+        /// 读取配置文件，处理错误的配置项
+        /// </summary>
         private static void DealErrorConfig()
         {
+            // 恢复发生错误的配置项为默认值
             if (IniHelper.GetValue("配置", "接口") == "发生错误")
             {
                 IniHelper.SetValue("配置", "接口", "搜狗");
