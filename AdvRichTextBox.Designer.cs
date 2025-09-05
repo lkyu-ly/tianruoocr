@@ -312,7 +312,7 @@ namespace TrOCR
             this.richTextBox1.MouseEnter += this.Form1_MouseEnter;
             this.richTextBox1.DragEnter += this.Form1_DragEnter;
             this.richTextBox1.DragDrop += this.Form1_DragDrop;
-            this.richTextBox1.SelectionAlignment = HelpRepaint.TextAlign.Justify;
+            this.richTextBox1.SelectionAlignment = HelpRepaint.TextAlign.Left;
             this.richTextBox1.SetLine = "行高";
             this.richTextBox1.Font = new Font("Times New Roman", 16f * Program.Factor, GraphicsUnit.Pixel);
             this.richTextBox1.LanguageOption = RichTextBoxLanguageOptions.UIFonts;
@@ -357,12 +357,12 @@ namespace TrOCR
                 this.richTextBox1.BeginUpdate();
                 try
                 {
-                    // 只设置一次字体，避免重复设置导致的渲染问题
-                    if (this.richTextBox1.Font.Name != "Times New Roman" ||
-                        this.richTextBox1.Font.Size != 16f * Program.Factor)
-                    {
-                        this.richTextBox1.Font = new Font("Times New Roman", 16f * Program.Factor, GraphicsUnit.Pixel);
-                    }
+                    // // 只设置一次字体，避免重复设置导致的渲染问题
+                    // if (this.richTextBox1.Font.Name != "Times New Roman" ||
+                    //     this.richTextBox1.Font.Size != 16f * Program.Factor)
+                    // {
+                    //     this.richTextBox1.Font = new Font("Times New Roman", 16f * Program.Factor, GraphicsUnit.Pixel);
+                    // }
                     this.richTextBox1.Text = value;
                 }
                 finally
