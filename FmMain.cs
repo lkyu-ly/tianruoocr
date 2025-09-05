@@ -5694,6 +5694,9 @@ namespace TrOCR
 			// 保存翻译接口配置
 			IniHelper.SetValue("配置", "翻译接口", name);
 			
+			// 同步更新StaticValue中的当前翻译接口
+			StaticValue.Translate_Current_API = name;
+			
 			// 如果翻译功能已开启，则执行翻译
 			if (transtalate_fla == "开启")
 			{
