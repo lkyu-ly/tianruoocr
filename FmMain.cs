@@ -2627,56 +2627,27 @@ namespace TrOCR
 		/// <param name="flag">热键标识符</param>
 		public void SetHotkey(string text, string text2, string value, int flag)
 		{
-			// 检查输入参数是否有效
-			if (string.IsNullOrEmpty(value) || value == "发生错误" || value == "请按下快捷键")
-			{
-				// 如果配置无效，直接返回，不注册热键
-				return;
-			}
+			var parts = value.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToList();
+			if (parts.Count == 0) return;
 
-			var array = (value + "+").Split('+');
-			// 解析快捷键字符串，根据格式确定修饰键和按键
-			if (array.Length == 3)
-			{
-				text = array[0];
-				text2 = array[1];
-			}
-			if (array.Length == 2)
-			{
-				text = "None";
-				text2 = value;
-			}
-			var array2 = new[]
-			{
-				text,
-				text2
-			};
+			Keys key = (Keys)Enum.Parse(typeof(Keys), parts.Last());
+			HelpWin32.KeyModifiers keyModifiers = HelpWin32.KeyModifiers.None;
 
-			// 安全解析修饰键枚举
-			if (!Enum.TryParse<HelpWin32.KeyModifiers>(array2[0].Trim(), true, out HelpWin32.KeyModifiers keyModifiers))
+			foreach (var part in parts.Take(parts.Count - 1))
 			{
-				// 如果解析失败，使用默认值None
-				keyModifiers = HelpWin32.KeyModifiers.None;
+				if (part.Equals("Ctrl", StringComparison.OrdinalIgnoreCase))
+					keyModifiers |= HelpWin32.KeyModifiers.Ctrl;
+				else if (part.Equals("Shift", StringComparison.OrdinalIgnoreCase))
+					keyModifiers |= HelpWin32.KeyModifiers.Shift;
+				else if (part.Equals("Alt", StringComparison.OrdinalIgnoreCase))
+					keyModifiers |= HelpWin32.KeyModifiers.Alt;
 			}
-
-			// 安全解析按键枚举
-			if (!Enum.TryParse<Keys>(array2[1].Trim(), true, out Keys key))
-			{
-				// 如果解析失败，直接返回，不注册热键
-				return;
-			}
-
 			try
 			{
-				// 尝试注册热键，如果失败则提示用户
 				if (!HelpWin32.RegisterHotKey(Handle, flag, keyModifiers, key))
 				{
-					CommonHelper.ShowHelpMsg("快捷键冲突，请更换！");
-				}
-				else
-				{
-					// 注册成功后再次调用确保热键生效
-					HelpWin32.RegisterHotKey(Handle, flag, keyModifiers, key);
+					CommonHelper.ShowHelpMsg($"快捷键 '{value}' 注册失败，可能已被其他程序占用！");
+
 				}
 			}
 			catch (Exception ex)

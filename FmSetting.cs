@@ -22,6 +22,16 @@ namespace TrOCR
 	{
 		private Dictionary<Control, Point> _originalControlLocations;
 
+		private readonly Dictionary<string, string> shortcutMappings = new Dictionary<string, string>
+		{
+			{ "txtBox_文字识别", "文字识别" },
+			{ "txtBox_翻译文本", "翻译文本" },
+			{ "txtBox_记录界面", "记录界面" },
+			{ "txtBox_识别界面", "识别界面" },
+			{ "txtBox_输入翻译", "输入翻译" },
+			{ "txtBox_静默识别", "静默识别" }
+		};
+
 		// 构造函数，初始化设置窗口
 		public FmSetting()
 		{
@@ -971,96 +981,32 @@ namespace TrOCR
 		/// <param name="e">按键事件参数</param>
 		private void txtBox_KeyUp(object sender, KeyEventArgs e)
 		{
-			// 获取触发事件的文本框控件
 			var textBox = sender as TextBox;
-			// 创建正则表达式匹配中文字符
-			var regex = new Regex("[一-龥]+");
-			var str = "";
-			// 提取文本框名称中的中文字符
-			foreach (var obj in regex.Matches(textBox.Name))
-			{
-				str = ((Match)obj).ToString();
-			}
-			// 构造对应的图片控件名称并查找
-			var key = "pictureBox_" + str;
-			var pictureBox = (PictureBox)Controls.Find(key, true)[0];
-			// 创建资源管理器实例
-			new ComponentResourceManager(typeof(FmSetting));
-			// 处理退格键事件
+			if (textBox == null) return;
+			if (!shortcutMappings.TryGetValue(textBox.Name, out string shortcutName)) return;
+
+			var pictureBox = this.Controls.Find("pictureBox_" + shortcutName, true).FirstOrDefault() as PictureBox;
+			if (pictureBox == null) return;
+
 			if (e.KeyData == Keys.Back)
 			{
-				// 重置文本框文本和图片
 				textBox.Text = "请按下快捷键";
 				pictureBox.Image = Resources.快捷键_0;
-				// 根据文本框名称保存对应的快捷键设置
-				if (textBox.Name.Contains("文字识别"))
-				{
-					IniHelper.SetValue("快捷键", "文字识别", txtBox_文字识别.Text);
-				}
-				if (textBox.Name.Contains("翻译文本"))
-				{
-					IniHelper.SetValue("快捷键", "翻译文本", txtBox_翻译文本.Text);
-				}
-				if (textBox.Name.Contains("记录界面"))
-				{
-					IniHelper.SetValue("快捷键", "记录界面", txtBox_记录界面.Text);
-				}
-				if (textBox.Name.Contains("识别界面"))
-				{
-					IniHelper.SetValue("快捷键", "识别界面", txtBox_识别界面.Text);
-				}
-				if (textBox.Name.Contains("输入翻译"))
-				{
-					IniHelper.SetValue("快捷键", "输入翻译", txtBox_输入翻译.Text);
-				}
-				if (textBox.Name.Contains("静默识别"))
-				{
-				    IniHelper.SetValue("快捷键", "静默识别", txtBox_静默识别.Text);
-				}
+				IniHelper.SetValue("快捷键", shortcutName, textBox.Text);
+				return;
 			}
-			// 处理非功能键的按键事件
-			else if (e.KeyValue != 16 && e.KeyValue != 17 && e.KeyValue != 18)
+
+			if (e.KeyCode != Keys.ControlKey && e.KeyCode != Keys.ShiftKey && e.KeyCode != Keys.Menu)
 			{
-				// 解析按键组合并格式化显示
-				var array = e.KeyData.ToString().Replace(" ", "").Replace("Control", "Ctrl").Split(',');
+				var sb = new StringBuilder();
+				if (e.Control) sb.Append("Ctrl + ");
+				if (e.Shift) sb.Append("Shift + ");
+				if (e.Alt) sb.Append("Alt + ");
+				sb.Append(e.KeyCode);
+
+				textBox.Text = sb.ToString();
 				pictureBox.Image = Resources.快捷键_1;
-				// 显示单个按键或组合按键
-				if (array.Length == 1)
-				{
-					textBox.Text = array[0];
-				}
-				if (array.Length == 2)
-				{
-					textBox.Text = array[1] + "+" + array[0];
-				}
-				// 保存快捷键设置
-				if (array.Length <= 2)
-				{
-					if (textBox.Name.Contains("文字识别"))
-					{
-						IniHelper.SetValue("快捷键", "文字识别", txtBox_文字识别.Text);
-					}
-					if (textBox.Name.Contains("翻译文本"))
-					{
-						IniHelper.SetValue("快捷键", "翻译文本", txtBox_翻译文本.Text);
-					}
-					if (textBox.Name.Contains("记录界面"))
-					{
-						IniHelper.SetValue("快捷键", "记录界面", txtBox_记录界面.Text);
-					}
-					if (textBox.Name.Contains("识别界面"))
-					{
-						IniHelper.SetValue("快捷键", "识别界面", txtBox_识别界面.Text);
-					}
-					if (textBox.Name.Contains("输入翻译"))
-					{
-						IniHelper.SetValue("快捷键", "输入翻译", txtBox_输入翻译.Text);
-					}
-					if (textBox.Name.Contains("静默识别"))
-					{
-					    IniHelper.SetValue("快捷键", "静默识别", txtBox_静默识别.Text);
-					}
-				}
+				IniHelper.SetValue("快捷键", shortcutName, textBox.Text);
 			}
 		}
 
