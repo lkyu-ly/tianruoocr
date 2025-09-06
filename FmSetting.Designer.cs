@@ -271,6 +271,9 @@ namespace TrOCR
             this.label_输入翻译 = new System.Windows.Forms.Label();
             this.txtBox_输入翻译 = new System.Windows.Forms.TextBox();
             this.pictureBox_输入翻译 = new System.Windows.Forms.PictureBox();
+            this.label_静默识别 = new System.Windows.Forms.Label(); 
+            this.txtBox_静默识别 = new System.Windows.Forms.TextBox(); 
+            this.pictureBox_静默识别 = new System.Windows.Forms.PictureBox(); 
             //"常规"设置页
             this.page_常规 = new System.Windows.Forms.TabPage();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
@@ -305,6 +308,7 @@ namespace TrOCR
             this.pictureBox_翻译文本 = new System.Windows.Forms.PictureBox();
             this.pictureBox_文字识别 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_输入翻译)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_静默识别)).BeginInit(); 
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.label19 = new System.Windows.Forms.Label();
             //"更新"设置页
@@ -1252,7 +1256,7 @@ namespace TrOCR
             // 快捷键Button
             //
             this.快捷键Button.BackColor = System.Drawing.Color.White;
-            this.快捷键Button.Location = new System.Drawing.Point(309, 195);
+            this.快捷键Button.Location = new System.Drawing.Point(309, 228);
             this.快捷键Button.Name = "快捷键Button";
             this.快捷键Button.Size = new System.Drawing.Size(75, 23);
             this.快捷键Button.TabIndex = 7;
@@ -1263,7 +1267,7 @@ namespace TrOCR
             // label8
             //
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 198);
+            this.label8.Location = new System.Drawing.Point(6, 231);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(215, 12);
             this.label8.TabIndex = 1;
@@ -1271,6 +1275,9 @@ namespace TrOCR
             //
             // groupBox3
             //
+            this.groupBox3.Controls.Add(this.pictureBox_静默识别);
+            this.groupBox3.Controls.Add(this.txtBox_静默识别);
+            this.groupBox3.Controls.Add(this.label_静默识别);
             this.groupBox3.Controls.Add(this.pictureBox_输入翻译);
             this.groupBox3.Controls.Add(this.txtBox_输入翻译);
             this.groupBox3.Controls.Add(this.label_输入翻译);
@@ -1288,7 +1295,7 @@ namespace TrOCR
             this.groupBox3.Controls.Add(this.label4);
             this.groupBox3.Location = new System.Drawing.Point(6, 6);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(378, 185);
+            this.groupBox3.Size = new System.Drawing.Size(378, 218);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "全局快捷键";
@@ -1296,7 +1303,7 @@ namespace TrOCR
             // txtBox_识别界面
             //
             this.txtBox_识别界面.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.txtBox_识别界面.Location = new System.Drawing.Point(78, 151);
+            this.txtBox_识别界面.Location = new System.Drawing.Point(78, 184);
             this.txtBox_识别界面.Name = "txtBox_识别界面";
             this.txtBox_识别界面.Size = new System.Drawing.Size(260, 23);
             this.txtBox_识别界面.TabIndex = 8;
@@ -1307,7 +1314,7 @@ namespace TrOCR
             // txtBox_记录界面
             //
             this.txtBox_记录界面.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.txtBox_记录界面.Location = new System.Drawing.Point(78, 118);
+            this.txtBox_记录界面.Location = new System.Drawing.Point(78, 151);
             this.txtBox_记录界面.Name = "txtBox_记录界面";
             this.txtBox_记录界面.Size = new System.Drawing.Size(260, 23);
             this.txtBox_记录界面.TabIndex = 7;
@@ -1341,7 +1348,7 @@ namespace TrOCR
             // label7
             //
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 157);
+            this.label7.Location = new System.Drawing.Point(6, 190);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(65, 12);
             this.label7.TabIndex = 3;
@@ -1350,7 +1357,7 @@ namespace TrOCR
             // label6
             //
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(7, 124);
+            this.label6.Location = new System.Drawing.Point(7, 157);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(65, 12);
             this.label6.TabIndex = 2;
@@ -2830,7 +2837,7 @@ namespace TrOCR
             // pictureBox_识别界面
             //
             this.pictureBox_识别界面.Image = global::TrOCR.Properties.Resources.快捷键_1;
-            this.pictureBox_识别界面.Location = new System.Drawing.Point(351, 151);
+            this.pictureBox_识别界面.Location = new System.Drawing.Point(351, 184);
             this.pictureBox_识别界面.Name = "pictureBox_识别界面";
             this.pictureBox_识别界面.Size = new System.Drawing.Size(21, 21);
             this.pictureBox_识别界面.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
@@ -2840,7 +2847,7 @@ namespace TrOCR
             // pictureBox_记录界面
             //
             this.pictureBox_记录界面.Image = global::TrOCR.Properties.Resources.快捷键_1;
-            this.pictureBox_记录界面.Location = new System.Drawing.Point(351, 118);
+            this.pictureBox_记录界面.Location = new System.Drawing.Point(351, 151);
             this.pictureBox_记录界面.Name = "pictureBox_记录界面";
             this.pictureBox_记录界面.Size = new System.Drawing.Size(21, 21);
             this.pictureBox_记录界面.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
@@ -3044,10 +3051,40 @@ namespace TrOCR
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             //
+            // label_静默识别
+            //
+            this.label_静默识别.AutoSize = true;
+            this.label_静默识别.Location = new System.Drawing.Point(6, 91);
+            this.label_静默识别.Name = "label_静默识别";
+            this.label_静默识别.Size = new System.Drawing.Size(65, 12);
+            this.label_静默识别.TabIndex = 12;
+            this.label_静默识别.Text = "静默识别：";
+            //
+            // txtBox_静默识别
+            //
+            this.txtBox_静默识别.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.txtBox_静默识别.Location = new System.Drawing.Point(78, 85);
+            this.txtBox_静默识别.Name = "txtBox_静默识别";
+            this.txtBox_静默识别.Size = new System.Drawing.Size(260, 23);
+            this.txtBox_静默识别.TabIndex = 6;
+            this.txtBox_静默识别.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtBox_静默识别.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBox_KeyDown);
+            this.txtBox_静默识别.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtBox_KeyUp);
+            //
+            // pictureBox_静默识别
+            //
+            this.pictureBox_静默识别.Image = global::TrOCR.Properties.Resources.快捷键_1;
+            this.pictureBox_静默识别.Location = new System.Drawing.Point(351, 85);
+            this.pictureBox_静默识别.Name = "pictureBox_静默识别";
+            this.pictureBox_静默识别.Size = new System.Drawing.Size(21, 21);
+            this.pictureBox_静默识别.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox_静默识别.TabIndex = 14;
+            this.pictureBox_静默识别.TabStop = false;
+            //
             // label_输入翻译
             //
             this.label_输入翻译.AutoSize = true;
-            this.label_输入翻译.Location = new System.Drawing.Point(6, 91);
+            this.label_输入翻译.Location = new System.Drawing.Point(6, 124);
             this.label_输入翻译.Name = "label_输入翻译";
             this.label_输入翻译.Size = new System.Drawing.Size(65, 12);
             this.label_输入翻译.TabIndex = 12;
@@ -3056,7 +3093,7 @@ namespace TrOCR
             // txtBox_输入翻译
             //
             this.txtBox_输入翻译.Font = new System.Drawing.Font("微软雅黑", 9F);
-            this.txtBox_输入翻译.Location = new System.Drawing.Point(78, 85);
+            this.txtBox_输入翻译.Location = new System.Drawing.Point(78, 118);
             this.txtBox_输入翻译.Name = "txtBox_输入翻译";
             this.txtBox_输入翻译.Size = new System.Drawing.Size(260, 23);
             this.txtBox_输入翻译.TabIndex = 6;
@@ -3067,12 +3104,13 @@ namespace TrOCR
             // pictureBox_输入翻译
             //
             this.pictureBox_输入翻译.Image = global::TrOCR.Properties.Resources.快捷键_1;
-            this.pictureBox_输入翻译.Location = new System.Drawing.Point(351, 85);
+            this.pictureBox_输入翻译.Location = new System.Drawing.Point(351, 118);
             this.pictureBox_输入翻译.Name = "pictureBox_输入翻译";
             this.pictureBox_输入翻译.Size = new System.Drawing.Size(21, 21);
             this.pictureBox_输入翻译.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox_输入翻译.TabIndex = 14;
             this.pictureBox_输入翻译.TabStop = false;
+
             this.groupBox10.ResumeLayout(false);
             this.groupBox10.PerformLayout();
             this.groupBox6.ResumeLayout(false);
@@ -3152,6 +3190,7 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_翻译文本)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_文字识别)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_输入翻译)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_静默识别)).EndInit(); 
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
@@ -3224,6 +3263,9 @@ namespace TrOCR
         private global::System.Windows.Forms.PictureBox pictureBox_记录界面;
         private global::System.Windows.Forms.PictureBox pictureBox_输入翻译;
         private global::System.Windows.Forms.TextBox txtBox_输入翻译;
+        private global::System.Windows.Forms.Label label_静默识别; 
+        private global::System.Windows.Forms.TextBox txtBox_静默识别; 
+        private global::System.Windows.Forms.PictureBox pictureBox_静默识别; 
         private global::System.Windows.Forms.Label label8;
         private global::System.Windows.Forms.CheckBox cbBox_翻译;
         private global::System.Windows.Forms.TabControl tabControl2;

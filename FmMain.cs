@@ -349,6 +349,10 @@ namespace TrOCR
 				{
 					trayInputTranslateClick(null, null);
 				}
+				if (m.Msg == 786 && m.WParam.ToInt32() == 250)
+				{
+				    traySilentOcrClick(null, null);
+				}
 				base.WndProc(ref m);
 				return;
 			}
@@ -384,6 +388,7 @@ namespace TrOCR
 			{
 				var menuItems = new[]
 				{
+					new MenuItem("静默识别", traySilentOcrClick),
 					new MenuItem("输入翻译", trayInputTranslateClick),
 					new MenuItem("显示", trayShowClick),
 					new MenuItem("设置", tray_Set_Click),
@@ -397,6 +402,23 @@ namespace TrOCR
 			{
 				MessageBox.Show("InitMinimize()" + ex.Message);
 			}
+		}
+
+		/// <summary>
+		/// 托盘菜单"静默识别"选项点击事件处理函数
+		/// </summary>
+		private void traySilentOcrClick(object sender, EventArgs e)
+		{
+		    MainSilentOcr();
+		}
+
+		/// <summary>
+		/// 主静默OCR功能
+		/// </summary>
+		public void MainSilentOcr()
+		{
+		    isSilentMode = true;
+		    MainOCRQuickScreenShots();
 		}
 
 		/// <summary>
@@ -1304,6 +1326,7 @@ namespace TrOCR
 			loadHotkey("快捷键", "记录界面", 206);
 			loadHotkey("快捷键", "识别界面", 235);
 			loadHotkey("快捷键", "输入翻译", 240);
+			loadHotkey("快捷键", "静默识别", 250);
 			
 			// --- 加载OCR密钥 ---
 			// 加载百度OCR密钥
@@ -1439,6 +1462,8 @@ namespace TrOCR
 			HelpWin32.UnregisterHotKey(Handle, 206);
 			HelpWin32.UnregisterHotKey(Handle, 235);
 			HelpWin32.UnregisterHotKey(Handle, 240);
+			HelpWin32.UnregisterHotKey(Handle, 250);
+
 			WindowState = FormWindowState.Minimized;
 			var fmSetting = new FmSetting();
 			fmSetting.TopMost = true;
@@ -1495,6 +1520,11 @@ namespace TrOCR
 					var value5 = IniHelper.GetValue("快捷键", "输入翻译");
 					// 移除令人困惑的默认键 F1，因为SetHotkey函数会直接解析 value5 字符串
 					SetHotkey("None", "", value5, 240);
+				}
+				if (IniHelper.GetValue("快捷键", "静默识别") != "请按下快捷键")
+				{
+					var value5 = IniHelper.GetValue("快捷键", "静默识别");
+					SetHotkey("None", "", value5, 250);
 				}
 				// --- 重新加载所有API密钥 ---
 				// --- 加载OCR密钥 ---
@@ -2801,6 +2831,12 @@ namespace TrOCR
 					MagnifierPixelCount = 15,
 					MagnifierPixelSize = 10
 				}, out var modeFlag, out var point, out var buildRects);
+
+				// 如果是静默模式，强制进行OCR，忽略截图工具栏的其他按钮功能
+				if (isSilentMode && image_screen != null)
+				{
+				    modeFlag = "SilentOcrTrigger"; // 使用一个不存在的标志来触发switch case默认的OCR流程
+				}
 				
 				// 如果是高级截图模式，则启动高级截图窗体
 				if (modeFlag == "高级截图")
@@ -3147,6 +3183,32 @@ namespace TrOCR
 		/// </summary>
 		public void Main_OCR_Thread_last()
 		{
+			// --- 新增的静默模式处理逻辑 ---
+    		if (isSilentMode)
+    		{
+    		    isSilentMode = false; // 为下一次操作重置标志
+
+    		    // 检查识别是否成功
+    		    bool success = typeset_txt != null && 
+    		                   !typeset_txt.Contains("***该区域未发现文本***") && 
+    		                   !string.IsNullOrWhiteSpace(typeset_txt);
+
+    		    if (success)
+    		    {
+    		        Clipboard.SetDataObject(typeset_txt);
+    		        CommonHelper.ShowHelpMsg("已复制到剪贴板");
+    		    }
+    		    else
+    		    {
+    		        string errorMessage = string.IsNullOrWhiteSpace(typeset_txt) ? "未识别到文本" : typeset_txt.Replace("***", "").Trim();
+    		        CommonHelper.ShowHelpMsg("静默识别失败：" + errorMessage);
+    		    }
+
+    		    HelpWin32.UnregisterHotKey(Handle, 222); // 注销ESC热键
+    		    StaticValue.IsCapture = false; // 确保截图状态被重置
+    		    image_screen?.Dispose(); // 释放图像资源
+    		    return; // 结束方法，不显示主窗口
+    		}
 			image_screen.Dispose();
 			StaticValue.IsCapture = false;
 			var text = typeset_txt;
@@ -6657,6 +6719,9 @@ namespace TrOCR
 		
 		/// 阿里表格实例，用于处理阿里表格相关功能
 		private AliTable ailibaba;
+
+		/// 标识是否为静默识别模式，识别后不显示窗口，只复制结果
+		private bool isSilentMode = false;
 #endregion
 
 // ====================================================================================================================

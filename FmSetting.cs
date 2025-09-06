@@ -177,7 +177,15 @@ namespace TrOCR
 				txtBox_输入翻译.Text = "请按下快捷键";
 			}
 			pictureBox_输入翻译.Image = txtBox_输入翻译.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
-			
+
+			var value_silent_ocr = IniHelper.GetValue("快捷键", "静默识别");	
+			txtBox_静默识别.Text = value_silent_ocr;
+			if (value_silent_ocr == "发生错误")
+			{
+			    txtBox_静默识别.Text = "请按下快捷键";
+			}
+			pictureBox_静默识别.Image = txtBox_静默识别.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
+
 			// 读取百度OCR密钥信息
 			var value12 = IniHelper.GetValue("密钥_百度", "secret_id");
 			text_baiduaccount.Text = value12;
@@ -1000,10 +1008,14 @@ namespace TrOCR
 				if (textBox.Name.Contains("识别界面"))
 				{
 					IniHelper.SetValue("快捷键", "识别界面", txtBox_识别界面.Text);
-					           }
+				}
 				if (textBox.Name.Contains("输入翻译"))
 				{
 					IniHelper.SetValue("快捷键", "输入翻译", txtBox_输入翻译.Text);
+				}
+				if (textBox.Name.Contains("静默识别"))
+				{
+				    IniHelper.SetValue("快捷键", "静默识别", txtBox_静默识别.Text);
 				}
 			}
 			// 处理非功能键的按键事件
@@ -1044,6 +1056,10 @@ namespace TrOCR
 					{
 						IniHelper.SetValue("快捷键", "输入翻译", txtBox_输入翻译.Text);
 					}
+					if (textBox.Name.Contains("静默识别"))
+					{
+					    IniHelper.SetValue("快捷键", "静默识别", txtBox_静默识别.Text);
+					}
 				}
 			}
 		}
@@ -1056,7 +1072,7 @@ namespace TrOCR
 		/// <returns>如果处理了命令键则返回true，否则返回false</returns>
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
 		{
-			return (keyData == Keys.Tab && txtBox_文字识别.Focused) || (keyData == Keys.Tab && txtBox_翻译文本.Focused) || (keyData == Keys.Tab && txtBox_记录界面.Focused) || (keyData == Keys.Tab && txtBox_识别界面.Focused) || (keyData == Keys.Tab && txtBox_输入翻译.Focused);
+			return (keyData == Keys.Tab && txtBox_文字识别.Focused) || (keyData == Keys.Tab && txtBox_翻译文本.Focused) || (keyData == Keys.Tab && txtBox_记录界面.Focused) || (keyData == Keys.Tab && txtBox_识别界面.Focused) || (keyData == Keys.Tab && txtBox_输入翻译.Focused) || (keyData == Keys.Tab && txtBox_静默识别.Focused);
 		}
 
 		/// <summary>
@@ -1088,6 +1104,8 @@ namespace TrOCR
 			pictureBox_识别界面.Image = Resources.快捷键_0;
 			txtBox_输入翻译.Text = "请按下快捷键";
 			pictureBox_输入翻译.Image = Resources.快捷键_0;
+			txtBox_静默识别.Text = "请按下快捷键";
+			pictureBox_静默识别.Image = Resources.快捷键_0;
 		}
 
 		/// <summary>
@@ -1537,6 +1555,7 @@ namespace TrOCR
 			IniHelper.SetValue("快捷键", "记录界面", txtBox_记录界面.Text);
 			IniHelper.SetValue("快捷键", "识别界面", txtBox_识别界面.Text);
 			IniHelper.SetValue("快捷键", "输入翻译", txtBox_输入翻译.Text);
+			IniHelper.SetValue("快捷键", "静默识别", txtBox_静默识别.Text);
 			
 			// 保存百度OCR密钥和语言设置
 			IniHelper.SetValue("密钥_百度", "secret_id", text_baiduaccount.Text);
