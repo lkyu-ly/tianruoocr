@@ -3340,13 +3340,19 @@ namespace TrOCR
 			Size = new Size(form_width, form_height);
 			HelpWin32.SetForegroundWindow(Handle);
 			StaticValue.v_googleTranslate_txt = RichBoxBody.Text;
-			// 处理识别后自动复制
-			if (Convert.ToBoolean(IniHelper.GetValue("识别后操作", "AutoCopyOcrResult")))
+			// 解决识别和翻译都开启自动复制时，翻译结果的复制被识别结果覆盖的问题
+			var autoTranslate = bool.Parse(IniHelper.GetValue("工具栏", "翻译")) || Convert.ToBoolean(IniHelper.GetValue("识别后操作", "AutoTranslateOcrResult"));
+			var autoCopyOcr = Convert.ToBoolean(IniHelper.GetValue("识别后操作", "AutoCopyOcrResult"));
+			var autoCopyTranslate = Convert.ToBoolean(IniHelper.GetValue("翻译后操作", "AutoCopyOcrTranslation"));
+			
+			// 处理识别后自动复制功能 (只有同时开启了 ① 识别后自动复制 和 ② 自动翻译 和 ③ 翻译后自动复制，才不复制识别结果)
+			if (autoCopyOcr && (!autoTranslate || !autoCopyTranslate))
 			{
 				Clipboard.SetText(RichBoxBody.Text);
 			}
+
 			// 处理识别后自动翻译功能
-			if (bool.Parse(IniHelper.GetValue("工具栏", "翻译")) || Convert.ToBoolean(IniHelper.GetValue("识别后操作", "AutoTranslateOcrResult")))
+			if (autoTranslate)
 			{
 				try
 				{
