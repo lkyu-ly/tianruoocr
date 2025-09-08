@@ -98,6 +98,20 @@ namespace TrOCR
 			{
 				cbBox_输入翻译剪贴板.Checked = false;
 			}
+
+			var value_input_translate_auto = IniHelper.GetValue("配置", "InputTranslateAutoTranslate");
+			if (value_input_translate_auto == "发生错误")
+			{
+				cbBox_输入翻译自动翻译.Checked = false;
+			}
+			try
+			{
+				cbBox_输入翻译自动翻译.Checked = Convert.ToBoolean(value_input_translate_auto);
+			}
+			catch
+			{
+				cbBox_输入翻译自动翻译.Checked = false;
+			}
 			
 			var value_autoCopy = IniHelper.GetValue("识别后操作", "AutoCopyOcrResult");
 			if (value_autoCopy == "发生错误")
@@ -1027,13 +1041,14 @@ namespace TrOCR
 			chbox_取色.Checked = false;
 			// 禁用输入翻译剪贴板功能
 			cbBox_输入翻译剪贴板.Checked = false;
-			         checkBox_AutoCopyOcrResult.Checked = false;
-			                  checkBox_AutoTranslateOcrResult.Checked = false;
-			                  checkBox_AutoCopyOcrTranslation.Checked = false;
-			                  checkBox_AutoCopyInputTranslation.Checked = false;
-			     }
+			cbBox_输入翻译自动翻译.Checked = false;
+			checkBox_AutoCopyOcrResult.Checked = false;
+			checkBox_AutoTranslateOcrResult.Checked = false;
+			checkBox_AutoCopyOcrTranslation.Checked = false;
+			checkBox_AutoCopyInputTranslation.Checked = false;
+		}
 
-			     /// <summary>
+		/// <summary>
 		/// 文本框按键抬起事件处理函数，用于设置快捷键
 		/// </summary>
 		/// <param name="sender">事件发送者</param>
@@ -1549,6 +1564,7 @@ namespace TrOCR
 			IniHelper.SetValue("配置", "快速翻译", cbBox_翻译.Checked.ToString());
 			IniHelper.SetValue("配置", "识别弹窗", cbBox_弹窗.Checked.ToString());
 			IniHelper.SetValue("配置", "InputTranslateClipboard", cbBox_输入翻译剪贴板.Checked.ToString());
+			IniHelper.SetValue("配置", "InputTranslateAutoTranslate", cbBox_输入翻译自动翻译.Checked.ToString());
 			IniHelper.SetValue("配置", "窗体动画", cobBox_动画.Text);
 			IniHelper.SetValue("配置", "记录数目", numbox_记录.Text);
 			IniHelper.SetValue("配置", "自动保存", cbBox_保存.Checked.ToString());

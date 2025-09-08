@@ -296,6 +296,7 @@ namespace TrOCR
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.cbBox_输入翻译剪贴板 = new System.Windows.Forms.CheckBox();
+            this.cbBox_输入翻译自动翻译 = new System.Windows.Forms.CheckBox();
             this.chbox_取色 = new System.Windows.Forms.CheckBox();
             this.cbBox_弹窗 = new System.Windows.Forms.CheckBox();
             this.cbBox_翻译 = new System.Windows.Forms.CheckBox();
@@ -2725,6 +2726,7 @@ namespace TrOCR
             // groupBox1
             //
             this.groupBox1.Controls.Add(this.cbBox_输入翻译剪贴板);
+            this.groupBox1.Controls.Add(this.cbBox_输入翻译自动翻译);
             this.groupBox1.Controls.Add(this.chbox_取色);
             this.groupBox1.Controls.Add(this.cbBox_弹窗);
             this.groupBox1.Controls.Add(this.cbBox_翻译);
@@ -2745,6 +2747,16 @@ namespace TrOCR
             this.cbBox_输入翻译剪贴板.TabIndex = 7;
             this.cbBox_输入翻译剪贴板.Text = "输入翻译默认使用剪贴板文本";
             this.cbBox_输入翻译剪贴板.UseVisualStyleBackColor = true;
+            //
+            // cbBox_输入翻译自动翻译
+            //
+            this.cbBox_输入翻译自动翻译.AutoSize = true;
+            this.cbBox_输入翻译自动翻译.Location = new System.Drawing.Point(204, 46);
+            this.cbBox_输入翻译自动翻译.Name = "cbBox_输入翻译自动翻译";
+            this.cbBox_输入翻译自动翻译.Size = new System.Drawing.Size(144, 16);
+            this.cbBox_输入翻译自动翻译.TabIndex = 8;
+            this.cbBox_输入翻译自动翻译.Text = "输入翻译输入后自动翻译";
+            this.cbBox_输入翻译自动翻译.UseVisualStyleBackColor = true;
             //
             // chbox_取色
             //
@@ -3333,6 +3345,7 @@ namespace TrOCR
         private global::System.Windows.Forms.Label label2;
         private global::System.Windows.Forms.GroupBox groupBox1;
         private global::System.Windows.Forms.CheckBox cbBox_输入翻译剪贴板;
+        private global::System.Windows.Forms.CheckBox cbBox_输入翻译自动翻译;
         private global::System.Windows.Forms.CheckBox cbBox_开机;
         private global::System.Windows.Forms.TabControl tab_标签;
         private global::System.Windows.Forms.TabPage Page_更新;

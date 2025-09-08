@@ -90,6 +90,12 @@ namespace TrOCR
 			
 			// 初始化组件和系统设置
 			InitializeComponent();
+
+			translationTimer = new Timer();
+			translationTimer.Interval = 800;
+			translationTimer.Tick += TranslationTimer_Tick;
+			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+
 			nextClipboardViewer = (IntPtr)HelpWin32.SetClipboardViewer((int)Handle);
 			InitMinimize();
 			InitConfig();
@@ -181,11 +187,13 @@ namespace TrOCR
 				menu_copy.Close();
 				auto_fla = "开启";
 				split_txt = "";
+				RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 				// 避免不必要的文本更新
 				if (RichBoxBody.Text != "***该区域未发现文本***")
 				{
 					RichBoxBody.Text = "***该区域未发现文本***";
 				}
+				RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
 				RichBoxBody_T.Text = "";
 				typeset_txt = "";
 				transtalate_fla = "关闭";
@@ -446,29 +454,42 @@ namespace TrOCR
 			MinimumSize = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 			Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 
-			// 3. 根据设置填充剪贴板内容
-			if (IniHelper.GetValue("配置", "InputTranslateClipboard") == "True")
+			// 2. “静默”地准备文本内容
+			bool hasContentToTranslate = false;
+			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+			try
 			{
-				if (Clipboard.ContainsText())
+				if (IniHelper.GetValue("配置", "InputTranslateClipboard") == "True" && Clipboard.ContainsText())
 				{
-					RichBoxBody.Text = Clipboard.GetText();
+					string clipboardText = Clipboard.GetText();
+					RichBoxBody.Text = clipboardText;
+					if (!string.IsNullOrEmpty(clipboardText))
+					{
+						hasContentToTranslate = true;
+					}
 				}
 				else
 				{
 					RichBoxBody.Text = "";
 				}
 			}
-			else
+			finally
 			{
-				RichBoxBody.Text = "";
+				RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
 			}
 
-			// 4. 显示并激活窗口
-			Show();
+            // 4. 显示并激活窗口
+            Show();
 			Activate();
 			Visible = true;
 			WindowState = FormWindowState.Normal;
 			TopMost = IniHelper.GetValue("工具栏", "顶置") == "True";
+
+			// 4. 如果有内容且开启了自动翻译，则手动启动翻译流程
+			if (hasContentToTranslate && (IniHelper.GetValue("配置", "InputTranslateAutoTranslate") == "True"))
+			{
+				TransClick();
+			}
 		}
 
 		/// <summary>
@@ -2016,6 +2037,106 @@ namespace TrOCR
 		}
 
 		/// <summary>
+		/// 原始文本框内容改变事件，用于实现编辑后自动翻译
+		/// </summary>
+		private void RichBoxBody_TextChanged(object sender, EventArgs e)
+		
+		{
+			// --- 日志: 事件触发入口 ---
+			// 为了日志清晰，将换行符替换为可见的转义字符
+			string currentTextForLog = RichBoxBody.Text.Replace("\r", "\\r").Replace("\n", "\\n");
+			Debug.WriteLine($"---> TextChanged 事件触发。文本: \"{currentTextForLog}\" | isContentFromOcr: {isContentFromOcr} | transtalate_fla: {transtalate_fla}");
+			// 关键修复：添加一个“守卫”，如果文本是默认占位符，则直接忽略，不执行任何逻辑。
+			// 这一步不做也行，因为下面2880行做了事件临时解绑。
+			//这一步做了有个小问题：当OCR识别的结果恰好是 ***该区域未发现文本*** 时，也会直接return,需要优化
+    		// if (RichBoxBody.Text == "***该区域未发现文本***")
+    		// {
+    		//     return;
+    		// }
+
+			// 使用安全的字符串比较方式，避免因 "发生错误" 或空值导致异常
+			bool autoTranslateInputEnabled = (IniHelper.GetValue("配置", "InputTranslateAutoTranslate") == "True");
+
+			// 场景1: “输入翻译”模式下，当用户开始输入时，自动打开翻译窗口。
+			// 逻辑1: 如果是输入翻译模式，并且翻译窗口还没打开，则直接打开它
+			// 在一个完整的“输入翻译”会话中，自动打开翻译窗口的这个动作只会发生一次。
+			if (!isContentFromOcr && autoTranslateInputEnabled && transtalate_fla == "关闭")
+			{
+				Debug.WriteLine("    |--> 满足 [场景1：输入翻译 & 窗口关闭]");
+
+				// 确保有实际内容再打开翻译窗口，避免空文本触发
+				if (!string.IsNullOrWhiteSpace(RichBoxBody.Text))
+				{
+					Debug.WriteLine("        |--> 文本不为空，准备调用 TransClick() 来打开翻译窗口...");
+					translationTimer.Stop();
+					translationTimer.Start();
+				}
+				Debug.WriteLine("    |<-- 场景1 结束,定时器已开始或重置。");
+				Debug.WriteLine("---> TextChanged 事件结束。");
+				return;
+			}
+
+			// 场景2: 翻译窗口已经打开，此时任何文本变化都应该触发延时翻译。
+			// 逻辑2: 如果翻译窗口已经打开（无论是OCR模式还是输入模式），则启动延时timer来重新翻译
+			// 这适用于“OCR后修改原文”和“输入翻译时继续编辑”两种情况。
+			if (transtalate_fla == "开启")
+			{
+				Debug.WriteLine("    |--> 满足 [场景2：翻译窗口已打开]");
+				// 只有当内容来自OCR（允许用户修改后重翻），或者开启了输入自动翻译时，才响应变化
+				// 只有当内容来自OCR，或者输入翻译功能开启时，才进行自动刷新
+				if (isContentFromOcr || autoTranslateInputEnabled)
+				{
+					Debug.WriteLine("        |--> 满足 [isContentFromOcr 或 autoTranslateInputEnabled]，准备启动/重置 定时器...");
+
+					translationTimer.Stop();
+					translationTimer.Start();
+
+					Debug.WriteLine("        |--> 定时器已重置。");
+
+				}
+			}
+			Debug.WriteLine("---> TextChanged 事件结束。");
+
+		}
+
+		/// <summary>
+		/// 延时翻译定时器的Tick事件，在用户停止输入后触发翻译
+		/// </summary>
+		private void TranslationTimer_Tick(object sender, EventArgs e)
+		{
+			Debug.WriteLine("--------------------------------------------------");
+			Debug.WriteLine("===> TranslationTimer_Tick 事件触发！ <===");
+			
+			translationTimer.Stop();
+			// 职责单一：只负责计算和更新翻译结果，不处理UI界面切换
+
+			if (string.IsNullOrWhiteSpace(RichBoxBody.Text))
+			{
+				Debug.WriteLine("    |--> 文本为空，清空翻译结果并返回。");
+
+				// 如果用户清空了原文，则也清空译文
+				RichBoxBody_T.Text = "";
+
+				Debug.WriteLine("===> Tick 事件结束。");
+
+				return;
+			}
+			string textToTranslate = RichBoxBody.Text.Replace("\r", "\\r").Replace("\n", "\\n");
+			Debug.WriteLine($"    |--> 文本不为空，准备翻译: \"{textToTranslate}\"");
+			typeset_txt = RichBoxBody.Text;
+			if (transtalate_fla == "关闭")
+			{
+				Debug.WriteLine("    |--> TransClick() 已调用，等待翻译结果...");
+				TransClick(); 
+			}
+			else{
+				trans_Calculate();
+				Debug.WriteLine("    |--> trans_Calculate() 已调用，等待翻译结果...");
+			}
+			Debug.WriteLine("===> Tick 事件结束。");
+		}
+
+		/// <summary>
 		/// 将googleTranslate_txt的内容赋值给RichBoxBody_T控件，并清空googleTranslate_txt变量
 		/// </summary>
 		private void translate_child()
@@ -2808,12 +2929,28 @@ namespace TrOCR
 				menu_copy.Close();
 				auto_fla = "开启";
 				split_txt = "";
-				
-				// 避免不必要的文本更新
-				if (RichBoxBody.Text != "***该区域未发现文本***")
+
+				// --- 步骤 1: 暂时断开事件处理程序 ---
+				RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+
+				try
 				{
-					RichBoxBody.Text = "***该区域未发现文本***";
+				    // --- 步骤 2: 执行“静默”更新 ---
+				    // 避免不必要的文本更新
+				    if (RichBoxBody.Text != "***该区域未发现文本***")
+				    {
+				        RichBoxBody.Text = "***该区域未发现文本***";
+				    }
+				    RichBoxBody_T.Text = "";
+				    typeset_txt = "";
 				}
+				finally
+				{
+				    // --- 步骤 3: 无论如何都要重新连接事件处理程序 ---
+				    RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+				}
+				
+				
 				RichBoxBody_T.Text = "";
 				typeset_txt = "";
 				transtalate_fla = "关闭";
@@ -3217,9 +3354,10 @@ namespace TrOCR
     		    image_screen?.Dispose(); // 释放图像资源
     		    return; // 结束方法，不显示主窗口
     		}
-			image_screen.Dispose();
-			StaticValue.IsCapture = false;
-			var text = typeset_txt;
+  			isContentFromOcr = true; // 关键新增：标记当前内容来源于OCR
+  			image_screen.Dispose();
+  			StaticValue.IsCapture = false;
+  			var text = typeset_txt;
 			text = check_str(text);
 			split_txt = check_str(split_txt);
 			// 如果文本没有标点符号，则使用拆分后的文本
@@ -3232,6 +3370,7 @@ namespace TrOCR
 			{
 				text = Del_Space(text);
 			}
+			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 			if (text != "")
 			{
 				// 直接设置Text属性，因为AdvRichTextBox.Text的setter已经优化
@@ -3250,6 +3389,7 @@ namespace TrOCR
 				set_merge = false;
 				RichBoxBody.Text = text.Replace("\n", "").Replace("\r", "");
 			}
+			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;	
 			// 计算识别耗时
 			var timeSpan = new TimeSpan(DateTime.Now.Ticks);
 			var timeSpan2 = timeSpan.Subtract(ts).Duration();
@@ -3377,7 +3517,6 @@ namespace TrOCR
 					//
 				}
 			}
-			 isContentFromOcr = true; // 关键新增：标记当前内容来源于OCR
 			// 重新设置热键
 			if (IniHelper.GetValue("快捷键", "翻译文本") != "请按下快捷键")
 			{
@@ -5159,7 +5298,9 @@ namespace TrOCR
 			// 如果未启用快速翻译，则执行常规翻译流程
 			SendKeys.SendWait("^c");
 			SendKeys.Flush();
+			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 			RichBoxBody.Text = Clipboard.GetText();
+			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
 			TransClick();
 			FormBorderStyle = FormBorderStyle.Sizable;
 			Visible = true;
@@ -6747,6 +6888,7 @@ namespace TrOCR
 		private bool isOcrTranslation = false;
 
 		private bool isContentFromOcr = false;
+		private Timer translationTimer;
 #endregion
 
 		// ====================================================================================================================
