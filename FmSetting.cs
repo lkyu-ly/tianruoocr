@@ -1716,6 +1716,7 @@ namespace TrOCR
 			IniHelper.SetValue("Ocr接口显示", "ShupaiRL", checkBox_ShowOcrShupaiRL.Checked.ToString());
 	
 			DialogResult = DialogResult.OK;
+			         StaticValue.LoadConfig();
 		}
 
 		/// <summary>

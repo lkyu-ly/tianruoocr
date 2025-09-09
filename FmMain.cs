@@ -459,7 +459,7 @@ namespace TrOCR
 			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 			try
 			{
-				if (IniHelper.GetValue("配置", "InputTranslateClipboard") == "True" && Clipboard.ContainsText())
+				if (StaticValue.InputTranslateClipboard && Clipboard.ContainsText())
 				{
 					string clipboardText = Clipboard.GetText();
 					RichBoxBody.Text = clipboardText;
@@ -486,7 +486,7 @@ namespace TrOCR
 			TopMost = IniHelper.GetValue("工具栏", "顶置") == "True";
 
 			// 4. 如果有内容且开启了自动翻译，则手动启动翻译流程
-			if (hasContentToTranslate && (IniHelper.GetValue("配置", "InputTranslateAutoTranslate") == "True"))
+			if (hasContentToTranslate && StaticValue.InputTranslateAutoTranslate)
 			{
 				TransClick();
 			}
@@ -2055,7 +2055,7 @@ namespace TrOCR
     		// }
 
 			// 使用安全的字符串比较方式，避免因 "发生错误" 或空值导致异常
-			bool autoTranslateInputEnabled = (IniHelper.GetValue("配置", "InputTranslateAutoTranslate") == "True");
+			bool autoTranslateInputEnabled = StaticValue.InputTranslateAutoTranslate;
 
 			// 场景1: “输入翻译”模式下，当用户开始输入时，自动打开翻译窗口。
 			// 逻辑1: 如果是输入翻译模式，并且翻译窗口还没打开，则直接打开它
@@ -2151,12 +2151,12 @@ namespace TrOCR
     	if (isContentFromOcr) 
     	{
     	    // 检查“OCR翻译后复制”选项
-    	    shouldCopy = Convert.ToBoolean(IniHelper.GetValue("翻译后操作", "AutoCopyOcrTranslation"));
+    	    shouldCopy = StaticValue.AutoCopyOcrTranslation;
     	}
     	else // 这才是真正的“输入翻译”
     	{
     	    // 检查“输入翻译后复制”选项
-    	    shouldCopy = Convert.ToBoolean(IniHelper.GetValue("翻译后操作", "AutoCopyInputTranslation"));
+    	    shouldCopy = StaticValue.AutoCopyInputTranslation;
     	}
 
     	if (shouldCopy && !string.IsNullOrEmpty(RichBoxBody_T.Text))
@@ -3481,9 +3481,9 @@ namespace TrOCR
 			HelpWin32.SetForegroundWindow(Handle);
 			StaticValue.v_googleTranslate_txt = RichBoxBody.Text;
 			// 解决识别和翻译都开启自动复制时，翻译结果的复制被识别结果覆盖的问题
-			var autoTranslate = bool.Parse(IniHelper.GetValue("工具栏", "翻译")) || Convert.ToBoolean(IniHelper.GetValue("识别后操作", "AutoTranslateOcrResult"));
-			var autoCopyOcr = Convert.ToBoolean(IniHelper.GetValue("识别后操作", "AutoCopyOcrResult"));
-			var autoCopyTranslate = Convert.ToBoolean(IniHelper.GetValue("翻译后操作", "AutoCopyOcrTranslation"));
+			var autoTranslate = bool.Parse(IniHelper.GetValue("工具栏", "翻译")) || StaticValue.AutoTranslateOcrResult;
+			var autoCopyOcr = StaticValue.AutoCopyOcrResult;
+			var autoCopyTranslate = StaticValue.AutoCopyOcrTranslation;
 			
 			// 处理识别后自动复制功能 (只有同时开启了 ① 识别后自动复制 和 ② 自动翻译 和 ③ 翻译后自动复制，才不复制识别结果)
 			if (autoCopyOcr && (!autoTranslate || !autoCopyTranslate))

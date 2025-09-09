@@ -49,9 +49,10 @@ namespace TrOCR
         		// 初始化配置文件
         		InitConfig();
         		DealErrorConfig();
+                StaticValue.LoadConfig();
         		
         		// 设置应用程序视觉样式
-        		Application.EnableVisualStyles();
+                Application.EnableVisualStyles();
         		Application.SetCompatibleTextRenderingDefault(false);
         		var version = Environment.OSVersion.Version;
         		var value = new Version("6.1");

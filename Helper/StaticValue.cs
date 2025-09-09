@@ -115,10 +115,37 @@ namespace TrOCR.Helper
 
         public static bool v_topmost;
 
+        // --- 缓存的配置项 ---
+        public static bool InputTranslateClipboard { get; set; }
+        public static bool InputTranslateAutoTranslate { get; set; }
+        public static bool AutoCopyOcrResult { get; set; }
+        public static bool AutoTranslateOcrResult { get; set; }
+        public static bool AutoCopyOcrTranslation { get; set; }
+        public static bool AutoCopyInputTranslation { get; set; }
+
+        /// <summary>
+        /// 从config.ini加载配置到静态变量
+        /// </summary>
+        public static void LoadConfig()
+        {
+            string GetValue(string section, string key, string defaultValue)
+            {
+                var value = IniHelper.GetValue(section, key);
+                return (value == "发生错误" || string.IsNullOrEmpty(value)) ? defaultValue : value;
+            }
+
+            InputTranslateClipboard = Convert.ToBoolean(GetValue("配置", "InputTranslateClipboard", "False"));
+            InputTranslateAutoTranslate = Convert.ToBoolean(GetValue("配置", "InputTranslateAutoTranslate", "False"));
+            AutoCopyOcrResult = Convert.ToBoolean(GetValue("识别后操作", "AutoCopyOcrResult", "False"));
+            AutoTranslateOcrResult = Convert.ToBoolean(GetValue("识别后操作", "AutoTranslateOcrResult", "False"));
+            AutoCopyOcrTranslation = Convert.ToBoolean(GetValue("翻译后操作", "AutoCopyOcrTranslation", "False"));
+            AutoCopyInputTranslation = Convert.ToBoolean(GetValue("翻译后操作", "AutoCopyInputTranslation", "False"));
+        }
+
         static StaticValue()
-		{
-			note = "";
-			NoteCount = 40;
+  {
+   note = "";
+   NoteCount = 40;
 			copy_f = "无格式";
 			content = "天若OCR更新";
 			ZH2EN = true;
