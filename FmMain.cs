@@ -3461,7 +3461,15 @@ namespace TrOCR
 				FormBorderStyle = FormBorderStyle.Sizable;
 				Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 				Visible = false;
-				CommonHelper.ShowHelpMsg(RichBoxBody.Text == "***该区域未发现文本***" ? "无文本" : "已识别");
+				if (RichBoxBody.Text != "***该区域未发现文本***" && !string.IsNullOrWhiteSpace(RichBoxBody.Text))
+				{
+					Clipboard.SetDataObject(RichBoxBody.Text);
+					CommonHelper.ShowHelpMsg("已识别并复制");
+				}
+				else
+				{
+					CommonHelper.ShowHelpMsg("无文本");
+				}
 				if (IniHelper.GetValue("快捷键", "翻译文本") != "请按下快捷键")
 				{
 					var value2 = IniHelper.GetValue("快捷键", "翻译文本");
