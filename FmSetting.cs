@@ -671,12 +671,12 @@ namespace TrOCR
 					tabControl2.TabPages.Remove(tabPage);
 				}
 			};
-
+			//此处百度和腾讯的接口隐藏后移除密钥设置页的标签页功能已失效，暂时就这样吧
 			setOcrVisibility("Baidu", checkBox_ShowOcrBaidu, inPage_百度接口);
 			setOcrVisibility("BaiduAccurate", checkBox_ShowOcrBaiduAccurate, inPage_百度高精度接口);
-			setOcrVisibility("Tencent", checkBox_ShowOcrTencent, inPage腾讯接口);
-			setOcrVisibility("TencentAccurate", checkBox_ShowOcrTencentAccurate, inPage腾讯高精度接口);
-			setOcrVisibility("Baimiao", checkBox_ShowOcrBaimiao, inPage白描接口);
+			setOcrVisibility("Tencent", checkBox_ShowOcrTencent, inPage_腾讯接口);
+			setOcrVisibility("TencentAccurate", checkBox_ShowOcrTencentAccurate, inPage_腾讯高精度接口);
+			setOcrVisibility("Baimiao", checkBox_ShowOcrBaimiao, tabPage_白描接口);
 			setOcrVisibility("Sougou", checkBox_ShowOcrSougou, null);
 			setOcrVisibility("Youdao", checkBox_ShowOcrYoudao, null);
 			setOcrVisibility("WeChat", checkBox_ShowOcrWeChat, null);
@@ -762,7 +762,7 @@ namespace TrOCR
 			btnResetTencentAccurateLang.Size = new Size(50, 23);
 			btnResetTencentAccurateLang.Location = new Point(comboBox_Tencent_Accurate_Language.Right + 6, comboBox_Tencent_Accurate_Language.Top - 2);
 			btnResetTencentAccurateLang.Click += (s, ev) => { comboBox_Tencent_Accurate_Language.SelectedItem = "自动检测"; };
-			inPage腾讯高精度接口.Controls.Add(btnResetTencentAccurateLang);
+			inPage_腾讯高精度接口.Controls.Add(btnResetTencentAccurateLang);
 			
 			// 为腾讯标准版添加重置按钮
 			Button btnResetTencentLang = new Button();
@@ -771,7 +771,7 @@ namespace TrOCR
 			btnResetTencentLang.Size = new Size(50, 23);
 			btnResetTencentLang.Location = new Point(comboBox_Tencent_Language.Right + 6, comboBox_Tencent_Language.Top - 2);
 			btnResetTencentLang.Click += (s, ev) => { comboBox_Tencent_Language.SelectedItem = "中英文混合"; };
-			inPage腾讯接口.Controls.Add(btnResetTencentLang);
+			inPage_腾讯接口.Controls.Add(btnResetTencentLang);
 
 			readIniFile();
 			// 使用程序集的实际版本号，而不是写死的值
@@ -822,11 +822,11 @@ namespace TrOCR
 		/// <param name="e">事件参数</param>
 		private void 百度申请_Click(object sender, EventArgs e)
 		{
-			if (tabControl2.SelectedTab == inPage腾讯接口 || tabControl2.SelectedTab == inPage腾讯高精度接口)
-			{
-				Process.Start("https://console.cloud.tencent.com/ocr/general");
-			}
-			else if (tabControl2.SelectedTab == inPage白描接口)
+			if (tabControl2.SelectedTab == tabPage_腾讯OCR)
+    		{
+    		    Process.Start("https://console.cloud.tencent.com/ocr/general");
+    		}
+			else if (tabControl2.SelectedTab == tabPage_白描接口)
 			{
 				// 白描不提供传统的API申请，显示提示信息
 				MessageBox.Show("白描OCR使用账号登录方式，无需申请API密钥。\n\n请直接输入您的白描账号（手机号/邮箱）和密码即可使用。\n\n如需注册账号，请前往白描官网或下载白描App。",
@@ -978,33 +978,39 @@ namespace TrOCR
 		private void 密钥Button_Click(object sender, EventArgs e)
 		{
 			// 根据当前选中的标签页，只恢复对应接口的默认设置
-			if (tabControl2.SelectedTab == inPage_百度接口)
-			{
-				// 恢复百度OCR默认密钥
-				text_baiduaccount.Text = "YsZKG1wha34PlDOPYaIrIIKO";
-				text_baidupassword.Text = "HPRZtdOHrdnnETVsZM2Nx7vbDkMfxrkD";
-				comboBox_Baidu_Language.SelectedItem = "中英文混合";
-			}
-				       else if (tabControl2.SelectedTab == inPage_百度高精度接口)
-				       {
-				           text_baidu_accurate_apikey.Text = "";
-				           text_baidu_accurate_secretkey.Text = "";
-				           comboBox_Baidu_Accurate_Language.SelectedItem = "中英文混合";
-				       }
-			else if (tabControl2.SelectedTab == inPage腾讯接口)
-			{
-				// 清空腾讯OCR密钥
-				BoxTencentId.Text = "";
-				BoxTencentKey.Text = "";
-				comboBox_Tencent_Language.SelectedItem = "中英文混合";
-			}
-				       else if (tabControl2.SelectedTab == inPage腾讯高精度接口)
-				       {
-				           text_tencent_accurate_secretid.Text = "";
-				           text_tencent_accurate_secretkey.Text = "";
-				           comboBox_Tencent_Accurate_Language.SelectedItem = "自动检测";
-				       }
-			else if (tabControl2.SelectedTab == inPage白描接口)
+			if (tabControl2.SelectedTab == tabPage_百度OCR)
+    		{
+        		// 再判断内部是哪个子选项卡
+        		if (tabControl_BaiduApiType.SelectedTab == inPage_百度接口)
+        		{
+        		    text_baiduaccount.Text = "YsZKG1wha34PlDOPYaIrIIKO";
+        		    text_baidupassword.Text = "HPRZtdOHrdnnETVsZM2Nx7vbDkMfxrkD";
+        		    comboBox_Baidu_Language.SelectedItem = "中英文混合";
+        		}
+        		else if (tabControl_BaiduApiType.SelectedTab == inPage_百度高精度接口)
+        		{
+        		    text_baidu_accurate_apikey.Text = "";
+        		    text_baidu_accurate_secretkey.Text = "";
+        		    comboBox_Baidu_Accurate_Language.SelectedItem = "中英文混合";
+        		}
+    		}
+    		else if (tabControl2.SelectedTab == tabPage_腾讯OCR)
+    		{
+    		    // 同理，判断腾讯的内部子选项卡
+    		    if (tabControl_TXApiType.SelectedTab == inPage_腾讯接口)
+    		    {
+    		        BoxTencentId.Text = "";
+    		        BoxTencentKey.Text = "";
+    		        comboBox_Tencent_Language.SelectedItem = "中英文混合";
+    		    }
+    		    else if (tabControl_TXApiType.SelectedTab == inPage_腾讯高精度接口)
+    		    {
+    		        text_tencent_accurate_secretid.Text = "";
+    		        text_tencent_accurate_secretkey.Text = "";
+    		        comboBox_Tencent_Accurate_Language.SelectedItem = "自动检测";
+    		    }
+    		}
+			else if (tabControl2.SelectedTab == tabPage_白描接口)
 			{
 				// 清空白描账号密码
 				BoxBaimiaoUsername.Text = "";
@@ -1149,29 +1155,33 @@ namespace TrOCR
 		/// <param name="e">事件参数</param>
 		private async void 百度_btn_Click(object sender, EventArgs e)
 		{
-		         if (tabControl2.SelectedTab == inPage_百度接口)
-		         {
-		             if (await BaiduOcrHelper.VerifyKeys(text_baiduaccount.Text, text_baidupassword.Text))
-		             {
-		                 MessageBox.Show("密钥正确!", "提醒");
-		             }
-		             else
-		             {
-		                 MessageBox.Show("请确保密钥正确!", "提醒");
-		             }
-		         }
-		         else if (tabControl2.SelectedTab == inPage_百度高精度接口)
-		         {
-		             if (await BaiduOcrHelper.VerifyKeys(text_baidu_accurate_apikey.Text, text_baidu_accurate_secretkey.Text))
-		             {
-		                 MessageBox.Show("密钥正确!", "提醒");
-		             }
-		             else
-		             {
-		                 MessageBox.Show("请确保密钥正确!", "提醒");
-		             }
-		         }
-		         else if (tabControl2.SelectedTab == inPage白描接口)
+		        if (tabControl2.SelectedTab == tabPage_百度OCR)
+    			{
+       				 // 判断内部子选项卡
+        			if (tabControl_BaiduApiType.SelectedTab == inPage_百度接口)
+        			{
+						if (await BaiduOcrHelper.VerifyKeys(text_baiduaccount.Text, text_baidupassword.Text))
+						{
+							MessageBox.Show("密钥正确!", "提醒");
+						}
+						else
+						{
+							MessageBox.Show("请确保密钥正确!", "提醒");
+						}
+        			}
+        			else if (tabControl_BaiduApiType.SelectedTab == inPage_百度高精度接口)
+        			{
+        			    if (await BaiduOcrHelper.VerifyKeys(text_baidu_accurate_apikey.Text, text_baidu_accurate_secretkey.Text))
+        			    {
+							MessageBox.Show("密钥正确!", "提醒");
+						}
+        			    else
+        			    {
+							MessageBox.Show("请确保密钥正确!", "提醒");
+						}
+        			}
+    		}
+		    else if (tabControl2.SelectedTab == tabPage_白描接口)
 			{
 				string username = BoxBaimiaoUsername.Text;
 				string password = BoxBaimiaoPassword.Text;
@@ -1239,19 +1249,19 @@ namespace TrOCR
 					}
 				}
 			}
-			else if (tabControl2.SelectedTab == inPage腾讯接口 || tabControl2.SelectedTab == inPage腾讯高精度接口)
+			else if (tabControl2.SelectedTab == tabPage_腾讯OCR)
 			{
-			            string secretId, secretKey;
-			            if (tabControl2.SelectedTab == inPage腾讯接口)
-			            {
-			                secretId = BoxTencentId.Text;
-			                secretKey = BoxTencentKey.Text;
-			            }
-			            else
-			            {
-			                secretId = text_tencent_accurate_secretid.Text;
-			                secretKey = text_tencent_accurate_secretkey.Text;
-			            }
+			    string secretId, secretKey;
+        		if (tabControl_TXApiType.SelectedTab == inPage_腾讯接口)
+        		{
+        		    secretId = BoxTencentId.Text;
+        		    secretKey = BoxTencentKey.Text;
+        		}
+        		else
+        		{
+        		    secretId = text_tencent_accurate_secretid.Text;
+        		    secretKey = text_tencent_accurate_secretkey.Text;
+        		}
 
 				if (string.IsNullOrEmpty(secretId) || string.IsNullOrEmpty(secretKey) || secretId.Contains("secret_id"))
 				{
