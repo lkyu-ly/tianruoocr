@@ -3329,35 +3329,36 @@ namespace TrOCR
 		public void Main_OCR_Thread_last()
 		{
 			// --- 新增的静默模式处理逻辑 ---
-    		if (isSilentMode)
-    		{
-    		    isSilentMode = false; // 为下一次操作重置标志
+			if (isSilentMode)
+			{
+				isSilentMode = false; // 为下一次操作重置标志
 
-    		    // 检查识别是否成功
-    		    bool success = typeset_txt != null && 
-    		                   !typeset_txt.Contains("***该区域未发现文本***") && 
-    		                   !string.IsNullOrWhiteSpace(typeset_txt);
+				// 检查识别是否成功
+				bool success = typeset_txt != null &&
+							   !typeset_txt.Contains("***该区域未发现文本***") &&
+							   !string.IsNullOrWhiteSpace(typeset_txt);
 
-    		    if (success)
-    		    {
-    		        Clipboard.SetDataObject(typeset_txt);
-    		        CommonHelper.ShowHelpMsg("已复制到剪贴板");
-    		    }
-    		    else
-    		    {
-    		        string errorMessage = string.IsNullOrWhiteSpace(typeset_txt) ? "未识别到文本" : typeset_txt.Replace("***", "").Trim();
-    		        CommonHelper.ShowHelpMsg("静默识别失败：" + errorMessage);
-    		    }
+				if (success)
+				{
+					try { Clipboard.SetDataObject(typeset_txt, true, 5, 100); } catch { }
+					CommonHelper.ShowHelpMsg("已复制到剪贴板");
+				}
+				else
+				{
+					string errorMessage = string.IsNullOrWhiteSpace(typeset_txt) ? "未识别到文本" : typeset_txt.Replace("***", "").Trim();
+					CommonHelper.ShowHelpMsg("静默识别失败：" + errorMessage);
+				}
 
-    		    HelpWin32.UnregisterHotKey(Handle, 222); // 注销ESC热键
-    		    StaticValue.IsCapture = false; // 确保截图状态被重置
-    		    image_screen?.Dispose(); // 释放图像资源
-    		    return; // 结束方法，不显示主窗口
-    		}
-  			isContentFromOcr = true; // 关键新增：标记当前内容来源于OCR
-  			image_screen.Dispose();
-  			StaticValue.IsCapture = false;
-  			var text = typeset_txt;
+				HelpWin32.UnregisterHotKey(Handle, 222); // 注销ESC热键
+				StaticValue.IsCapture = false; // 确保截图状态被重置
+				image_screen?.Dispose(); // 释放图像资源
+				return; // 结束方法，不显示主窗口
+			}
+			// --- 步骤 1: 数据处理和准备 ---
+			isContentFromOcr = true; // 关键新增：标记当前内容来源于OCR
+			image_screen.Dispose();
+			StaticValue.IsCapture = false;
+			var text = typeset_txt;
 			text = check_str(text);
 			split_txt = check_str(split_txt);
 			// 如果文本没有标点符号，则使用拆分后的文本
@@ -3370,65 +3371,68 @@ namespace TrOCR
 			{
 				text = Del_Space(text);
 			}
-			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
-			if (text != "")
-			{
-				// 直接设置Text属性，因为AdvRichTextBox.Text的setter已经优化
-				RichBoxBody.Text = text;
-			}
 			StaticValue.v_Split = split_txt;
+
+			string finalTextToShow = text;
+			bool shouldPerformCopy = false;
+			string textToCopy = "";
+
+			var autoTranslate = bool.Parse(IniHelper.GetValue("工具栏", "翻译")) || StaticValue.AutoTranslateOcrResult;
+    		var autoCopyOcr = StaticValue.AutoCopyOcrResult;
+    		var autoCopyTranslate = StaticValue.AutoCopyOcrTranslation;
 			// 处理文本拆分选项
 			if (bool.Parse(IniHelper.GetValue("工具栏", "拆分")) || set_split)
 			{
 				set_split = false;
-				RichBoxBody.Text = split_txt;
+				finalTextToShow = split_txt;
 				// --- 新增: 拆分后自动复制 ---
-				if (StaticValue.IsSplitAutoCopy && !string.IsNullOrEmpty(split_txt))
+				if (StaticValue.IsSplitAutoCopy && !string.IsNullOrEmpty(finalTextToShow))
 				{
-					Clipboard.SetDataObject(split_txt);
-
-                }
+					shouldPerformCopy = true;
+					textToCopy = finalTextToShow;
+				}
 			}
 			// 处理文本合并选项
-			if (bool.Parse(IniHelper.GetValue("工具栏", "合并")) || set_merge)
+			else if (bool.Parse(IniHelper.GetValue("工具栏", "合并")) || set_merge)
 			{
 				set_merge = false;
 				string mergedText = text.Replace("\n", "").Replace("\r", "");
-				 // --- 新增: 合并时去除空格 ---
-                if (StaticValue.IsMergeRemoveSpace)
-                {
-                    mergedText = mergedText.Replace(" ", "");
-                }
-				RichBoxBody.Text = mergedText;
-				// --- 新增: 合并后自动复制 ---
-				if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(mergedText))
+				// --- 新增: 合并时去除空格 ---
+				if (StaticValue.IsMergeRemoveSpace)
 				{
-					Clipboard.SetDataObject(mergedText);
-
-                }
+					mergedText = mergedText.Replace(" ", "");
+				}
+				finalTextToShow = mergedText;
+				// --- 新增: 合并后自动复制 ---
+				if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalTextToShow))
+				{
+					shouldPerformCopy = true;
+					textToCopy = finalTextToShow;
+				}
 			}
-			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;	
+
 			// 计算识别耗时
 			var timeSpan = new TimeSpan(DateTime.Now.Ticks);
 			var timeSpan2 = timeSpan.Subtract(ts).Duration();
-			var str = string.Concat(new[]
-			{
-				timeSpan2.Seconds.ToString(),
-				".",
-				Convert.ToInt32(timeSpan2.TotalMilliseconds).ToString(),
-				"秒"
-			});
+			var str = $"{timeSpan2.Seconds}.{Convert.ToInt32(timeSpan2.TotalMilliseconds)}秒";
+
 			// 处理笔记相关功能
 			if (RichBoxBody.Text != null)
 			{
-				p_note(RichBoxBody.Text);
+				p_note(finalTextToShow);
 				StaticValue.v_note = pubnote;
 				if (fmNote.Created)
 				{
 					fmNote.TextNote = "";
 				}
 			}
-			// 设置窗体是否置顶
+
+			// --- 步骤 2: 集中进行所有UI更新 ---
+
+			// a. 先让窗口框架稳定
+			Text = "耗时：" + str;
+			FormBorderStyle = FormBorderStyle.Sizable;
+			Size = new Size(form_width, form_height);
 			if (StaticValue.v_topmost)
 			{
 				TopMost = true;
@@ -3437,23 +3441,47 @@ namespace TrOCR
 			{
 				TopMost = false;
 			}
-			Text = "耗时：" + str;
 			minico.Visible = true;
-			// 处理竖排文字显示
+			Visible = true;
+			Show();
+			WindowState = FormWindowState.Normal;
+			HelpWin32.SetForegroundWindow(Handle);
+
+			// b. 在窗口稳定后，再填充文本内容
+			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+			RichBoxBody.Text = finalTextToShow;
+			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+
+			// c. 处理竖排文本（如果需要）
 			if (interface_flag == "从右向左")
 			{
 				RichBoxBody.Text = shupai_Right_txt;
 			}
 			if (interface_flag == "从左向右")
 			{
-				RichBoxBody.Text = shupai_Left_txt;
+				RichBoxBody.Text = shupai_Left_txt; 
 			}
-			// 处理粘贴板功能
-			// if (IniHelper.GetValue("截图音效", "粘贴板") == "True")
-			// {
-			// 	Clipboard.SetDataObject(RichBoxBody.Text);
-			// }
-			// 处理百度搜索功能
+
+			// d. （可选，但强烈推荐）添加最终的刷新保障
+			RichBoxBody.Refresh();
+
+			// --- 步骤 3: 在UI完全稳定后，才执行所有可能阻塞的操作（如剪贴板） ---
+
+			if (shouldPerformCopy)
+			{
+				try { Clipboard.SetDataObject(textToCopy, true, 5, 100); } catch { }
+			}
+			else
+			{
+				//// 处理识别后自动复制功能 (只有同时开启了 ① 识别后自动复制 和 ② 自动翻译 和 ③ 翻译后自动复制，才不复制识别结果)
+				if (autoCopyOcr && (!autoTranslate || !autoCopyTranslate))
+				{
+					try { Clipboard.SetDataObject(RichBoxBody.Text, true, 5, 100); } catch { }
+				}
+			}
+
+			// --- 步骤 4: 触发后续逻辑 ---
+			// (百度搜索和无弹窗模式会提前返回)
 			if (baidu_flags == "百度")
 			{
 				FormBorderStyle = FormBorderStyle.Sizable;
@@ -3473,9 +3501,8 @@ namespace TrOCR
 				HelpWin32.UnregisterHotKey(Handle, 222);
 				return;
 			}
-			// 处理识别弹窗配置
 			if (IniHelper.GetValue("配置", "识别弹窗") == "False")
-			{
+			{ 
 				FormBorderStyle = FormBorderStyle.Sizable;
 				Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 				Visible = false;
@@ -3498,25 +3525,6 @@ namespace TrOCR
 				HelpWin32.UnregisterHotKey(Handle, 222);
 				return;
 			}
-			// 恢复窗体显示
-			FormBorderStyle = FormBorderStyle.Sizable;
-			Visible = true;
-			Show();
-			WindowState = FormWindowState.Normal;
-			Size = new Size(form_width, form_height);
-			HelpWin32.SetForegroundWindow(Handle);
-			StaticValue.v_googleTranslate_txt = RichBoxBody.Text;
-			// 解决识别和翻译都开启自动复制时，翻译结果的复制被识别结果覆盖的问题
-			var autoTranslate = bool.Parse(IniHelper.GetValue("工具栏", "翻译")) || StaticValue.AutoTranslateOcrResult;
-			var autoCopyOcr = StaticValue.AutoCopyOcrResult;
-			var autoCopyTranslate = StaticValue.AutoCopyOcrTranslation;
-			
-			// 处理识别后自动复制功能 (只有同时开启了 ① 识别后自动复制 和 ② 自动翻译 和 ③ 翻译后自动复制，才不复制识别结果)
-			if (autoCopyOcr && (!autoTranslate || !autoCopyTranslate))
-			{
-				Clipboard.SetText(RichBoxBody.Text);
-			}
-
 			// 处理识别后自动翻译功能
 			if (autoTranslate)
 			{
@@ -3524,16 +3532,13 @@ namespace TrOCR
 				{
 					auto_fla = "";
 					isOcrTranslation = true;
-					Invoke(new Translate(TransClick));
+					BeginInvoke(new Translate(TransClick)); // 使用BeginInvoke避免阻塞
 				}
-				catch
-				{
-					//
-				}
+				catch { }
 			}
 			// 处理文本检查功能
 			if (bool.Parse(IniHelper.GetValue("工具栏", "检查")))
-			{
+			{ 
 				try
 				{
 					RichBoxBody.Find = "";
@@ -3541,19 +3546,17 @@ namespace TrOCR
 				catch
 				{
 					//
-				}
+				} 
 			}
+
+			// --- 步骤 5: 最后收尾 ---
 			// 重新设置热键
 			if (IniHelper.GetValue("快捷键", "翻译文本") != "请按下快捷键")
 			{
 				var value3 = IniHelper.GetValue("快捷键", "翻译文本");
-				var text6 = "None";
-				var text7 = "F9";
-				SetHotkey(text6, text7, value3, 205);
+				SetHotkey("None", "F9", value3, 205);
 			}
 			HelpWin32.UnregisterHotKey(Handle, 222);
-			// 移除不必要的Refresh()调用，避免重复重绘
-			// RichBoxBody.Refresh();
 		}
 
 		/// <summary>
