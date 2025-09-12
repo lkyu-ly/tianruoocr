@@ -20,6 +20,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TrOCR.Helper;
@@ -422,8 +423,25 @@ namespace TrOCR
 
         public void toolStripButtonSplit_Click(object sender, EventArgs e)
         {
-            this.richTextBox1.Text = StaticValue.v_Split;
-            Application.DoEvents();
+            // 1. 获取上次OCR识别后缓存的、按行拆分的文本
+            string splitText = StaticValue.v_Split;
+
+            // 如果没有缓存的拆分文本，则不执行任何操作
+            if (string.IsNullOrEmpty(splitText)) return;
+    
+            // 2. 更新UI
+            this.richTextBox1.Text = splitText;
+
+            // 3. 根据设置，自动复制结果
+            if (StaticValue.IsSplitAutoCopy)
+            {
+                try 
+                { 
+                    Clipboard.SetDataObject(splitText, true, 5, 100);
+                }
+                catch {}
+            }
+
             HelpWin32.SetForegroundWindow(StaticValue.mainHandle);
         }
 
@@ -449,46 +467,72 @@ namespace TrOCR
 
         public void toolStripButtonMerge_Click(object sender, EventArgs e)
         {
-            string text = this.richTextBox1.Text.TrimEnd(new char[]
+            string currentText = this.richTextBox1.Text;
+            if (string.IsNullOrEmpty(currentText)) return;
+
+            // 步骤 1: 先进行一次标准的智能合并，得到带必要空格的中间结果
+            string intelligentlyMergedText;
+            string[] lines = currentText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+
+            if (lines.Length <= 1)
             {
-                '\n'
-            }).TrimEnd(new char[]
-            {
-                '\r'
-            }).TrimEnd(new char[]
-            {
-                '\n'
-            });
-            if (text.Split(Environment.NewLine.ToCharArray()).Length > 1)
-            {
-                string[] array = text.Split(Environment.NewLine.ToCharArray());
-                string text2 = "";
-                for (int i = 0; i < array.Length - 1; i++)
-                {
-                    string str = array[i].Substring(array[i].Length - 1, 1);
-                    string str2 = array[i + 1].Substring(0, 1);
-                    if (AdvRichTextBox.contain_en(str) && AdvRichTextBox.contain_en(str2))
-                    {
-                        text2 = text2 + array[i] + " ";
-                    }
-                    else
-                    {
-                        text2 += array[i];
-                    }
-                }
-                string str3 = text2.Substring(text2.Length - 1, 1);
-                string str4 = array[array.Length - 1].Substring(0, 1);
-                if (AdvRichTextBox.contain_en(str3) && AdvRichTextBox.contain_en(str4))
-                {
-                    text2 = text2 + array[array.Length - 1] + " ";
-                }
-                else
-                {
-                    text2 += array[array.Length - 1];
-                }
-                this.richTextBox1.Text = text2;
+                // 对于单行，只是清理一下首尾空格
+                intelligentlyMergedText = currentText.Replace("\r", "").Replace("\n", "").Trim();
             }
-            Application.DoEvents();
+            else
+            {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string line = lines[i].Trim();
+                    if (string.IsNullOrEmpty(line)) continue;
+            
+                    sb.Append(line);
+
+                    if (i < lines.Length - 1)
+                    {
+                        string nextLine = lines[i + 1].Trim();
+                        if (!string.IsNullOrEmpty(nextLine))
+                        {
+                            char lastChar = line.LastOrDefault();
+                            char firstChar = nextLine.FirstOrDefault();
+
+                            // 定义字符类型
+                            bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
+                            bool firstIsEnNum = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z') || char.IsDigit(firstChar);
+                            bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
+                            bool firstIsHanzi = firstChar >= 0x4E00 && firstChar <= 0x9FA5;
+
+                            // 智能添加空格的规则
+                            if ((lastIsEnNum && firstIsEnNum) || (lastIsHanzi && firstIsEnNum) || (lastIsEnNum && firstIsHanzi))
+                            {
+                                sb.Append(" ");
+                            }
+                        }
+                    }
+                }
+                intelligentlyMergedText = sb.ToString();
+            }
+    
+            // 步骤 2: 【核心逻辑】根据选项，决定最终的文本
+            string finalText;
+            if (StaticValue.IsMergeRemoveSpace)
+            {
+                // 如果开启了“去除空格”，则在智能合并的基础上，【移除所有】空格
+                finalText = intelligentlyMergedText.Replace(" ", "");
+            }
+            else
+            {
+                // 如果没开启，就直接使用智能合并的结果
+                finalText = intelligentlyMergedText;
+            }
+
+            // 步骤 3: 更新UI和执行复制
+            this.richTextBox1.Text = finalText;
+            if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
+            {
+                try { Clipboard.SetDataObject(finalText, true, 5, 100); } catch { }
+            }
             HelpWin32.SetForegroundWindow(StaticValue.mainHandle);
         }
 
