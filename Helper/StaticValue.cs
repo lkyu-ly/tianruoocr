@@ -60,6 +60,13 @@ namespace TrOCR.Helper
 
         public static bool set_截图;
 
+        // 合并时去除空格
+        public static bool IsMergeRemoveSpace = false;
+        // 合并后自动复制
+        public static bool IsMergeAutoCopy = false;
+        // 拆分后自动复制
+        public static bool IsSplitAutoCopy = false;
+
         public static float DpiFactor;
 
         public static IntPtr mainHandle;
@@ -140,6 +147,12 @@ namespace TrOCR.Helper
             AutoTranslateOcrResult = Convert.ToBoolean(GetValue("识别后操作", "AutoTranslateOcrResult", "False"));
             AutoCopyOcrTranslation = Convert.ToBoolean(GetValue("翻译后操作", "AutoCopyOcrTranslation", "False"));
             AutoCopyInputTranslation = Convert.ToBoolean(GetValue("翻译后操作", "AutoCopyInputTranslation", "False"));
+
+             // --- 新增: 加载工具栏设置 ---
+            IsMergeRemoveSpace = Convert.ToBoolean(GetValue("工具栏", "IsMergeRemoveSpace", "False"));
+            IsMergeAutoCopy = Convert.ToBoolean(GetValue("工具栏", "IsMergeAutoCopy", "False"));
+            IsSplitAutoCopy = Convert.ToBoolean(GetValue("工具栏", "IsSplitAutoCopy", "False"));
+
         }
 
         static StaticValue()

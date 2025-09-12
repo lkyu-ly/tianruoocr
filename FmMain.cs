@@ -3382,12 +3382,30 @@ namespace TrOCR
 			{
 				set_split = false;
 				RichBoxBody.Text = split_txt;
+				// --- 新增: 拆分后自动复制 ---
+				if (StaticValue.IsSplitAutoCopy && !string.IsNullOrEmpty(split_txt))
+				{
+					Clipboard.SetDataObject(split_txt);
+
+                }
 			}
 			// 处理文本合并选项
 			if (bool.Parse(IniHelper.GetValue("工具栏", "合并")) || set_merge)
 			{
 				set_merge = false;
-				RichBoxBody.Text = text.Replace("\n", "").Replace("\r", "");
+				string mergedText = text.Replace("\n", "").Replace("\r", "");
+				 // --- 新增: 合并时去除空格 ---
+                if (StaticValue.IsMergeRemoveSpace)
+                {
+                    mergedText = mergedText.Replace(" ", "");
+                }
+				RichBoxBody.Text = mergedText;
+				// --- 新增: 合并后自动复制 ---
+				if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(mergedText))
+				{
+					Clipboard.SetDataObject(mergedText);
+
+                }
 			}
 			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;	
 			// 计算识别耗时

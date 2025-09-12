@@ -168,6 +168,46 @@ namespace TrOCR
 				checkBox_AutoCopyInputTranslation.Checked = false;
 			}
 
+			var value_IsMergeRemoveSpace = IniHelper.GetValue("工具栏", "IsMergeRemoveSpace");
+			if (value_IsMergeRemoveSpace == "发生错误")
+			{
+			    checkBox_合并去除空格.Checked = false;
+			}
+			try
+			{
+				checkBox_合并去除空格.Checked = Convert.ToBoolean(value_IsMergeRemoveSpace);
+			}
+			catch
+			{
+				checkBox_合并去除空格.Checked = false;
+			}
+			var value_IsMergeAutoCopy = IniHelper.GetValue("工具栏", "IsMergeAutoCopy");
+			if (value_IsMergeAutoCopy == "发生错误")
+			{
+			    checkBox_合并自动复制.Checked = false;
+			}
+			try
+			{
+				checkBox_合并自动复制.Checked = Convert.ToBoolean(value_IsMergeAutoCopy);
+			}
+			catch
+			{
+				checkBox_合并自动复制.Checked = false;
+			}
+			var value_IsSplitAutoCopy = IniHelper.GetValue("工具栏", "IsSplitAutoCopy");
+			if (value_IsSplitAutoCopy == "发生错误")
+			{
+			    checkBox_拆分后自动复制.Checked = false;
+			}
+			try
+			{
+			    checkBox_拆分后自动复制.Checked = Convert.ToBoolean(value_IsSplitAutoCopy);
+			}
+			catch
+			{
+			    checkBox_拆分后自动复制.Checked = false;
+			}
+
 			
 
 			var value4 = IniHelper.GetValue("配置", "窗体动画");
@@ -1598,6 +1638,10 @@ namespace TrOCR
 			IniHelper.SetValue("识别后操作", "AutoTranslateOcrResult", checkBox_AutoTranslateOcrResult.Checked.ToString());
 			IniHelper.SetValue("翻译后操作", "AutoCopyOcrTranslation", checkBox_AutoCopyOcrTranslation.Checked.ToString());
 			IniHelper.SetValue("翻译后操作", "AutoCopyInputTranslation", checkBox_AutoCopyInputTranslation.Checked.ToString());
+
+			IniHelper.SetValue("工具栏", "IsMergeRemoveSpace", checkBox_合并去除空格.Checked.ToString());
+			IniHelper.SetValue("工具栏", "IsMergeAutoCopy", checkBox_合并自动复制.Checked.ToString());
+			IniHelper.SetValue("工具栏", "IsSplitAutoCopy", checkBox_拆分后自动复制.Checked.ToString());
 			
 			// 保存快捷键设置
 			IniHelper.SetValue("快捷键", "文字识别", txtBox_文字识别.Text);
@@ -1742,7 +1786,7 @@ namespace TrOCR
 			IniHelper.SetValue("Ocr接口显示", "ShupaiRL", checkBox_ShowOcrShupaiRL.Checked.ToString());
 	
 			DialogResult = DialogResult.OK;
-			         StaticValue.LoadConfig();
+			StaticValue.LoadConfig();
 		}
 
 		/// <summary>

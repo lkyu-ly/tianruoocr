@@ -271,6 +271,7 @@ namespace TrOCR
             this.checkBox_AutoCopyOcrTranslation = new System.Windows.Forms.CheckBox();
             this.checkBox_AutoCopyInputTranslation = new System.Windows.Forms.CheckBox();
             this.tab_标签 = new System.Windows.Forms.TabControl();
+            this.Page_工具栏 = new System.Windows.Forms.TabPage();
             this.Page_更新 = new System.Windows.Forms.TabPage();
             this.更新Button_check = new System.Windows.Forms.Button();
             this.更新Button = new System.Windows.Forms.Button();
@@ -290,6 +291,13 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
+            this.tableLayoutPanel_合并文本 = new System.Windows.Forms.TableLayoutPanel();
+            this.checkBox_合并去除空格 = new System.Windows.Forms.CheckBox();
+            this.checkBox_合并自动复制 = new System.Windows.Forms.CheckBox();
+            this.groupBox_合并文本 = new System.Windows.Forms.GroupBox();
+            this.groupBox_拆分文本 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel_拆分文本 = new System.Windows.Forms.TableLayoutPanel();
+            this.checkBox_拆分后自动复制 = new System.Windows.Forms.CheckBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -371,11 +379,16 @@ namespace TrOCR
             this.groupBox_OcrWorkflow.SuspendLayout();
             this.groupBox_TranslateWorkflow.SuspendLayout();
             this.tab_标签.SuspendLayout();
+            this.Page_工具栏.SuspendLayout();
             this.Page_更新.SuspendLayout();
             this.groupBox5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
+            this.tableLayoutPanel_合并文本.SuspendLayout();
+            this.groupBox_合并文本.SuspendLayout();
+            this.groupBox_拆分文本.SuspendLayout();
+            this.tableLayoutPanel_拆分文本.SuspendLayout();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -3269,6 +3282,7 @@ namespace TrOCR
             this.tab_标签.Controls.Add(this.Page_密钥);
             this.tab_标签.Controls.Add(this.Page_翻译接口);
             this.tab_标签.Controls.Add(this.Page_显示的接口);
+            this.tab_标签.Controls.Add(this.Page_工具栏);
             this.tab_标签.Controls.Add(this.Page_代理);
             this.tab_标签.Controls.Add(this.Page_更新);
             this.tab_标签.Controls.Add(this.Page_反馈);
@@ -3280,6 +3294,19 @@ namespace TrOCR
             this.tab_标签.Size = new System.Drawing.Size(531, 544);
             this.tab_标签.TabIndex = 0;
             this.tab_标签.SelectedIndexChanged += new System.EventHandler(this.tab_标签_SelectedIndexChanged);
+            // 
+            // Page_工具栏
+            // 
+            this.Page_工具栏.Controls.Add(this.groupBox_拆分文本);
+            this.Page_工具栏.Controls.Add(this.groupBox_合并文本);
+            this.Page_工具栏.Location = new System.Drawing.Point(4, 25);
+            this.Page_工具栏.Margin = new System.Windows.Forms.Padding(4);
+            this.Page_工具栏.Name = "Page_工具栏";
+            this.Page_工具栏.Padding = new System.Windows.Forms.Padding(4);
+            this.Page_工具栏.Size = new System.Drawing.Size(523, 515);
+            this.Page_工具栏.TabIndex = 12;
+            this.Page_工具栏.Text = "工具栏";
+            this.Page_工具栏.UseVisualStyleBackColor = true;
             // 
             // Page_更新
             // 
@@ -3490,6 +3517,98 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
+            // tableLayoutPanel_合并文本
+            // 
+            this.tableLayoutPanel_合并文本.ColumnCount = 2;
+            this.tableLayoutPanel_合并文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.96825F));
+            this.tableLayoutPanel_合并文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.03175F));
+            this.tableLayoutPanel_合并文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel_合并文本.Controls.Add(this.checkBox_合并自动复制, 0, 1);
+            this.tableLayoutPanel_合并文本.Controls.Add(this.checkBox_合并去除空格, 0, 0);
+            this.tableLayoutPanel_合并文本.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel_合并文本.Location = new System.Drawing.Point(4, 22);
+            this.tableLayoutPanel_合并文本.Name = "tableLayoutPanel_合并文本";
+            this.tableLayoutPanel_合并文本.RowCount = 2;
+            this.tableLayoutPanel_合并文本.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel_合并文本.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel_合并文本.Size = new System.Drawing.Size(496, 72);
+            this.tableLayoutPanel_合并文本.TabIndex = 0;
+            // 
+            // checkBox_合并去除空格
+            // 
+            this.checkBox_合并去除空格.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBox_合并去除空格.AutoSize = true;
+            this.checkBox_合并去除空格.Location = new System.Drawing.Point(4, 8);
+            this.checkBox_合并去除空格.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_合并去除空格.Name = "checkBox_合并去除空格";
+            this.checkBox_合并去除空格.Size = new System.Drawing.Size(134, 19);
+            this.checkBox_合并去除空格.TabIndex = 2;
+            this.checkBox_合并去除空格.Text = "合并时去除空格";
+            this.checkBox_合并去除空格.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_合并自动复制
+            // 
+            this.checkBox_合并自动复制.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBox_合并自动复制.AutoSize = true;
+            this.checkBox_合并自动复制.Location = new System.Drawing.Point(4, 44);
+            this.checkBox_合并自动复制.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_合并自动复制.Name = "checkBox_合并自动复制";
+            this.checkBox_合并自动复制.Size = new System.Drawing.Size(134, 19);
+            this.checkBox_合并自动复制.TabIndex = 1;
+            this.checkBox_合并自动复制.Text = "合并后自动复制";
+            this.checkBox_合并自动复制.UseVisualStyleBackColor = true;
+            // 
+            // groupBox_合并文本
+            // 
+            this.groupBox_合并文本.Controls.Add(this.tableLayoutPanel_合并文本);
+            this.groupBox_合并文本.Location = new System.Drawing.Point(8, 8);
+            this.groupBox_合并文本.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox_合并文本.Name = "groupBox_合并文本";
+            this.groupBox_合并文本.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox_合并文本.Size = new System.Drawing.Size(504, 98);
+            this.groupBox_合并文本.TabIndex = 0;
+            this.groupBox_合并文本.TabStop = false;
+            this.groupBox_合并文本.Text = "合并文本";
+            // 
+            // groupBox_拆分文本
+            // 
+            this.groupBox_拆分文本.Controls.Add(this.tableLayoutPanel_拆分文本);
+            this.groupBox_拆分文本.Location = new System.Drawing.Point(8, 109);
+            this.groupBox_拆分文本.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox_拆分文本.Name = "groupBox_拆分文本";
+            this.groupBox_拆分文本.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox_拆分文本.Size = new System.Drawing.Size(504, 98);
+            this.groupBox_拆分文本.TabIndex = 1;
+            this.groupBox_拆分文本.TabStop = false;
+            this.groupBox_拆分文本.Text = "拆分文本";
+            // 
+            // tableLayoutPanel_拆分文本
+            // 
+            this.tableLayoutPanel_拆分文本.ColumnCount = 2;
+            this.tableLayoutPanel_拆分文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.96825F));
+            this.tableLayoutPanel_拆分文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.03175F));
+            this.tableLayoutPanel_拆分文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel_拆分文本.Controls.Add(this.checkBox_拆分后自动复制, 0, 0);
+            this.tableLayoutPanel_拆分文本.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel_拆分文本.Location = new System.Drawing.Point(4, 22);
+            this.tableLayoutPanel_拆分文本.Name = "tableLayoutPanel_拆分文本";
+            this.tableLayoutPanel_拆分文本.RowCount = 2;
+            this.tableLayoutPanel_拆分文本.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel_拆分文本.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel_拆分文本.Size = new System.Drawing.Size(496, 72);
+            this.tableLayoutPanel_拆分文本.TabIndex = 0;
+            // 
+            // checkBox_拆分后自动复制
+            // 
+            this.checkBox_拆分后自动复制.AutoSize = true;
+            this.checkBox_拆分后自动复制.Location = new System.Drawing.Point(4, 4);
+            this.checkBox_拆分后自动复制.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_拆分后自动复制.Name = "checkBox_拆分后自动复制";
+            this.checkBox_拆分后自动复制.Size = new System.Drawing.Size(134, 19);
+            this.checkBox_拆分后自动复制.TabIndex = 2;
+            this.checkBox_拆分后自动复制.Text = "拆分后自动复制";
+            this.checkBox_拆分后自动复制.UseVisualStyleBackColor = true;
+            // 
             // FmSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -3637,6 +3756,7 @@ namespace TrOCR
             this.groupBox_TranslateWorkflow.ResumeLayout(false);
             this.groupBox_TranslateWorkflow.PerformLayout();
             this.tab_标签.ResumeLayout(false);
+            this.Page_工具栏.ResumeLayout(false);
             this.Page_更新.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
@@ -3644,6 +3764,12 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
+            this.tableLayoutPanel_合并文本.ResumeLayout(false);
+            this.tableLayoutPanel_合并文本.PerformLayout();
+            this.groupBox_合并文本.ResumeLayout(false);
+            this.groupBox_拆分文本.ResumeLayout(false);
+            this.tableLayoutPanel_拆分文本.ResumeLayout(false);
+            this.tableLayoutPanel_拆分文本.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -3922,5 +4048,13 @@ namespace TrOCR
         private System.Windows.Forms.TabControl tabControl_TXApiType;
         private System.Windows.Forms.TabPage inPage_腾讯接口;
         private System.Windows.Forms.TabPage inPage_腾讯高精度接口;
+        private System.Windows.Forms.TabPage Page_工具栏;
+        private System.Windows.Forms.GroupBox groupBox_合并文本;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel_合并文本;
+        private System.Windows.Forms.CheckBox checkBox_合并自动复制;
+        private System.Windows.Forms.CheckBox checkBox_合并去除空格;
+        private System.Windows.Forms.GroupBox groupBox_拆分文本;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel_拆分文本;
+        private System.Windows.Forms.CheckBox checkBox_拆分后自动复制;
     }
 }
