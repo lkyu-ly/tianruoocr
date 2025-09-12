@@ -2144,39 +2144,42 @@ namespace TrOCR
 			RichBoxBody_T.Text = googleTranslate_txt;
 			googleTranslate_txt = "";
 
-    	// 翻译完成后的统一自动复制逻辑
-    	bool shouldCopy = false;
-    
-    	// isContentFromOcr 为 true 意味着当前是对OCR结果的翻译（无论是自动还是手动）
-    	if (isContentFromOcr) 
-    	{
-    	    // 检查“OCR翻译后复制”选项
-    	    shouldCopy = StaticValue.AutoCopyOcrTranslation;
-    	}
-    	else // 这才是真正的“输入翻译”
-    	{
-    	    // 检查“输入翻译后复制”选项
-    	    shouldCopy = StaticValue.AutoCopyInputTranslation;
-    	}
+			// --- 【关键修复】在设置文本后，强制控件重绘 ---
+    		RichBoxBody_T.Refresh();
 
-    	if (shouldCopy && !string.IsNullOrEmpty(RichBoxBody_T.Text))
-    	{
-    	    try
-    	    {
-    	        Clipboard.SetDataObject(RichBoxBody_T.Text, true, 5, 100);
-    	    }
-    	    catch (Exception ex)
-    	    {
-    	        System.Diagnostics.Debug.WriteLine($"自动复制翻译结果失败: {ex.Message}");
-    	    }
-    	}
+    		// 翻译完成后的统一自动复制逻辑
+    		bool shouldCopy = false;
+    
+    		// isContentFromOcr 为 true 意味着当前是对OCR结果的翻译（无论是自动还是手动）
+    		if (isContentFromOcr) 
+    		{
+    		    // 检查“OCR翻译后复制”选项
+    		    shouldCopy = StaticValue.AutoCopyOcrTranslation;
+    		}
+    		else // 这才是真正的“输入翻译”
+    		{
+    		    // 检查“输入翻译后复制”选项
+    		    shouldCopy = StaticValue.AutoCopyInputTranslation;
+    		}
+
+    		if (shouldCopy && !string.IsNullOrEmpty(RichBoxBody_T.Text))
+    		{
+    		    try
+    		    {
+    		        Clipboard.SetDataObject(RichBoxBody_T.Text, true, 5, 100);
+    		    }
+    		    catch (Exception ex)
+    		    {
+    		        System.Diagnostics.Debug.WriteLine($"自动复制翻译结果失败: {ex.Message}");
+    		    }
+    		}
 
 			// 只有在完成一次OCR翻译流程后，才考虑重置标记。如果不清，连续手动翻译OCR结果也能持续享受自动复制。
 			// 如果希望每次OCR后只有第一次手动翻译能自动复制，可以在这里重置 isContentFromOcr = false;
 			// isContentFromOcr = false;
 
 
-    	isOcrTranslation = false; // 重置“自动”翻译标记
+    		isOcrTranslation = false; // 重置“自动”翻译标记
 
 		}
 
@@ -3470,7 +3473,7 @@ namespace TrOCR
 			var str = $"{timeSpan2.Seconds}.{Convert.ToInt32(timeSpan2.TotalMilliseconds)}秒";
 
 			// 处理笔记相关功能
-			if (RichBoxBody.Text != null)
+			if (finalTextToShow != null)
 			{
 				p_note(finalTextToShow);
 				StaticValue.v_note = pubnote;
@@ -3554,6 +3557,7 @@ namespace TrOCR
 				HelpWin32.UnregisterHotKey(Handle, 222);
 				return;
 			}
+			//处理无弹窗配置
 			if (IniHelper.GetValue("配置", "识别弹窗") == "False")
 			{ 
 				FormBorderStyle = FormBorderStyle.Sizable;
