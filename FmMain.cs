@@ -1369,6 +1369,18 @@ namespace TrOCR
 				StaticValue.BD_LANGUAGE = "CHN_ENG";
 			}
 
+			// 加载百度表格识别密钥
+			StaticValue.BD_TABLE_API_ID = IniHelper.GetValue("密钥_百度表格", "secret_id");
+			if (StaticValue.BD_TABLE_API_ID == "发生错误")
+			{
+				StaticValue.BD_TABLE_API_ID = "";
+			}
+			StaticValue.BD_TABLE_API_KEY = IniHelper.GetValue("密钥_百度表格", "secret_key");
+			if (StaticValue.BD_TABLE_API_KEY == "发生错误")
+			{
+				StaticValue.BD_TABLE_API_KEY = "";
+			}
+
 			// 加载腾讯OCR密钥
 			StaticValue.TX_API_ID = IniHelper.GetValue("密钥_腾讯", "secret_id");
 			if (StaticValue.TX_API_ID == "发生错误")
@@ -1623,6 +1635,17 @@ namespace TrOCR
 				if (StaticValue.BD_ACCURATE_LANGUAGE == "发生错误")
 				{
 				    StaticValue.BD_ACCURATE_LANGUAGE = "CHN_ENG";
+				}
+				// 重新加载百度表格识别密钥
+				StaticValue.BD_TABLE_API_ID = IniHelper.GetValue("密钥_百度表格", "secret_id");
+				if (StaticValue.BD_TABLE_API_ID == "发生错误")
+				{
+					StaticValue.BD_TABLE_API_ID = "";
+				}
+				StaticValue.BD_TABLE_API_KEY = IniHelper.GetValue("密钥_百度表格", "secret_key");
+				if (StaticValue.BD_TABLE_API_KEY == "发生错误")
+				{
+					StaticValue.BD_TABLE_API_KEY = "";
 				}
 	
 				// --- 重新加载白描OCR凭据 ---
@@ -6182,57 +6205,28 @@ namespace TrOCR
 			split_txt = "";
 			try
 			{
-				// 获取百度API访问令牌
-				baidu_vip = CommonHelper.GetHtmlContent(string.Format("{0}?{1}", "https://aip.baidubce.com/oauth/2.0/token", "grant_type=client_credentials&client_id=" + StaticValue.BD_API_ID + "&client_secret=" + StaticValue.BD_API_KEY));
-				if (baidu_vip == "")
+				// 获取图像字节数组
+				var image = image_screen;
+				var imageBytes = OcrHelper.ImgToBytes(image);
+				
+				// 调用新的表格识别方法
+				string result = BaiduOcrHelper.TableRecognition(imageBytes, false, false);
+				
+				// 检查识别结果
+				if (string.IsNullOrWhiteSpace(result) || result.Contains("***该区域未发现表格***") || result.Contains("错误"))
 				{
-					MessageBox.Show("请检查密钥输入是否正确！", "提醒");
+					typeset_txt = "***该区域未发现文本***";
 				}
 				else
 				{
-					split_txt = "";
-					var image = image_screen;
-					var array = OcrHelper.ImgToBytes(image);
-					var s = "image=" + HttpUtility.UrlEncode(Convert.ToBase64String(array));
-					var bytes = Encoding.UTF8.GetBytes(s);
-					// 创建请求并发送图像数据到百度表格OCR API
-					var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://aip.baidubce.com/rest/2.0/solution/v1/form_ocr/request?access_token=" + ((JObject)JsonConvert.DeserializeObject(baidu_vip))["access_token"]);
-					httpWebRequest.Proxy = null;
-					httpWebRequest.Method = "POST";
-					httpWebRequest.ContentType = "application/x-www-form-urlencoded";
-					httpWebRequest.Timeout = 8000;
-					httpWebRequest.ReadWriteTimeout = 5000;
-					using (var requestStream = httpWebRequest.GetRequestStream())
-					{
-						requestStream.Write(bytes, 0, bytes.Length);
-					}
-					// 获取响应数据
-					var responseStream = ((HttpWebResponse)httpWebRequest.GetResponse()).GetResponseStream();
-					var value = new StreamReader(responseStream, Encoding.GetEncoding("utf-8")).ReadToEnd();
-					responseStream.Close();
-					// 构造获取结果的请求参数
-					var postStr = "request_id=" + JObject.Parse(JArray.Parse(((JObject)JsonConvert.DeserializeObject(value))["result"].ToString())[0].ToString())["request_id"].ToString().Trim() + "&result_type=json";
-					var text = "";
-					// 轮询获取OCR结果，直到处理完成
-					while (!text.Contains("已完成"))
-					{
-						if (text.Contains("image recognize error"))
-						{
-							RichBoxBody.Text = "[消息]：未发现表格！";
-							break;
-						}
-						Thread.Sleep(120);
-						text = CommonHelper.PostStrData("https://aip.baidubce.com/rest/2.0/solution/v1/form_ocr/get_request_result?access_token=" + ((JObject)JsonConvert.DeserializeObject(baidu_vip))["access_token"], postStr);
-					}
-					if (!text.Contains("image recognize error"))
-					{
-						get_table(text);
-					}
+					// 设置识别结果
+					typeset_txt = result;
 				}
+				split_txt = "";
 			}
-			catch
+			catch (Exception ex)
 			{
-				RichBoxBody.Text = "[消息]：免费百度密钥50次已经耗完！请更换自己的密钥继续使用！";
+				typeset_txt = $"[消息]：表格识别异常: {ex.Message}";
 			}
 		}
 
@@ -6335,11 +6329,48 @@ namespace TrOCR
 			// 根据接口类型处理识别结果
 			if (interface_flag == "百度表格")
 			{
-				var dataObject = new DataObject();
-				dataObject.SetData(DataFormats.Rtf, RichBoxBody.Rtx1Rtf);
-				dataObject.SetData(DataFormats.UnicodeText, RichBoxBody.Text);
-				RichBoxBody.Text = "[消息]：表格已复制到粘贴板！";
-				Clipboard.SetDataObject(dataObject);
+				// 1. 检查识别是否成功
+				bool isSuccess = !string.IsNullOrWhiteSpace(typeset_txt) &&
+								 !typeset_txt.Contains("***请在设置中输入百度标准版密钥或表格识别专用密钥***") &&
+								 !typeset_txt.Contains("***该区域未发现文本***") &&
+								 !typeset_txt.Contains("***该区域未发现表格***") &&
+								 !typeset_txt.Contains("错误") &&
+								 !typeset_txt.Contains("异常") &&
+								 !typeset_txt.Contains("失败");
+
+
+
+				// 如果识别成功，复制到剪贴板
+				if (isSuccess)
+				{
+					// 显示识别结果
+					RichBoxBody.Text = "[消息]：表格识别成功，已复制到粘贴板！可直接粘贴到Excel";
+
+					// 提取HTML表格部分
+					string htmlTable = ExtractHtmlTable(typeset_txt);
+
+					if (!string.IsNullOrEmpty(htmlTable))
+					{
+						// 设置HTML格式到剪贴板，Excel可以识别并保持表格结构
+						var dataObject = new DataObject();
+						dataObject.SetData(DataFormats.Html, CreateHtmlClipboardData(htmlTable));
+						dataObject.SetData(DataFormats.UnicodeText, typeset_txt);
+						Clipboard.SetDataObject(dataObject, true, 5, 100);
+					}
+					else
+					{
+						// 如果没有HTML表格，使用普通文本
+						var dataObject = new DataObject();
+						dataObject.SetData(DataFormats.UnicodeText, typeset_txt);
+						Clipboard.SetDataObject(typeset_txt, true, 5, 100);
+					}
+
+				}
+				else
+				{
+					// 如果失败，显示实际的错误信息
+					RichBoxBody.Text = typeset_txt;
+				}
 			}
 			// 清理资源
 			image_screen.Dispose();
@@ -6366,6 +6397,7 @@ namespace TrOCR
 				Clipboard.SetDataObject(typeset_txt);
 				CopyHtmlToClipBoard(typeset_txt);
 			}
+			
 		}
 
 		/// <summary>
@@ -7499,6 +7531,69 @@ namespace TrOCR
 			// 返回加密的字符串
 			return sb.ToString();
 		}
+
+		/// <summary>
+		/// 从文本中提取HTML表格部分
+		/// </summary>
+		/// <param name="text">包含HTML表格的文本</param>
+		/// <returns>HTML表格字符串，如果没有找到则返回空字符串</returns>
+		private string ExtractHtmlTable(string text)
+		{
+			if (string.IsNullOrEmpty(text))
+				return string.Empty;
+
+			int startIndex = text.IndexOf("<table");
+			if (startIndex == -1)
+				return string.Empty;
+
+			int endIndex = text.IndexOf("</table>", startIndex);
+			if (endIndex == -1)
+				return string.Empty;
+
+			endIndex += "</table>".Length;
+			return text.Substring(startIndex, endIndex - startIndex);
+		}
+
+		/// <summary>
+		/// 创建HTML剪贴板数据格式
+		/// </summary>
+		/// <param name="htmlTable">HTML表格字符串</param>
+		/// <returns>符合剪贴板格式的HTML数据</returns>
+		private string CreateHtmlClipboardData(string htmlTable)
+		{
+			if (string.IsNullOrEmpty(htmlTable))
+				return string.Empty;
+
+			// HTML剪贴板格式需要特定的头部信息
+			string htmlClipboardData = 
+				"Version:0.9" + Environment.NewLine +
+				"StartHTML:0000000000" + Environment.NewLine +
+				"EndHTML:0000000000" + Environment.NewLine +
+				"StartFragment:0000000000" + Environment.NewLine +
+				"EndFragment:0000000000" + Environment.NewLine +
+				"<html>" + Environment.NewLine +
+				"<body>" + Environment.NewLine +
+				"<!--StartFragment-->" + Environment.NewLine +
+				htmlTable + Environment.NewLine +
+				"<!--EndFragment-->" + Environment.NewLine +
+				"</body>" + Environment.NewLine +
+				"</html>";
+
+			// 计算偏移量
+			int startHTML = htmlClipboardData.IndexOf("<html>");
+			int endHTML = htmlClipboardData.IndexOf("</html>") + "</html>".Length;
+			int startFragment = htmlClipboardData.IndexOf("<!--StartFragment-->") + "<!--StartFragment-->".Length;
+			int endFragment = htmlClipboardData.IndexOf("<!--EndFragment-->");
+
+			// 更新偏移量（10位数字，左补0）
+			htmlClipboardData = htmlClipboardData.Replace("StartHTML:0000000000", string.Format("StartHTML:{0:D10}", startHTML));
+			htmlClipboardData = htmlClipboardData.Replace("EndHTML:0000000000", string.Format("EndHTML:{0:D10}", endHTML));
+			htmlClipboardData = htmlClipboardData.Replace("StartFragment:0000000000", string.Format("StartFragment:{0:D10}", startFragment));
+			htmlClipboardData = htmlClipboardData.Replace("EndFragment:0000000000", string.Format("EndFragment:{0:D10}", endFragment));
+
+			return htmlClipboardData;
+		}
+
 		#endregion
 	}
 	public class Rootobject

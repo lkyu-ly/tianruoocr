@@ -101,6 +101,10 @@ namespace TrOCR.Helper
 
         public static string BD_ACCURATE_LANGUAGE = "";
 
+        // 百度表格识别配置
+        public static string BD_TABLE_API_ID = "";
+        public static string BD_TABLE_API_KEY = "";
+
 // --- OCR Token Caching ---
 
         // Baidu OCR
@@ -152,6 +156,10 @@ namespace TrOCR.Helper
             IsMergeRemoveSpace = Convert.ToBoolean(GetValue("工具栏", "IsMergeRemoveSpace", "False"));
             IsMergeAutoCopy = Convert.ToBoolean(GetValue("工具栏", "IsMergeAutoCopy", "False"));
             IsSplitAutoCopy = Convert.ToBoolean(GetValue("工具栏", "IsSplitAutoCopy", "False"));
+
+            // --- 新增: 加载百度表格识别密钥 ---
+            // BD_TABLE_API_ID = GetValue("密钥_百度表格", "secret_id", "");
+            // BD_TABLE_API_KEY = GetValue("密钥_百度表格", "secret_key", "");
 
         }
 

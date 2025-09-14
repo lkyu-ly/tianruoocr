@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
@@ -392,6 +393,602 @@ namespace TrOCR.Helper
                 { "ARA", "阿拉伯语" },
                 { "HIN", "印地语" }
             };
+        }
+
+        /// <summary>
+        /// 表格识别
+        /// </summary>
+        /// <param name="imageBytes">图片字节数组</param>
+        /// <param name="returnExcel">是否返回Excel文件（base64编码）</param>
+        /// <param name="cellContents">是否输出单元格文字位置信息</param>
+        /// <returns>识别结果</returns>
+        public static string TableRecognition(byte[] imageBytes, bool returnExcel = false, bool cellContents = false)
+        {
+            try
+            {
+                string apiKey, secretKey, accessToken;
+                bool useCustomKey = false;
+
+                // 检查是否有自定义表格识别密钥
+                if (!string.IsNullOrEmpty(StaticValue.BD_TABLE_API_ID) && !string.IsNullOrEmpty(StaticValue.BD_TABLE_API_KEY))
+                {
+                    // 使用自定义密钥，每次获取新的access_token
+                    apiKey = StaticValue.BD_TABLE_API_ID;
+                    secretKey = StaticValue.BD_TABLE_API_KEY;
+                    useCustomKey = true;
+                    
+                    // 直接获取新的access_token，不使用缓存
+                    accessToken = GetFreshAccessToken(apiKey, secretKey);
+                }
+                else
+                {
+                    // 使用标准版密钥和缓存的access_token
+                    apiKey = StaticValue.BD_API_ID;
+                    secretKey = StaticValue.BD_API_KEY;
+                    
+                    if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(secretKey))
+                    {
+                        return "***请在设置中输入百度标准版密钥或表格识别专用密钥***";
+                    }
+                    
+                    // 使用缓存的access_token
+                    accessToken = GetAccessToken(apiKey, secretKey, false);
+                }
+
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    return useCustomKey ? "获取百度表格识别access_token失败，请检查表格识别专用密钥" : "获取百度access_token失败，请检查API Key和Secret Key";
+                }
+
+                // 构建请求
+                string url = $"https://aip.baidubce.com/rest/2.0/ocr/v1/table?access_token={accessToken}";
+                string imageBase64 = Convert.ToBase64String(imageBytes);
+                
+                // 构建POST数据
+                StringBuilder postDataBuilder = new StringBuilder();
+                postDataBuilder.Append($"image={HttpUtility.UrlEncode(imageBase64)}");
+                
+                if (returnExcel)
+                {
+                    postDataBuilder.Append("&return_excel=true");
+                }
+                
+                if (cellContents)
+                {
+                    postDataBuilder.Append("&cell_contents=true");
+                }
+
+                string postData = postDataBuilder.ToString();
+
+                // 发送请求
+                string response = CommonHelper.PostStrData(url, postData);
+                if (string.IsNullOrEmpty(response))
+                {
+                    return "百度表格识别请求失败";
+                }
+
+                // 解析响应
+                JObject json = JObject.Parse(response);
+                
+                // 检查是否有错误
+                if (json["error_code"] != null)
+                {
+                    string errorCode = json["error_code"].ToString();
+                    string errorMsg = json["error_msg"]?.ToString() ?? "未知错误";
+                    
+                    // 如果是token失效且使用标准版缓存，清除缓存并重试一次
+                    if ((errorCode == "110" || errorCode == "111") && !useCustomKey)
+                    {
+                        ClearAccessTokenCache(false);
+                        accessToken = GetAccessToken(apiKey, secretKey, false);
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            url = $"https://aip.baidubce.com/rest/2.0/ocr/v1/table?access_token={accessToken}";
+                            response = CommonHelper.PostStrData(url, postData);
+                            if (!string.IsNullOrEmpty(response))
+                            {
+                                json = JObject.Parse(response);
+                                if (json["error_code"] == null)
+                                {
+                                    goto ProcessResult;
+                                }
+                            }
+                        }
+                    }
+                    
+                    return $"百度表格识别错误 {errorCode}: {errorMsg}";
+                }
+
+                ProcessResult:
+                // 处理识别结果
+                return ProcessTableResult(json, returnExcel);
+            }
+            catch (Exception ex)
+            {
+                return $"百度表格识别异常: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// 获取新的access_token（不使用缓存）
+        /// </summary>
+        private static string GetFreshAccessToken(string apiKey, string secretKey)
+        {
+            try
+            {
+                string url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={apiKey}&client_secret={secretKey}";
+                string response = CommonHelper.GetHtmlContent(url);
+                
+                if (string.IsNullOrEmpty(response))
+                {
+                    return null;
+                }
+
+                JObject json = JObject.Parse(response);
+                if (json["access_token"] != null)
+                {
+                    return json["access_token"].ToString();
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"获取新的百度access_token失败: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 处理表格识别结果
+        /// </summary>
+        private static string ProcessTableResult(JObject json, bool returnExcel)
+        {
+            try
+            {
+                // 如果请求返回Excel文件
+                if (returnExcel && json["excel_file"] != null)
+                {
+                    string excelBase64 = json["excel_file"].ToString();
+                    return $"Excel文件(Base64): {excelBase64}";
+                }
+
+                // 处理表格数据
+                var tablesResult = json["tables_result"] as JArray;
+                if (tablesResult == null || tablesResult.Count == 0)
+                {
+                    return "***该区域未发现表格***";
+                }
+
+                StringBuilder result = new StringBuilder();
+                int tableIndex = 1;
+
+                foreach (var table in tablesResult)
+                {
+                    if (tablesResult.Count > 1)
+                    {
+                        result.AppendLine($"=== 表格 {tableIndex} ===");
+                    }
+
+                    // 生成完整的HTML表格（包含header、body、footer）
+                    string completeHtmlTable = ProcessCompleteTable(table);
+                    result.AppendLine(completeHtmlTable);
+
+                    tableIndex++;
+                }
+
+                return result.ToString().TrimEnd();
+            }
+            catch (Exception ex)
+            {
+                return $"处理表格识别结果时发生异常: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// 处理完整表格（包含header、body、footer），生成Excel兼容的HTML格式
+        /// </summary>
+        private static string ProcessCompleteTable(JToken table)
+        {
+            try
+            {
+                StringBuilder result = new StringBuilder();
+                
+                // 处理表头
+                var header = table["header"] as JArray;
+                // if (header != null && header.Count > 0)
+                // {
+                //     result.AppendLine("【表头】");
+                //     foreach (var headerItem in header)
+                //     {
+                //         if (headerItem["words"] != null)
+                //         {
+                //             result.AppendLine($"  {headerItem["words"]}");
+                //         }
+                //     }
+                //     result.AppendLine();
+                // }
+
+                // 处理表格主体
+                var body = table["body"] as JArray;
+                if (body != null && body.Count > 0)
+                {
+                    // result.AppendLine("【表格内容】");
+                    
+                    // 使用改进的表格处理方法
+                    string tableContent = ProcessTableBodyWithSpan(body);
+                    // result.AppendLine(tableContent);
+                    // result.AppendLine();
+                }
+
+                // 处理表尾
+                var footer = table["footer"] as JArray;
+                // if (footer != null && footer.Count > 0)
+                // {
+                //     result.AppendLine("【表尾】");
+                //     foreach (var footerItem in footer)
+                //     {
+                //         if (footerItem["words"] != null)
+                //         {
+                //             result.AppendLine($"  {footerItem["words"]}");
+                //         }
+                //     }
+                //     result.AppendLine();
+                // }
+
+                // 生成完整的HTML表格（包含所有部分）
+                // result.AppendLine("完整HTML表格（可直接粘贴到Excel）：");
+                string completeHtml = GenerateCompleteHtmlTable(header, body, footer);
+                result.AppendLine(completeHtml);
+
+                return result.ToString().TrimEnd();
+            }
+            catch (Exception ex)
+            {
+                return $"处理完整表格时发生异常: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// 生成包含header、body、footer的完整HTML表格
+        /// </summary>
+        private static string GenerateCompleteHtmlTable(JArray header, JArray body, JArray footer)
+        {
+            StringBuilder htmlTable = new StringBuilder();
+            htmlTable.AppendLine("<table border='1' style='border-collapse: collapse;'>");
+
+            // 首先确定表格的列数
+            int maxCol = 0;
+            if (body != null && body.Count > 0)
+            {
+                foreach (var cell in body)
+                {
+                    int colEnd = cell["col_end"]?.ToObject<int>() ?? 0;
+                    maxCol = Math.Max(maxCol, colEnd);
+                }
+            }
+
+            // 添加表头
+            if (header != null && header.Count > 0)
+            {
+                htmlTable.AppendLine("  <thead>");
+                htmlTable.AppendLine("    <tr>");
+                
+                if (header.Count == 1)
+                {
+                    // 如果只有一个表头项，跨越所有列
+                    string headerText = System.Web.HttpUtility.HtmlEncode(header[0]["words"]?.ToString() ?? "");
+                    htmlTable.AppendLine($"      <th colspan='{maxCol}' style='background-color: #f0f0f0; font-weight: bold; text-align: center;'>{headerText}</th>");
+                }
+                else
+                {
+                    // 如果有多个表头项，按列分布
+                    foreach (var headerItem in header)
+                    {
+                        if (headerItem["words"] != null)
+                        {
+                            string headerText = System.Web.HttpUtility.HtmlEncode(headerItem["words"].ToString());
+                            htmlTable.AppendLine($"      <th style='background-color: #f0f0f0; font-weight: bold;'>{headerText}</th>");
+                        }
+                    }
+                }
+                
+                htmlTable.AppendLine("    </tr>");
+                htmlTable.AppendLine("  </thead>");
+            }
+
+            // 添加表格主体
+            if (body != null && body.Count > 0)
+            {
+                htmlTable.AppendLine("  <tbody>");
+                
+                // 解析body数据并生成表格行
+                var cells = new List<CellInfo>();
+                int maxRow = 0;
+
+                foreach (var cell in body)
+                {
+                    var cellInfo = new CellInfo
+                    {
+                        RowStart = cell["row_start"]?.ToObject<int>() ?? 0,
+                        RowEnd = cell["row_end"]?.ToObject<int>() ?? 0,
+                        ColStart = cell["col_start"]?.ToObject<int>() ?? 0,
+                        ColEnd = cell["col_end"]?.ToObject<int>() ?? 0,
+                        Words = cell["words"]?.ToString() ?? ""
+                    };
+
+                    cells.Add(cellInfo);
+                    maxRow = Math.Max(maxRow, cellInfo.RowEnd);
+                }
+
+                // 创建表格矩阵来跟踪已处理的单元格
+                var processedCells = new bool[maxRow, maxCol];
+                
+                for (int row = 0; row < maxRow; row++)
+                {
+                    htmlTable.AppendLine("    <tr>");
+                    
+                    for (int col = 0; col < maxCol; col++)
+                    {
+                        // 如果这个位置已经被跨度单元格占用，跳过
+                        if (processedCells[row, col])
+                            continue;
+                            
+                        // 查找当前位置的单元格信息
+                        var cellInfo = cells.FirstOrDefault(c => c.RowStart == row && c.ColStart == col);
+                        
+                        if (cellInfo != null)
+                        {
+                            // 计算跨度
+                            int rowSpan = cellInfo.RowEnd - cellInfo.RowStart;
+                            int colSpan = cellInfo.ColEnd - cellInfo.ColStart;
+                            
+                            // 标记所有被这个单元格占用的位置
+                            for (int r = cellInfo.RowStart; r < cellInfo.RowEnd; r++)
+                            {
+                                for (int c = cellInfo.ColStart; c < cellInfo.ColEnd; c++)
+                                {
+                                    processedCells[r, c] = true;
+                                }
+                            }
+                            
+                            // 生成单元格HTML
+                            string cellContent = cellInfo.Words;
+                            string cellHtml = "      <td";
+                            if (rowSpan > 1) cellHtml += $" rowspan='{rowSpan}'";
+                            if (colSpan > 1) cellHtml += $" colspan='{colSpan}'";
+                            cellHtml += $">{System.Web.HttpUtility.HtmlEncode(cellContent)}</td>";
+                            
+                            htmlTable.AppendLine(cellHtml);
+                        }
+                        else
+                        {
+                            // 空单元格
+                            htmlTable.AppendLine("      <td></td>");
+                            processedCells[row, col] = true;
+                        }
+                    }
+                    
+                    htmlTable.AppendLine("    </tr>");
+                }
+                
+                htmlTable.AppendLine("  </tbody>");
+            }
+
+            // 添加表尾
+            if (footer != null && footer.Count > 0)
+            {
+                htmlTable.AppendLine("  <tfoot>");
+                htmlTable.AppendLine("    <tr>");
+                
+                if (footer.Count == 1)
+                {
+                    // 如果只有一个表尾项，跨越所有列
+                    string footerText = System.Web.HttpUtility.HtmlEncode(footer[0]["words"]?.ToString() ?? "");
+                    htmlTable.AppendLine($"      <td colspan='{maxCol}' style='background-color: #f9f9f9; font-style: italic; text-align: center;'>{footerText}</td>");
+                }
+                else
+                {
+                    // 如果有多个表尾项，按列分布
+                    foreach (var footerItem in footer)
+                    {
+                        if (footerItem["words"] != null)
+                        {
+                            string footerText = System.Web.HttpUtility.HtmlEncode(footerItem["words"].ToString());
+                            htmlTable.AppendLine($"      <td style='background-color: #f9f9f9; font-style: italic;'>{footerText}</td>");
+                        }
+                    }
+                }
+                
+                htmlTable.AppendLine("    </tr>");
+                htmlTable.AppendLine("  </tfoot>");
+            }
+
+            htmlTable.AppendLine("</table>");
+            return htmlTable.ToString();
+        }
+
+        /// <summary>
+        /// 处理表格主体，支持单元格跨度，生成Excel兼容的HTML格式
+        /// </summary>
+        private static string ProcessTableBodyWithSpan(JArray body)
+        {
+            try
+            {
+                // 定义单元格信息类
+                var cells = new List<CellInfo>();
+                int maxRow = 0, maxCol = 0;
+
+                // 解析所有单元格信息
+                foreach (var cell in body)
+                {
+                    var cellInfo = new CellInfo
+                    {
+                        RowStart = cell["row_start"]?.ToObject<int>() ?? 0,
+                        RowEnd = cell["row_end"]?.ToObject<int>() ?? 0,
+                        ColStart = cell["col_start"]?.ToObject<int>() ?? 0,
+                        ColEnd = cell["col_end"]?.ToObject<int>() ?? 0,
+                        Words = cell["words"]?.ToString() ?? ""
+                    };
+
+                    cells.Add(cellInfo);
+                    maxRow = Math.Max(maxRow, cellInfo.RowEnd);
+                    maxCol = Math.Max(maxCol, cellInfo.ColEnd);
+                }
+
+                // 生成HTML表格格式（Excel兼容）
+                StringBuilder htmlTable = new StringBuilder();
+                htmlTable.AppendLine("<table border='1' style='border-collapse: collapse;'>");
+                
+                // 创建表格矩阵来跟踪已处理的单元格
+                var processedCells = new bool[maxRow, maxCol];
+                
+                for (int row = 0; row < maxRow; row++)
+                {
+                    htmlTable.AppendLine("  <tr>");
+                    
+                    for (int col = 0; col < maxCol; col++)
+                    {
+                        // 如果这个位置已经被跨度单元格占用，跳过
+                        if (processedCells[row, col])
+                            continue;
+                            
+                        // 查找当前位置的单元格信息
+                        var cellInfo = cells.FirstOrDefault(c => c.RowStart == row && c.ColStart == col);
+                        
+                        if (cellInfo != null)
+                        {
+                            // 计算跨度：end是下一个位置的索引，所以跨度 = end - start
+                            int rowSpan = cellInfo.RowEnd - cellInfo.RowStart;
+                            int colSpan = cellInfo.ColEnd - cellInfo.ColStart;
+                            
+                            // 标记所有被这个单元格占用的位置
+                            for (int r = cellInfo.RowStart; r < cellInfo.RowEnd; r++)
+                            {
+                                for (int c = cellInfo.ColStart; c < cellInfo.ColEnd; c++)
+                                {
+                                    processedCells[r, c] = true;
+                                }
+                            }
+                            
+                            // 生成单元格HTML，保留换行符
+                            string cellContent = cellInfo.Words;
+                            string cellHtml = "    <td";
+                            if (rowSpan > 1) cellHtml += $" rowspan='{rowSpan}'";
+                            if (colSpan > 1) cellHtml += $" colspan='{colSpan}'";
+                            cellHtml += $">{System.Web.HttpUtility.HtmlEncode(cellContent)}</td>";
+                            
+                            htmlTable.AppendLine(cellHtml);
+                        }
+                        else
+                        {
+                            // 空单元格
+                            htmlTable.AppendLine("    <td></td>");
+                            processedCells[row, col] = true;
+                        }
+                    }
+                    
+                    htmlTable.AppendLine("  </tr>");
+                }
+                
+                htmlTable.AppendLine("</table>");
+
+                // 构建最终结果
+                StringBuilder result = new StringBuilder();
+                
+                // 添加跨度信息说明
+                // result.AppendLine("单元格跨度信息：");
+                foreach (var cellInfo in cells.Where(c => !string.IsNullOrWhiteSpace(c.Words)))
+                {
+                    int rowSpan = cellInfo.RowEnd - cellInfo.RowStart;
+                    int colSpan = cellInfo.ColEnd - cellInfo.ColStart;
+                    
+                    if (rowSpan > 1 || colSpan > 1)
+                    {
+                        // 将多行文本转换为单行显示，用空格替换换行符
+                        string displayText = cellInfo.Words.Replace("\n", " ");
+                        string spanInfo = $"  \"{displayText}\" 位置: ({cellInfo.RowStart + 1},{GetColumnName(cellInfo.ColStart)})";
+                        if (rowSpan > 1 && colSpan > 1)
+                        {
+                            spanInfo += $" 跨度: {rowSpan}行×{colSpan}列";
+                        }
+                        else if (rowSpan > 1)
+                        {
+                            spanInfo += $" 跨度: {rowSpan}行";
+                        }
+                        else if (colSpan > 1)
+                        {
+                            spanInfo += $" 跨度: {colSpan}列";
+                        }
+                        // result.AppendLine(spanInfo);
+                    }
+                }
+                // result.AppendLine();
+                
+                // 添加HTML表格
+                // result.AppendLine("Excel兼容表格（可直接粘贴到Excel）：");
+                // result.AppendLine(htmlTable.ToString());
+                
+                // 添加制表符分隔的数据（作为备选方案）
+                // result.AppendLine();
+                // result.AppendLine("制表符分隔数据：");
+                
+                // 重新创建矩阵用于制表符输出
+                var tableMatrix = new string[maxRow, maxCol];
+                foreach (var cellInfo in cells)
+                {
+                    tableMatrix[cellInfo.RowStart, cellInfo.ColStart] = cellInfo.Words;
+                }
+                
+                for (int row = 0; row < maxRow; row++)
+                {
+                    var rowData = new List<string>();
+                    for (int col = 0; col < maxCol; col++)
+                    {
+                        string cellValue = tableMatrix[row, col] ?? "";
+                        rowData.Add(cellValue);
+                    }
+                    
+                    // 只输出有内容的行
+                    bool hasContent = rowData.Any(cell => !string.IsNullOrWhiteSpace(cell));
+                    if (hasContent)
+                    {
+                        result.AppendLine(string.Join("\t", rowData));
+                    }
+                }
+
+                return result.ToString().TrimEnd();
+            }
+            catch (Exception ex)
+            {
+                return $"处理表格跨度时发生异常: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// 将列索引转换为Excel风格的列名 (0->A, 1->B, ...)
+        /// </summary>
+        private static string GetColumnName(int columnIndex)
+        {
+            string columnName = "";
+            while (columnIndex >= 0)
+            {
+                columnName = (char)('A' + (columnIndex % 26)) + columnName;
+                columnIndex = columnIndex / 26 - 1;
+            }
+            return columnName;
+        }
+
+        /// <summary>
+        /// 单元格信息类
+        /// </summary>
+        private class CellInfo
+        {
+            public int RowStart { get; set; }
+            public int RowEnd { get; set; }
+            public int ColStart { get; set; }
+            public int ColEnd { get; set; }
+            public string Words { get; set; }
         }
     }
 }
