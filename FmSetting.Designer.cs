@@ -3506,11 +3506,11 @@ namespace TrOCR
             // tableLayoutPanel_合并文本
             // 
             this.tableLayoutPanel_合并文本.ColumnCount = 2;
-            this.tableLayoutPanel_合并文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.96825F));
-            this.tableLayoutPanel_合并文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 71.03175F));
+            this.tableLayoutPanel_合并文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 36.08871F));
+            this.tableLayoutPanel_合并文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 63.91129F));
             this.tableLayoutPanel_合并文本.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel_合并文本.Controls.Add(this.checkBox_合并自动复制, 0, 1);
             this.tableLayoutPanel_合并文本.Controls.Add(this.checkBox_合并去除空格, 0, 0);
+            this.tableLayoutPanel_合并文本.Controls.Add(this.checkBox_合并自动复制, 0, 1);
             this.tableLayoutPanel_合并文本.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel_合并文本.Location = new System.Drawing.Point(4, 22);
             this.tableLayoutPanel_合并文本.Name = "tableLayoutPanel_合并文本";
@@ -3522,7 +3522,7 @@ namespace TrOCR
             // 
             // checkBox_合并自动复制
             // 
-            this.checkBox_合并自动复制.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBox_合并自动复制.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.checkBox_合并自动复制.AutoSize = true;
             this.checkBox_合并自动复制.Location = new System.Drawing.Point(4, 44);
             this.checkBox_合并自动复制.Margin = new System.Windows.Forms.Padding(4);
@@ -3534,14 +3534,14 @@ namespace TrOCR
             // 
             // checkBox_合并去除空格
             // 
-            this.checkBox_合并去除空格.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.checkBox_合并去除空格.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.checkBox_合并去除空格.AutoSize = true;
             this.checkBox_合并去除空格.Location = new System.Drawing.Point(4, 8);
             this.checkBox_合并去除空格.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_合并去除空格.Name = "checkBox_合并去除空格";
-            this.checkBox_合并去除空格.Size = new System.Drawing.Size(134, 19);
+            this.checkBox_合并去除空格.Size = new System.Drawing.Size(164, 19);
             this.checkBox_合并去除空格.TabIndex = 2;
-            this.checkBox_合并去除空格.Text = "合并时去除空格";
+            this.checkBox_合并去除空格.Text = "合并时智能去除空格";
             this.checkBox_合并去除空格.UseVisualStyleBackColor = true;
             // 
             // Page_更新

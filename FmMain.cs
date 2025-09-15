@@ -468,56 +468,17 @@ namespace TrOCR
 		            if (bool.Parse(IniHelper.GetValue("工具栏", "合并"))) // 检查是否开启了自动合并
 		            {
 		                if (!string.IsNullOrEmpty(textToDisplay))
-		                {
-		                    // 步骤 1: 智能合并
-		                    string intelligentlyMergedText;
-		                    string[] lines = textToDisplay.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-		                    if (lines.Length <= 1) {
-		                        intelligentlyMergedText = textToDisplay.Replace("\r", "").Replace("\n", "").Trim();
-		                    } else {
-		                        StringBuilder sb = new StringBuilder();
-		                        for (int i = 0; i < lines.Length; i++) {
-		                            string line = lines[i].Trim();
-		                            if (string.IsNullOrEmpty(line)) continue;
-		                            sb.Append(line);
-		                            if (i < lines.Length - 1) {
-		                                string nextLine = lines[i + 1].Trim();
-		                                if (!string.IsNullOrEmpty(nextLine)) {
-		                                    char lastChar = line.LastOrDefault();
-		                                    char firstChar = nextLine.FirstOrDefault();
-		                                    bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
-		                                    bool firstIsEnNum = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z') || char.IsDigit(firstChar);
-		                                    bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
-		                                    bool firstIsHanzi = firstChar >= 0x4E00 && firstChar <= 0x9FA5;
-		                                    if ((lastIsEnNum && firstIsEnNum) || (lastIsHanzi && firstIsEnNum) || (lastIsEnNum && firstIsHanzi)) {
-		                                        sb.Append(" ");
-		                                    }
-		                                }
-		                            }
-		                        }
-		                        intelligentlyMergedText = sb.ToString();
-		                    }
+    					{
+    					    // 直接调用新的统一方法
+    					    string finalText = PerformIntelligentMerge(textToDisplay, StaticValue.IsMergeRemoveSpace);
+    					    textToDisplay = finalText;
 
-		                    // 步骤 2: 应用“合并后去除空格”设置
-		                    string finalText;
-		                    if (StaticValue.IsMergeRemoveSpace)
-		                    {
-		                        finalText = intelligentlyMergedText.Replace(" ", "");
-		                    }
-		                    else
-		                    {
-		                        finalText = intelligentlyMergedText;
-		                    }
-
-		                    // 将处理后的文本作为最终要显示的文本
-		                    textToDisplay = finalText;
-
-		                    // 步骤 3: 应用“合并后自动复制”设置
-		                    if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
-		                    {
-		                        try { Clipboard.SetDataObject(finalText, true, 5, 100); } catch { }
-		                    }
-		                }
+    					    // 应用“合并后自动复制”设置
+    					    if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
+    					    {
+    					        try { Clipboard.SetDataObject(finalText, true, 5, 100); } catch { }
+    					    }
+    					}
 		            }
 		            // --- 新增逻辑结束 ---
 
@@ -3516,72 +3477,9 @@ namespace TrOCR
 			else if (bool.Parse(IniHelper.GetValue("工具栏", "合并")) || set_merge)
 			{
 				set_merge = false;
-				 // 原始OCR文本是 'text'
-    			if (string.IsNullOrEmpty(text))
-    			{
-    			    finalTextToShow = "";
-    			}
-    			else
-    			{
-    		    	// 步骤 1: 先进行一次标准的智能合并，得到带必要空格的中间结果
-    		    	string intelligentlyMergedText;
-    		    	string[] lines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-
-        			if (lines.Length <= 1)
-        			{
-        			    // 对于单行，只是清理一下换行符和首尾空格
-        			    intelligentlyMergedText = text.Replace("\r", "").Replace("\n", "").Trim();
-        			}
-        			else
-        			{
-        			    StringBuilder sb = new StringBuilder();
-        			    for (int i = 0; i < lines.Length; i++)
-        			    {
-        			        string line = lines[i].Trim();
-        			        if (string.IsNullOrEmpty(line)) continue;
-	
-                			sb.Append(line);
-
-                		if (i < lines.Length - 1)
-                		{
-                		    string nextLine = lines[i + 1].Trim();
-                		    if (!string.IsNullOrEmpty(nextLine))
-                		    {
-                		        char lastChar = line.LastOrDefault();
-                		        char firstChar = nextLine.FirstOrDefault();
-
-                        		// 定义字符类型
-                        		bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
-                        		bool firstIsEnNum = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z') || char.IsDigit(firstChar);
-                        		bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
-                        		bool firstIsHanzi = firstChar >= 0x4E00 && firstChar <= 0x9FA5;
-
-                        		// 智能添加空格的规则
-                        		if ((lastIsEnNum && firstIsEnNum) || (lastIsHanzi && firstIsEnNum) || (lastIsEnNum && firstIsHanzi))
-                        		{
-                        		    sb.Append(" ");
-                        		}
-                    		}
-                		}
-            		}
-            		intelligentlyMergedText = sb.ToString();
-        		}
-        
-        		// 步骤 2: 【核心逻辑】根据选项，决定最终的文本
-        		string finalText;
-        		if (StaticValue.IsMergeRemoveSpace)
-        		{
-        		    // 如果开启了“去除空格”，则在智能合并的基础上，【移除所有】空格
-        		    finalText = intelligentlyMergedText.Replace(" ", "");
-        		}
-        		else
-        		{
-            		// 如果没开启，就直接使用智能合并的结果
-            		finalText = intelligentlyMergedText;
-        		}
-
-        		finalTextToShow = finalText;
-    			}
+        		// 直接调用新的统一方法，并传入相应的设置
+    			finalTextToShow = PerformIntelligentMerge(text, StaticValue.IsMergeRemoveSpace);
+    			
 			}
 
 			// 计算识别耗时
@@ -7776,6 +7674,97 @@ namespace TrOCR
 			htmlClipboardData = htmlClipboardData.Replace("EndFragment:0000000000", string.Format("EndFragment:{0:D10}", endFragment));
 
 			return htmlClipboardData;
+		}
+		/// <summary>
+		/// 对单行字符串进行智能空格清理：移除不必要的空格，并在中英文/数字间补全必要空格。
+		/// </summary>
+		/// <param name="line">需要处理的单行文本</param>
+		/// <returns>经过智能空格处理后的文本</returns>
+		private string SmartSpaceClean(string line)
+		{
+		    // 1. 同时移除半角和全角空格
+		    string spacelessText = line.Replace(" ", "").Replace("　", "");
+		    if (spacelessText.Length <= 1) return spacelessText;
+
+		    StringBuilder sb = new StringBuilder();
+		    sb.Append(spacelessText[0]);
+
+		    // 2. 遍历无空格的字符串，根据规则智能地重新插入空格
+		    for (int i = 1; i < spacelessText.Length; i++)
+		    {
+		        char lastChar = spacelessText[i - 1];
+		        char currentChar = spacelessText[i];
+
+		        bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
+		        bool currentIsEnNum = (currentChar >= 'a' && currentChar <= 'z') || (currentChar >= 'A' && currentChar <= 'Z') || char.IsDigit(currentChar);
+		        bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
+		        bool currentIsHanzi = currentChar >= 0x4E00 && currentChar <= 0x9FA5;
+
+		        if ((lastIsEnNum && currentIsEnNum) || (lastIsHanzi && currentIsEnNum) || (lastIsEnNum && currentIsHanzi))
+		        {
+		            sb.Append(" ");
+		        }
+		        sb.Append(currentChar);
+		    }
+		    return sb.ToString();
+		}
+
+		/// <summary>
+		/// 对多行或单行文本执行统一的智能合并操作
+		/// </summary>
+		/// <param name="inputText">需要合并的原始文本</param>
+		/// <param name="enableSmartSpacing">是否启用智能空格处理模式</param>
+		/// <returns>合并后的单行文本</returns>
+		private string PerformIntelligentMerge(string inputText, bool enableSmartSpacing)
+		{
+		    if (string.IsNullOrEmpty(inputText))
+		        return string.Empty;
+
+		    string[] lines = inputText.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+
+		    StringBuilder sb = new StringBuilder();
+		    for (int i = 0; i < lines.Length; i++)
+		    {
+		        string processedLine;
+		        if (enableSmartSpacing)
+		        {
+		            processedLine = SmartSpaceClean(lines[i]);
+		        }
+		        else
+		        {
+		            processedLine = lines[i].Trim();
+		        }
+
+		        if (string.IsNullOrEmpty(processedLine)) continue;
+
+		        sb.Append(processedLine);
+
+		        if (i < lines.Length - 1)
+		        {
+		            string nextLineRaw = lines[i + 1];
+		            if (!string.IsNullOrWhiteSpace(nextLineRaw))
+		            {
+		                char lastChar = processedLine.LastOrDefault();
+		                string nextLineProcessed = enableSmartSpacing ? SmartSpaceClean(nextLineRaw) : nextLineRaw.Trim();
+
+		                if (!string.IsNullOrEmpty(nextLineProcessed))
+		                {
+		                    char firstChar = nextLineProcessed.FirstOrDefault();
+
+		                    bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
+		                    bool firstIsEnNum = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z') || char.IsDigit(firstChar);
+		                    bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
+		                    bool firstIsHanzi = firstChar >= 0x4E00 && firstChar <= 0x9FA5;
+
+		                    if ((lastIsEnNum && firstIsEnNum) || (lastIsHanzi && firstIsEnNum) || (lastIsEnNum && firstIsHanzi))
+		                    {
+		                        sb.Append(" ");
+		                    }
+		                }
+		            }
+		        }
+		    }
+		    return sb.ToString();
 		}
 
 		#endregion

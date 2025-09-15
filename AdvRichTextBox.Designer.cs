@@ -465,37 +465,80 @@ namespace TrOCR
             HelpWin32.SetForegroundWindow(StaticValue.mainHandle);
         }
 
-        public void toolStripButtonMerge_Click(object sender, EventArgs e)
+      public void toolStripButtonMerge_Click(object sender, EventArgs e)
         {
             string currentText = this.richTextBox1.Text;
             if (string.IsNullOrEmpty(currentText)) return;
 
-            // 步骤 1: 先进行一次标准的智能合并，得到带必要空格的中间结果
-            string intelligentlyMergedText;
-            string[] lines = currentText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            string[] lines = currentText.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
 
-            if (lines.Length <= 1)
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < lines.Length; i++)
             {
-                // 对于单行，只是清理一下首尾空格
-                intelligentlyMergedText = currentText.Replace("\r", "").Replace("\n", "").Trim();
-            }
-            else
-            {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < lines.Length; i++)
+                string processedLine;
+
+                if (StaticValue.IsMergeRemoveSpace)
                 {
-                    string line = lines[i].Trim();
-                    if (string.IsNullOrEmpty(line)) continue;
-            
-                    sb.Append(line);
-
-                    if (i < lines.Length - 1)
+                    // 同时移除半角和全角空格
+                    string spacelessText = lines[i].Replace(" ", "").Replace("　", "");
+                    if (spacelessText.Length <= 1)
                     {
-                        string nextLine = lines[i + 1].Trim();
-                        if (!string.IsNullOrEmpty(nextLine))
+                        processedLine = spacelessText;
+                    }
+                    else
+                    {
+                        StringBuilder lineSb = new StringBuilder();
+                        lineSb.Append(spacelessText[0]);
+
+                        for (int j = 1; j < spacelessText.Length; j++)
                         {
-                            char lastChar = line.LastOrDefault();
-                            char firstChar = nextLine.FirstOrDefault();
+                            char lastChar = spacelessText[j - 1];
+                            char currentChar = spacelessText[j];
+
+                            bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
+                            bool currentIsEnNum = (currentChar >= 'a' && currentChar <= 'z') || (currentChar >= 'A' && currentChar <= 'Z') || char.IsDigit(currentChar);
+                            bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
+                            bool currentIsHanzi = currentChar >= 0x4E00 && currentChar <= 0x9FA5;
+
+                            if ((lastIsEnNum && currentIsEnNum) || (lastIsHanzi && currentIsEnNum) || (lastIsEnNum && currentIsHanzi))
+                            {
+                                lineSb.Append(" ");
+                            }
+                            lineSb.Append(currentChar);
+                        }
+                        processedLine = lineSb.ToString();
+                    }
+                }
+                else
+                {
+                    processedLine = lines[i].Trim();
+                }
+
+                if (string.IsNullOrEmpty(processedLine)) continue;
+
+                sb.Append(processedLine);
+
+                if (i < lines.Length - 1)
+                {
+                    string nextLineRaw = lines[i + 1];
+                    if (!string.IsNullOrWhiteSpace(nextLineRaw))
+                    {
+                        char lastChar = processedLine.LastOrDefault();
+
+                        string nextLineProcessed;
+                        if (StaticValue.IsMergeRemoveSpace)
+                        {
+                            // 对下一行的预处理也同时移除半角和全角空格
+                            nextLineProcessed = nextLineRaw.Replace(" ", "").Replace("　", "");
+                        }
+                        else
+                        {
+                            nextLineProcessed = nextLineRaw.Trim();
+                        }
+
+                        if (!string.IsNullOrEmpty(nextLineProcessed))
+                        {
+                            char firstChar = nextLineProcessed.FirstOrDefault();
 
                             // 定义字符类型
                             bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
@@ -511,23 +554,10 @@ namespace TrOCR
                         }
                     }
                 }
-                intelligentlyMergedText = sb.ToString();
             }
-    
-            // 步骤 2: 【核心逻辑】根据选项，决定最终的文本
-            string finalText;
-            if (StaticValue.IsMergeRemoveSpace)
-            {
-                // 如果开启了“去除空格”，则在智能合并的基础上，【移除所有】空格
-                finalText = intelligentlyMergedText.Replace(" ", "");
-            }
-            else
-            {
-                // 如果没开启，就直接使用智能合并的结果
-                finalText = intelligentlyMergedText;
-            }
+            string finalText = sb.ToString();
 
-            // 步骤 3: 更新UI和执行复制
+            // 更新UI并执行复制
             this.richTextBox1.Text = finalText;
             if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
             {
