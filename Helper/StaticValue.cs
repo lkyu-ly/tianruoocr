@@ -95,6 +95,10 @@ namespace TrOCR.Helper
 
         public static string TX_ACCURATE_LANGUAGE = "";
 
+        // 腾讯表格识别配置
+        public static string TX_TABLE_API_ID = "";
+        public static string TX_TABLE_API_KEY = "";
+
         public static string BD_ACCURATE_API_ID = "";
 
         public static string BD_ACCURATE_API_KEY = "";

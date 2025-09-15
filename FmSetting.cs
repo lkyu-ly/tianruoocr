@@ -375,6 +375,12 @@ namespace TrOCR
 			TencentOcrHelper.GetAccurateLanguages().TryGetValue(valueTencentAccurateLanguage, out string tencentAccurateLangName);
 			comboBox_Tencent_Accurate_Language.SelectedItem = string.IsNullOrEmpty(tencentAccurateLangName) ? "自动检测" : tencentAccurateLangName;
 
+			// 读取腾讯表格API密钥信息
+			var valueTencentTableId = IniHelper.GetValue("密钥_腾讯表格v3", "secret_id");
+			textBox3.Text = valueTencentTableId == "发生错误" ? "" : valueTencentTableId;
+			var valueTencentTableKey = IniHelper.GetValue("密钥_腾讯表格v3", "secret_key");
+			textBox4.Text = valueTencentTableKey == "发生错误" ? "" : valueTencentTableKey;
+
 			// 读取白描账号信息
 			var valueBaimiaoUsername = IniHelper.GetValue("密钥_白描", "username");
 			BoxBaimiaoUsername.Text = valueBaimiaoUsername;
@@ -1040,11 +1046,11 @@ namespace TrOCR
 					comboBox_Baidu_Accurate_Language.SelectedItem = "中英文混合";
 				}
 				else if (tabControl_BaiduApiType.SelectedTab == inPage_百度表格)
-        		{
-        		    textBox2.Text = "";
-        		    textBox1.Text = "";
-        		}
-    		}
+				{
+					textBox2.Text = "";
+					textBox1.Text = "";
+				}
+			}
 			else if (tabControl2.SelectedTab == tabPage_腾讯OCR)
 			{
 				// 同理，判断腾讯的内部子选项卡
@@ -1059,6 +1065,11 @@ namespace TrOCR
 					text_tencent_accurate_secretid.Text = "";
 					text_tencent_accurate_secretkey.Text = "";
 					comboBox_Tencent_Accurate_Language.SelectedItem = "自动检测";
+				}
+				else if (tabControl_TXApiType.SelectedTab == inPage_腾讯表格v3)
+				{
+					textBox3.Text = "";
+					textBox4.Text = "";
 				}
 			}
 			else if (tabControl2.SelectedTab == tabPage_白描接口)
@@ -1327,10 +1338,19 @@ namespace TrOCR
 					secretId = BoxTencentId.Text;
 					secretKey = BoxTencentKey.Text;
 				}
-				else
+				else if (tabControl_TXApiType.SelectedTab == inPage_腾讯高精度接口)
 				{
 					secretId = text_tencent_accurate_secretid.Text;
 					secretKey = text_tencent_accurate_secretkey.Text;
+				}
+				else if (tabControl_TXApiType.SelectedTab == inPage_腾讯表格v3)
+        		{
+					secretId = textBox3.Text;
+					secretKey = textBox4.Text;
+        		}else
+				{
+					secretId = "";
+					secretKey = "";
 				}
 
 				if (string.IsNullOrEmpty(secretId) || string.IsNullOrEmpty(secretKey) || secretId.Contains("secret_id"))
@@ -1712,6 +1732,10 @@ namespace TrOCR
 			var selectedTencentAccurateLang = comboBox_Tencent_Accurate_Language.SelectedItem?.ToString();
 			var tencentAccurateLangCode = TencentOcrHelper.GetAccurateLanguages().FirstOrDefault(x => x.Value == selectedTencentAccurateLang).Key;
 			IniHelper.SetValue("密钥_腾讯高精度", "language_code", tencentAccurateLangCode ?? "auto");
+
+			// 保存腾讯表格API密钥信息
+			IniHelper.SetValue("密钥_腾讯表格v3", "secret_id", textBox3.Text);
+			IniHelper.SetValue("密钥_腾讯表格v3", "secret_key", textBox4.Text);
 
 			// 保存白描OCR账号信息
 			IniHelper.SetValue("密钥_白描", "username", BoxBaimiaoUsername.Text);

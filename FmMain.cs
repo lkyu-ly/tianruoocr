@@ -1415,6 +1415,18 @@ namespace TrOCR
 				StaticValue.TX_ACCURATE_LANGUAGE = "auto";
 			}
 
+			// 加载腾讯表格v3的OCR密钥
+			StaticValue.TX_TABLE_API_ID = IniHelper.GetValue("密钥_腾讯表格v3", "secret_id");
+			if (StaticValue.TX_TABLE_API_ID == "发生错误")
+			{
+				StaticValue.TX_TABLE_API_ID = "";
+			}
+			StaticValue.TX_TABLE_API_KEY = IniHelper.GetValue("密钥_腾讯表格v3", "secret_key");
+			if (StaticValue.TX_TABLE_API_KEY == "发生错误")
+			{
+				StaticValue.TX_TABLE_API_KEY = "";
+			}
+
 			// 加载百度高精度OCR密钥
 			StaticValue.BD_ACCURATE_API_ID = IniHelper.GetValue("密钥_百度高精度", "secret_id");
 			if (StaticValue.BD_ACCURATE_API_ID == "发生错误")
@@ -1615,6 +1627,17 @@ namespace TrOCR
 				{
 					StaticValue.TX_ACCURATE_LANGUAGE = "auto";
 				}
+				StaticValue.TX_TABLE_API_ID = IniHelper.GetValue("密钥_腾讯表格v3", "secret_id");
+				if (StaticValue.TX_TABLE_API_ID == "发生错误")
+				{
+					StaticValue.TX_TABLE_API_ID = "";
+				}
+				StaticValue.TX_TABLE_API_KEY = IniHelper.GetValue("密钥_腾讯表格v3", "secret_key");
+				if (StaticValue.TX_TABLE_API_KEY == "发生错误")
+				{
+					StaticValue.TX_TABLE_API_KEY = "";
+				}
+				
 
 				StaticValue.BD_ACCURATE_API_ID = IniHelper.GetValue("密钥_百度高精度", "secret_id");
 				if (StaticValue.BD_ACCURATE_API_ID == "发生错误")
@@ -3308,6 +3331,13 @@ namespace TrOCR
 				Invoke(new OcrThread(Main_OCR_Thread_table));
 				return;
 			}
+			if (interface_flag == "腾讯表格")
+			{
+				TxTableOCR();
+				fmloading.FmlClose = "窗体已关闭";
+				Invoke(new OcrThread(Main_OCR_Thread_table));
+				return;
+			}
 			if (interface_flag == "阿里表格")
 			{
 				OCR_ali_table();
@@ -4197,6 +4227,12 @@ namespace TrOCR
 					ocr_table.Text = "表格√";
 					baidu_table.Text = "百度√";
 					break;
+				case "腾讯表格":
+					interface_flag = "腾讯表格";
+					Refresh();
+					ocr_table.Text = "表格√";
+					tx_table.Text = "腾讯√";
+				break;
 				case "阿里表格":
 					interface_flag = "阿里表格";
 					Refresh();
@@ -6213,7 +6249,42 @@ namespace TrOCR
 				string result = BaiduOcrHelper.TableRecognition(imageBytes, false, false);
 				
 				// 检查识别结果
-				if (string.IsNullOrWhiteSpace(result) || result.Contains("***该区域未发现表格***") || result.Contains("错误"))
+				if (string.IsNullOrWhiteSpace(result))
+				{
+					typeset_txt = "***该区域未发现文本***";
+				}
+				else
+				{
+					// 设置识别结果
+					typeset_txt = result;
+				}
+				split_txt = "";
+			}
+			catch (Exception ex)
+			{
+				typeset_txt = $"[消息]：表格识别异常: {ex.Message}";
+			}
+		}
+
+		/// <summary>
+		/// 腾讯表格OCR识别方法
+		/// 该方法会截取当前屏幕图像，调用腾讯表格OCR API进行识别，并将结果处理后显示在RichBoxBody中
+		/// </summary>
+		public void TxTableOCR()
+		{
+			typeset_txt = "[消息]：表格已下载！";
+			split_txt = "";
+			try
+			{
+				// 获取图像字节数组
+				var image = image_screen;
+				var imageBytes = OcrHelper.ImgToBytes(image);
+				
+				// 调用腾讯表格识别方法
+				string result = TencentOcrHelper.TableRecognition(imageBytes);
+				
+				// 检查识别结果
+				if (string.IsNullOrWhiteSpace(result))
 				{
 					typeset_txt = "***该区域未发现文本***";
 				}
@@ -6338,8 +6409,6 @@ namespace TrOCR
 								 !typeset_txt.Contains("异常") &&
 								 !typeset_txt.Contains("失败");
 
-
-
 				// 如果识别成功，复制到剪贴板
 				if (isSuccess)
 				{
@@ -6372,6 +6441,49 @@ namespace TrOCR
 					RichBoxBody.Text = typeset_txt;
 				}
 			}
+			else if (interface_flag == "腾讯表格")
+			{
+				// 检查腾讯表格识别是否成功
+				bool isSuccess = !string.IsNullOrWhiteSpace(typeset_txt) &&
+								 !typeset_txt.Contains("***请在设置中输入腾讯标准版密钥或表格识别专用密钥***") &&
+								 !typeset_txt.Contains("***该区域未发现文本***") &&
+								 !typeset_txt.Contains("***该区域未发现表格***") &&
+								 !typeset_txt.Contains("错误") &&
+								 !typeset_txt.Contains("异常") &&
+								 !typeset_txt.Contains("失败");
+
+				// 如果识别成功，复制到剪贴板
+				if (isSuccess)
+				{
+					// 显示识别结果
+					RichBoxBody.Text = "[消息]：腾讯表格识别成功，已复制到粘贴板！可直接粘贴到Excel";
+
+					// 提取HTML表格部分
+					string htmlTable = ExtractHtmlTable(typeset_txt);
+
+					if (!string.IsNullOrEmpty(htmlTable))
+					{
+						// 设置HTML格式到剪贴板，Excel可以识别并保持表格结构
+						var dataObject = new DataObject();
+						dataObject.SetData(DataFormats.Html, CreateHtmlClipboardData(htmlTable));
+						dataObject.SetData(DataFormats.UnicodeText, typeset_txt);
+						Clipboard.SetDataObject(dataObject, true, 5, 100);
+					}
+					else
+					{
+						// 如果没有HTML表格，使用普通文本
+						var dataObject = new DataObject();
+						dataObject.SetData(DataFormats.UnicodeText, typeset_txt);
+						Clipboard.SetDataObject(typeset_txt, true, 5, 100);
+					}
+				}
+				else
+				{
+					// 如果失败，显示实际的错误信息
+					RichBoxBody.Text = typeset_txt;
+				}
+			}
+			
 			// 清理资源
 			image_screen.Dispose();
 			GC.Collect();
@@ -6452,6 +6564,15 @@ namespace TrOCR
 		{
 			OCR_foreach("百度表格");
 		}
+		/// <summary>
+		/// 腾讯表格OCR识别按钮点击事件处理函数
+		/// </summary>
+		/// <param name="sender">事件发送者</param>
+		/// <param name="e">事件参数</param>
+		public void OCR_txtable_Click(object sender, EventArgs e)
+		{
+			OCR_foreach("腾讯表格");
+		}
 
 		/// <summary>
 		/// 阿里表格OCR识别按钮点击事件处理函数
@@ -6484,6 +6605,7 @@ namespace TrOCR
 			left_right.Text = "从左向右";
 			righ_left.Text = "从右向左";
 			baidu_table.Text = "百度";
+			tx_table.Text = "腾讯";
 			ali_table.Text = "阿里";
 			Mathfuntion.Text = "公式";
 		}
@@ -6664,6 +6786,7 @@ namespace TrOCR
 
 			// OCR 子菜单接口可见性设置
 			SetMenuItemVisibility(baidu_table, "Ocr接口显示", "TableBaidu");
+			SetMenuItemVisibility(tx_table, "Ocr接口显示", "TableTx");
 			SetMenuItemVisibility(ali_table, "Ocr接口显示", "TableAli");
 			SetMenuItemVisibility(left_right, "Ocr接口显示", "ShupaiLR");
 			SetMenuItemVisibility(righ_left, "Ocr接口显示", "ShupaiRL");

@@ -46,6 +46,7 @@ namespace TrOCR
 			
 			// 表格OCR菜单项
 			this.baidu_table = new global::System.Windows.Forms.ToolStripMenuItem();
+			this.tx_table = new global::System.Windows.Forms.ToolStripMenuItem();
 			this.ali_table = new global::System.Windows.Forms.ToolStripMenuItem();
 			this.ocr_table = new global::System.Windows.Forms.ToolStripMenuItem();
 			
@@ -276,11 +277,14 @@ namespace TrOCR
 			this.ocr_table.Text = "表格";
 			this.baidu_table.Text = "百度";
 			this.baidu_table.Click += new global::System.EventHandler(this.OCR_baidutable_Click);
+			this.tx_table.Text = "腾讯";
+			this.tx_table.Click += new global::System.EventHandler(this.OCR_txtable_Click);
 			this.ali_table.Text = "阿里";
 			this.ali_table.Click += new global::System.EventHandler(this.OCR_ailitable_Click);
 			this.ocr_table.DropDownItems.AddRange(new global::System.Windows.Forms.ToolStripItem[]
 			{
 				this.baidu_table,
+				this.tx_table,
 				this.ali_table
 			});
 			this.shupai.Text = "竖排";
@@ -653,6 +657,7 @@ namespace TrOCR
 
 		#region "表格" 子菜单
 		private global::System.Windows.Forms.ToolStripMenuItem baidu_table;
+		private global::System.Windows.Forms.ToolStripMenuItem tx_table;
 		private global::System.Windows.Forms.ToolStripMenuItem ali_table;
 		#endregion
 
