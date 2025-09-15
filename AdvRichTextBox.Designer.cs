@@ -469,41 +469,58 @@ namespace TrOCR
         {
             string currentText = this.richTextBox1.Text;
             if (string.IsNullOrEmpty(currentText)) return;
-
+        
             string[] lines = currentText.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
-
+            
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < lines.Length; i++)
             {
                 string processedLine;
-
+                
                 if (StaticValue.IsMergeRemoveSpace)
                 {
-                    // 同时移除半角和全角空格
-                    string spacelessText = lines[i].Replace(" ", "").Replace("　", "");
-                    if (spacelessText.Length <= 1)
+                    // --- 全新的、最终版的智能空格处理逻辑 ---
+        
+                    // 1. 规范化：将一行中连续的多个空格（半角/全角）替换为单个半角空格，并去除首尾空格
+                    string normalizedLine = Regex.Replace(lines[i], @"[ \　]+", " ").Trim();
+        
+                    if (normalizedLine.Length <= 1)
                     {
-                        processedLine = spacelessText;
+                        processedLine = normalizedLine;
                     }
                     else
                     {
                         StringBuilder lineSb = new StringBuilder();
-                        lineSb.Append(spacelessText[0]);
-
-                        for (int j = 1; j < spacelessText.Length; j++)
+                        lineSb.Append(normalizedLine[0]);
+        
+                        for (int j = 1; j < normalizedLine.Length; j++)
                         {
-                            char lastChar = spacelessText[j - 1];
-                            char currentChar = spacelessText[j];
-
-                            bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
-                            bool currentIsEnNum = (currentChar >= 'a' && currentChar <= 'z') || (currentChar >= 'A' && currentChar <= 'Z') || char.IsDigit(currentChar);
+                            char lastChar = normalizedLine[j - 1];
+                            char currentChar = normalizedLine[j];
+        
+                            // 【核心修改】细分字符类型
+                            bool lastIsEnglish = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z');
+                            bool lastIsNumber = char.IsDigit(lastChar);
+                            bool currentIsEnglish = (currentChar >= 'a' && currentChar <= 'z') || (currentChar >= 'A' && currentChar <= 'Z');
+                            bool currentIsNumber = char.IsDigit(currentChar);
                             bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
                             bool currentIsHanzi = currentChar >= 0x4E00 && currentChar <= 0x9FA5;
-
-                            if ((lastIsEnNum && currentIsEnNum) || (lastIsHanzi && currentIsEnNum) || (lastIsEnNum && currentIsHanzi))
+        
+                            // 2. 修正：移除中文汉字之间的空格
+                            if (lastIsHanzi && currentChar == ' ' && (j + 1 < normalizedLine.Length) && (normalizedLine[j + 1] >= 0x4E00 && normalizedLine[j + 1] <= 0x9FA5))
+                            {
+                                continue; // 跳过这个空格，不添加到结果中
+                            }
+        
+                            // 3. 补充：在需要且当前没有空格的地方添加空格
+                            bool spaceNeeded = (lastIsHanzi && (currentIsEnglish || currentIsNumber)) ||
+                                               ((lastIsEnglish || lastIsNumber) && currentIsHanzi);
+        
+                            if (spaceNeeded && lastChar != ' ')
                             {
                                 lineSb.Append(" ");
                             }
+                            
                             lineSb.Append(currentChar);
                         }
                         processedLine = lineSb.ToString();
@@ -511,43 +528,39 @@ namespace TrOCR
                 }
                 else
                 {
+                    // 如果不启用智能模式，则只做简单的首尾修剪
                     processedLine = lines[i].Trim();
                 }
-
+        
                 if (string.IsNullOrEmpty(processedLine)) continue;
-
+        
                 sb.Append(processedLine);
-
+        
+                // 4. 处理行与行之间的连接（这部分逻辑保持不变）
                 if (i < lines.Length - 1)
                 {
                     string nextLineRaw = lines[i + 1];
                     if (!string.IsNullOrWhiteSpace(nextLineRaw))
                     {
                         char lastChar = processedLine.LastOrDefault();
-
-                        string nextLineProcessed;
-                        if (StaticValue.IsMergeRemoveSpace)
-                        {
-                            // 对下一行的预处理也同时移除半角和全角空格
-                            nextLineProcessed = nextLineRaw.Replace(" ", "").Replace("　", "");
-                        }
-                        else
-                        {
-                            nextLineProcessed = nextLineRaw.Trim();
-                        }
-
+                        string nextLineProcessed = StaticValue.IsMergeRemoveSpace ? Regex.Replace(nextLineRaw, @"[ \　]+", " ").Trim() : nextLineRaw.Trim();
+                        
                         if (!string.IsNullOrEmpty(nextLineProcessed))
                         {
                             char firstChar = nextLineProcessed.FirstOrDefault();
 
-                            // 定义字符类型
-                            bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
-                            bool firstIsEnNum = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z') || char.IsDigit(firstChar);
+                            // 【核心修改】细分字符类型
+                            bool lastIsEnglish = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z');
+                            bool lastIsNumber = char.IsDigit(lastChar);
+                            bool firstIsEnglish = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z');
+                            bool firstIsNumber = char.IsDigit(firstChar);
                             bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
                             bool firstIsHanzi = firstChar >= 0x4E00 && firstChar <= 0x9FA5;
-
-                            // 智能添加空格的规则
-                            if ((lastIsEnNum && firstIsEnNum) || (lastIsHanzi && firstIsEnNum) || (lastIsEnNum && firstIsHanzi))
+        
+                            // 【核心修改】更新添加空格的规则，排除英文与数字之间的情况
+                            if ( (lastIsEnglish && firstIsEnglish) ||                                 // 英文-英文
+                                 (lastIsHanzi && (firstIsEnglish || firstIsNumber)) ||               // 中文-英文/数字
+                                 ((lastIsEnglish || lastIsNumber) && firstIsHanzi) )                  // 英文/数字-中文
                             {
                                 sb.Append(" ");
                             }
@@ -556,7 +569,7 @@ namespace TrOCR
                 }
             }
             string finalText = sb.ToString();
-
+        
             // 更新UI并执行复制
             this.richTextBox1.Text = finalText;
             if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))

@@ -468,19 +468,18 @@ namespace TrOCR
 		            if (bool.Parse(IniHelper.GetValue("工具栏", "合并"))) // 检查是否开启了自动合并
 		            {
 		                if (!string.IsNullOrEmpty(textToDisplay))
-    					{
+		                {
     					    // 直接调用新的统一方法
-    					    string finalText = PerformIntelligentMerge(textToDisplay, StaticValue.IsMergeRemoveSpace);
-    					    textToDisplay = finalText;
+		                    string finalText = PerformIntelligentMerge(textToDisplay, StaticValue.IsMergeRemoveSpace);
+		                    textToDisplay = finalText;
 
     					    // 应用“合并后自动复制”设置
-    					    if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
-    					    {
-    					        try { Clipboard.SetDataObject(finalText, true, 5, 100); } catch { }
-    					    }
-    					}
+		                    if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
+		                    {
+		                        try { Clipboard.SetDataObject(finalText, true, 5, 100); } catch { }
+		                    }
+		                }
 		            }
-		            // --- 新增逻辑结束 ---
 
 		            RichBoxBody.Text = textToDisplay; // 将最终处理好的文本设置到输入框
 
@@ -505,8 +504,16 @@ namespace TrOCR
 		    Visible = true;
 		    WindowState = FormWindowState.Normal;
 		    TopMost = IniHelper.GetValue("工具栏", "顶置") == "True";
-			// 在窗口显示后，强制刷新 RichBoxBody 控件，解决文本加载后的渲染问题。
-			RichBoxBody.Refresh();
+
+		    // --- 【核心修正】采用更可靠的三步刷新逻辑 ---
+		    // 步骤 a: 显式地将焦点设置到文本框，确保它是活动控件
+		    RichBoxBody.Focus();
+		    // 步骤 b: 处理当前所有Windows消息，确保窗体已完全加载并获得焦点
+		    Application.DoEvents();
+		    // 步骤 c: 在窗体和控件完全就绪后，再强制刷新，确保渲染正确
+		    RichBoxBody.Refresh();
+		    // --- 刷新逻辑结束 ---
+
 		    // 5. 如果有内容且开启了自动翻译，则手动启动翻译流程
 		    if (hasContentToTranslate && StaticValue.InputTranslateAutoTranslate)
 		    {
@@ -7682,31 +7689,46 @@ namespace TrOCR
 		/// <returns>经过智能空格处理后的文本</returns>
 		private string SmartSpaceClean(string line)
 		{
-		    // 1. 同时移除半角和全角空格
-		    string spacelessText = line.Replace(" ", "").Replace("　", "");
-		    if (spacelessText.Length <= 1) return spacelessText;
-
-		    StringBuilder sb = new StringBuilder();
-		    sb.Append(spacelessText[0]);
-
-		    // 2. 遍历无空格的字符串，根据规则智能地重新插入空格
-		    for (int i = 1; i < spacelessText.Length; i++)
+		    // 1. 规范化：将一行中连续的多个空格（半角/全角）替换为单个半角空格，并去除首尾空格
+		    string normalizedLine = Regex.Replace(line, @"[ \　]+", " ").Trim();
+		    if (normalizedLine.Length <= 1)
 		    {
-		        char lastChar = spacelessText[i - 1];
-		        char currentChar = spacelessText[i];
-
-		        bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
-		        bool currentIsEnNum = (currentChar >= 'a' && currentChar <= 'z') || (currentChar >= 'A' && currentChar <= 'Z') || char.IsDigit(currentChar);
-		        bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
-		        bool currentIsHanzi = currentChar >= 0x4E00 && currentChar <= 0x9FA5;
-
-		        if ((lastIsEnNum && currentIsEnNum) || (lastIsHanzi && currentIsEnNum) || (lastIsEnNum && currentIsHanzi))
-		        {
-		            sb.Append(" ");
-		        }
-		        sb.Append(currentChar);
+		        return normalizedLine;
 		    }
-		    return sb.ToString();
+
+		    StringBuilder lineSb = new StringBuilder();
+		    lineSb.Append(normalizedLine[0]);
+
+		    for (int j = 1; j < normalizedLine.Length; j++)
+		    {
+		        char lastChar = normalizedLine[j - 1];
+		        char currentChar = normalizedLine[j];
+
+		        // 2. 修正：移除中文汉字之间的空格
+		        if (lastChar >= 0x4E00 && lastChar <= 0x9FA5 && currentChar == ' ' && (j + 1 < normalizedLine.Length) && (normalizedLine[j + 1] >= 0x4E00 && normalizedLine[j + 1] <= 0x9FA5))
+		        {
+		            continue; // 跳过这个空格，不添加到结果中
+		        }
+
+		        // 3. 补充：在需要且当前没有空格的地方添加空格
+		        bool lastIsEnglish = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z');
+		        bool lastIsNumber = char.IsDigit(lastChar);
+		        bool currentIsEnglish = (currentChar >= 'a' && currentChar <= 'z') || (currentChar >= 'A' && currentChar <= 'Z');
+		        bool currentIsNumber = char.IsDigit(currentChar);
+		        bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
+				bool currentIsHanzi = currentChar >= 0x4E00 && currentChar <= 0x9FA5;
+
+		        bool spaceNeeded = (lastIsHanzi && (currentIsEnglish || currentIsNumber)) ||
+		                           ((lastIsEnglish || lastIsNumber) && currentIsHanzi);
+
+		        if (spaceNeeded && lastChar != ' ')
+		        {
+		            lineSb.Append(" ");
+		        }
+
+		        lineSb.Append(currentChar);
+		    }
+		    return lineSb.ToString();
 		}
 
 		/// <summary>
@@ -7714,7 +7736,7 @@ namespace TrOCR
 		/// </summary>
 		/// <param name="inputText">需要合并的原始文本</param>
 		/// <param name="enableSmartSpacing">是否启用智能空格处理模式</param>
-		/// <returns>合并后的单行文本</returns>
+		/// <returns>合并后的文本</returns>
 		private string PerformIntelligentMerge(string inputText, bool enableSmartSpacing)
 		{
 		    if (string.IsNullOrEmpty(inputText))
@@ -7751,12 +7773,18 @@ namespace TrOCR
 		                {
 		                    char firstChar = nextLineProcessed.FirstOrDefault();
 
-		                    bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
-		                    bool firstIsEnNum = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z') || char.IsDigit(firstChar);
+		                     // --- 【核心修改】细分字符类型 ---
+		                    bool lastIsEnglish = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z');
+		                    bool lastIsNumber = char.IsDigit(lastChar);
+		                    bool firstIsEnglish = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z');
+		                    bool firstIsNumber = char.IsDigit(firstChar);
 		                    bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
 		                    bool firstIsHanzi = firstChar >= 0x4E00 && firstChar <= 0x9FA5;
 
-		                    if ((lastIsEnNum && firstIsEnNum) || (lastIsHanzi && firstIsEnNum) || (lastIsEnNum && firstIsHanzi))
+		                    // --- 【核心修改】更新添加空格的规则 ---
+                    		if ( (lastIsEnglish && firstIsEnglish) ||                                 // 英文-英文
+                    		     (lastIsHanzi && (firstIsEnglish || firstIsNumber)) ||               // 中文-英文/数字
+                    		     ((lastIsEnglish || lastIsNumber) && firstIsHanzi) )                  // 英文/数字-中文
 		                    {
 		                        sb.Append(" ");
 		                    }
