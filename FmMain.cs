@@ -437,59 +437,120 @@ namespace TrOCR
 		/// <param name="e">事件参数</param>
 		private void trayInputTranslateClick(object sender, EventArgs e)
 		{
-			isContentFromOcr = false; // 关键新增：这不是OCR流程
+		    isContentFromOcr = false; // 标记这不是OCR流程
 
-			// 1. 始终重置翻译界面，确保只显示主输入窗口
-			transtalate_fla = "关闭";
-			RichBoxBody.Dock = DockStyle.Fill;
-			RichBoxBody_T.Visible = false;
-			PictureBox1.Visible = false;
-			RichBoxBody_T.Text = "";
+		    // 1. 重置翻译界面，确保只显示主输入窗口
+		    transtalate_fla = "关闭";
+		    RichBoxBody.Dock = DockStyle.Fill;
+		    RichBoxBody_T.Visible = false;
+		    PictureBox1.Visible = false;
+		    RichBoxBody_T.Text = "";
 
-			// 2. 恢复原始窗口大小
-			if (WindowState == FormWindowState.Maximized)
-			{
-				WindowState = FormWindowState.Normal;
-			}
-			MinimumSize = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
-			Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
+		    // 2. 恢复原始窗口大小
+		    if (WindowState == FormWindowState.Maximized)
+		    {
+		        WindowState = FormWindowState.Normal;
+		    }
+		    MinimumSize = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
+		    Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 
-			// 2. “静默”地准备文本内容
-			bool hasContentToTranslate = false;
-			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
-			try
-			{
-				if (StaticValue.InputTranslateClipboard && Clipboard.ContainsText())
-				{
-					string clipboardText = Clipboard.GetText();
-					RichBoxBody.Text = clipboardText;
-					if (!string.IsNullOrEmpty(clipboardText))
-					{
-						hasContentToTranslate = true;
-					}
-				}
-				else
-				{
-					RichBoxBody.Text = "";
-				}
-			}
-			finally
-			{
-				RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
-			}
+		    // 3. 准备文本内容
+		    bool hasContentToTranslate = false;
+		    RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged; // 关键：在设置文本前，先断开事件处理，避免触发不必要的逻辑
+		    try
+		    {
+		        if (StaticValue.InputTranslateClipboard && Clipboard.ContainsText())
+		        {
+		            string clipboardText = Clipboard.GetText();
+		            string textToDisplay = clipboardText; // 默认显示原始剪贴板文本
 
-            // 4. 显示并激活窗口
-            Show();
-			Activate();
-			Visible = true;
-			WindowState = FormWindowState.Normal;
-			TopMost = IniHelper.GetValue("工具栏", "顶置") == "True";
+		            // --- 新增的核心逻辑：检查并执行自动合并 ---
+		            if (bool.Parse(IniHelper.GetValue("工具栏", "合并"))) // 检查是否开启了自动合并
+		            {
+		                if (!string.IsNullOrEmpty(textToDisplay))
+		                {
+		                    // 步骤 1: 智能合并
+		                    string intelligentlyMergedText;
+		                    string[] lines = textToDisplay.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+		                    if (lines.Length <= 1) {
+		                        intelligentlyMergedText = textToDisplay.Replace("\r", "").Replace("\n", "").Trim();
+		                    } else {
+		                        StringBuilder sb = new StringBuilder();
+		                        for (int i = 0; i < lines.Length; i++) {
+		                            string line = lines[i].Trim();
+		                            if (string.IsNullOrEmpty(line)) continue;
+		                            sb.Append(line);
+		                            if (i < lines.Length - 1) {
+		                                string nextLine = lines[i + 1].Trim();
+		                                if (!string.IsNullOrEmpty(nextLine)) {
+		                                    char lastChar = line.LastOrDefault();
+		                                    char firstChar = nextLine.FirstOrDefault();
+		                                    bool lastIsEnNum = (lastChar >= 'a' && lastChar <= 'z') || (lastChar >= 'A' && lastChar <= 'Z') || char.IsDigit(lastChar);
+		                                    bool firstIsEnNum = (firstChar >= 'a' && firstChar <= 'z') || (firstChar >= 'A' && firstChar <= 'Z') || char.IsDigit(firstChar);
+		                                    bool lastIsHanzi = lastChar >= 0x4E00 && lastChar <= 0x9FA5;
+		                                    bool firstIsHanzi = firstChar >= 0x4E00 && firstChar <= 0x9FA5;
+		                                    if ((lastIsEnNum && firstIsEnNum) || (lastIsHanzi && firstIsEnNum) || (lastIsEnNum && firstIsHanzi)) {
+		                                        sb.Append(" ");
+		                                    }
+		                                }
+		                            }
+		                        }
+		                        intelligentlyMergedText = sb.ToString();
+		                    }
 
-			// 4. 如果有内容且开启了自动翻译，则手动启动翻译流程
-			if (hasContentToTranslate && StaticValue.InputTranslateAutoTranslate)
-			{
-				TransClick();
-			}
+		                    // 步骤 2: 应用“合并后去除空格”设置
+		                    string finalText;
+		                    if (StaticValue.IsMergeRemoveSpace)
+		                    {
+		                        finalText = intelligentlyMergedText.Replace(" ", "");
+		                    }
+		                    else
+		                    {
+		                        finalText = intelligentlyMergedText;
+		                    }
+
+		                    // 将处理后的文本作为最终要显示的文本
+		                    textToDisplay = finalText;
+
+		                    // 步骤 3: 应用“合并后自动复制”设置
+		                    if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
+		                    {
+		                        try { Clipboard.SetDataObject(finalText, true, 5, 100); } catch { }
+		                    }
+		                }
+		            }
+		            // --- 新增逻辑结束 ---
+
+		            RichBoxBody.Text = textToDisplay; // 将最终处理好的文本设置到输入框
+
+		            if (!string.IsNullOrEmpty(clipboardText))
+		            {
+		                hasContentToTranslate = true;
+		            }
+		        }
+		        else
+		        {
+		            RichBoxBody.Text = "";
+		        }
+		    }
+		    finally
+		    {
+		        RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged; // 关键：重新订阅事件，以便后续的手动编辑和自动翻译功能正常工作
+		    }
+
+		    // 4. 显示并激活窗口
+		    Show();
+		    Activate();
+		    Visible = true;
+		    WindowState = FormWindowState.Normal;
+		    TopMost = IniHelper.GetValue("工具栏", "顶置") == "True";
+			// 在窗口显示后，强制刷新 RichBoxBody 控件，解决文本加载后的渲染问题。
+			RichBoxBody.Refresh();
+		    // 5. 如果有内容且开启了自动翻译，则手动启动翻译流程
+		    if (hasContentToTranslate && StaticValue.InputTranslateAutoTranslate)
+		    {
+		        TransClick();
+		    }
 		}
 
 		/// <summary>
