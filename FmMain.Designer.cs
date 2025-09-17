@@ -274,6 +274,9 @@ namespace TrOCR
 			this.baidu_accurate = new global::System.Windows.Forms.ToolStripMenuItem();
 			this.baidu_accurate.Text = "百度-高精度";
 			this.baidu_accurate.Click += new global::System.EventHandler(this.OCR_baidu_accurate_Click);
+			this.paddleocr = new global::System.Windows.Forms.ToolStripMenuItem();
+			this.paddleocr.Text = "PaddleOCR";
+			this.paddleocr.Click += new global::System.EventHandler(this.OCR_paddleocr_Click);
 			this.ocr_table.Text = "表格";
 			this.baidu_table.Text = "百度";
 			this.baidu_table.Click += new global::System.EventHandler(this.OCR_baidutable_Click);
@@ -327,6 +330,7 @@ namespace TrOCR
 				this.baimiao,
 				this.baidu,
 				this.baidu_accurate,
+				this.paddleocr,
 				this.toolStripSeparator1,
 				this.Mathfuntion,
 				this.ocr_table,
@@ -497,6 +501,11 @@ namespace TrOCR
 		/// 接口 - 百度(高精度)
 		/// </summary>
 		public global::System.Windows.Forms.ToolStripItem baidu_accurate;
+
+		/// <summary>
+		/// 接口 - PaddleOCR
+		/// </summary>
+		public global::System.Windows.Forms.ToolStripItem paddleocr;
 
 		/// <summary>
 		/// 接口 - 竖排

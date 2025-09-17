@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
+using System.Runtime.InteropServices;
 using TrOCR.Helper;
 
 namespace TrOCR
@@ -18,6 +19,9 @@ namespace TrOCR
     /// </summary>
     internal static class Program
     {
+        // 导入 Windows API 函数
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool SetDllDirectory(string lpPathName);
         /// <summary>
         /// DPI缩放因子
         /// </summary>
@@ -30,76 +34,85 @@ namespace TrOCR
         [STAThread]
         public static void Main(string[] args)
         {
+            
         	try
-        	{
-        		// 设置异常处理模式和事件处理程序
-        		Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-        		Application.ThreadException += Application_ThreadException;
-        		AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-      
-        		// 检查是否已经运行了程序实例
-        		var eventName = "TianruoOcrInstance_" + Application.ExecutablePath.Replace(Path.DirectorySeparatorChar, '_');
-        		var programStarted = new EventWaitHandle(false, EventResetMode.AutoReset, eventName, out var needNew);
-        		if (!needNew)
-        		{
-        			programStarted.Set();
-        			CommonHelper.ShowHelpMsg("软件已经运行");
-        			return;
-        		}
-        		
-        		// 初始化配置文件
-        		InitConfig();
-        		DealErrorConfig();
+            {
+                 string paddlePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "paddleOCR","win_x64");
+
+                // 检查目录是否存在，如果存在则添加到搜索路径
+                if (Directory.Exists(paddlePath))
+                {
+                    // 这行代码会告诉程序在加载原生DLL时，也去指定的路径下查找
+                    SetDllDirectory(paddlePath);
+                }
+                // 设置异常处理模式和事件处理程序
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+                Application.ThreadException += Application_ThreadException;
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+                // 检查是否已经运行了程序实例
+                var eventName = "TianruoOcrInstance_" + Application.ExecutablePath.Replace(Path.DirectorySeparatorChar, '_');
+                var programStarted = new EventWaitHandle(false, EventResetMode.AutoReset, eventName, out var needNew);
+                if (!needNew)
+                {
+                    programStarted.Set();
+                    CommonHelper.ShowHelpMsg("软件已经运行");
+                    return;
+                }
+
+                // 初始化配置文件
+                InitConfig();
+                DealErrorConfig();
                 StaticValue.LoadConfig();
-        		
-        		// 设置应用程序视觉样式
+
+                // 设置应用程序视觉样式
                 Application.EnableVisualStyles();
-        		Application.SetCompatibleTextRenderingDefault(false);
-        		var version = Environment.OSVersion.Version;
-        		var value = new Version("6.1");
-        		Factor = CommonHelper.GetDpiFactor();
-        		if (version.CompareTo(value) >= 0)
-        		{
-        			CommonHelper.SetProcessDPIAware();
-        		}
-        		
-        		// 处理启动参数
-        		if (args.Length != 0 && args[0] == "更新")
-        		{
-        			new FmSetting
-        			{
-        				Start_set = ""
-        			}.ShowDialog();
-        		}
-        		
-        		// 启动更新检查任务并运行主窗体
-        		Task.Factory.StartNew(CheckUpdate);
-        		Application.Run(new FmMain());
-        	}
-        	catch (Exception ex)
-        	{
-        		// 记录详细的异常信息到日志文件
-        		try
-        		{
-        			var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "error.log");
-        			var logDir = Path.GetDirectoryName(logPath);
-        			if (!Directory.Exists(logDir))
-        			{
-        				Directory.CreateDirectory(logDir);
-        			}
-        			
-        			var logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 未处理异常:{ex}{new string('=', 80)}";
-        			File.AppendAllText(logPath, logEntry, Encoding.UTF8);
-        		}
-        		catch
-        		{
-        			// 如果日志记录失败，忽略错误
-        		}
-        		
-        		// 显示用户友好的错误信息
-        		var errorMsg = $"程序启动时发生错误:{ex.Message}，详细信息已记录到 Data/error.log 文件中。";
-        		MessageBox.Show(errorMsg, "TrOCR 启动错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        	}
+                Application.SetCompatibleTextRenderingDefault(false);
+                var version = Environment.OSVersion.Version;
+                var value = new Version("6.1");
+                Factor = CommonHelper.GetDpiFactor();
+                if (version.CompareTo(value) >= 0)
+                {
+                    CommonHelper.SetProcessDPIAware();
+                }
+
+                // 处理启动参数
+                if (args.Length != 0 && args[0] == "更新")
+                {
+                    new FmSetting
+                    {
+                        Start_set = ""
+                    }.ShowDialog();
+                }
+
+                // 启动更新检查任务并运行主窗体
+                Task.Factory.StartNew(CheckUpdate);
+                Application.Run(new FmMain());
+            }
+            catch (Exception ex)
+            {
+                // 记录详细的异常信息到日志文件
+                try
+                {
+                    var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "error.log");
+                    var logDir = Path.GetDirectoryName(logPath);
+                    if (!Directory.Exists(logDir))
+                    {
+                        Directory.CreateDirectory(logDir);
+                    }
+
+                    var logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 未处理异常:{ex}{new string('=', 80)}";
+                    File.AppendAllText(logPath, logEntry, Encoding.UTF8);
+                }
+                catch
+                {
+                    // 如果日志记录失败，忽略错误
+                }
+
+                // 显示用户友好的错误信息
+                var errorMsg = $"程序启动时发生错误:{ex.Message}，详细信息已记录到 Data/error.log 文件中。";
+                MessageBox.Show(errorMsg, "TrOCR 启动错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
       
         /// <summary>

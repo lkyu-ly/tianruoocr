@@ -86,6 +86,9 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PaddleOCRSharp, Version=5.1.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>packages\PaddleOCRSharp.5.1.0\lib\net48\PaddleOCRSharp.dll</HintPath>
+    </Reference>
     <Reference Include="ShareX.HelpersLib">
       <HintPath>DLL\ShareX\ShareX.HelpersLib.dll</HintPath>
     </Reference>
@@ -217,6 +220,7 @@
     <Compile Include="Helper\CaiyunTranslator2.cs" />
     <Compile Include="Helper\BaiduOcrHelper.cs" />
     <Compile Include="Helper\TencentOcrHelper.cs" />
+    <Compile Include="Helper\PaddleOCRHelper.cs" />
     <Compile Include="Messageload.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -295,5 +299,16 @@
     </Content>
     <None Include="DLL\pinyin.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(SolutionDir)packages\Paddle.Runtime.win_x64.3.1.0\build\win_x64\*.*">
+      <Link>paddleOCR\win_x64\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    
+    <Content Include="$(SolutionDir)packages\PaddleOCRSharp.5.1.0\build\PaddleOCRLib\inference\**\*.*">
+      <Link>paddleOCR\win_x64\inference\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-</Project>
+ </Project>
