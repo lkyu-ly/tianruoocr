@@ -117,35 +117,58 @@ namespace TrOCR
 		{
 			try
 			{
-				var flag = fm_close != "窗体已开启";
-				var flag2 = flag;
-				var flag3 = flag2;
-				var flag4 = flag3;
-				var flag5 = flag4;
-				var flag6 = flag5;
-				var flag7 = flag6;
-				var flag8 = flag7;
-				var flag9 = flag8;
-				if (flag9)
+				if (fm_close != "窗体已开启")
 				{
 					Close();
+					return; // 调用Close后直接返回，避免后续操作
 				}
-				var flag10 = i_c >= fla_1;
-				var flag11 = flag10;
-				var flag12 = flag11;
-				var flag13 = flag12;
-				var flag14 = flag13;
-				var flag15 = flag14;
-				var flag16 = flag15;
-				var flag17 = flag16;
-				var flag18 = flag17;
-				if (flag18)
+
+				if (i_c >= fla_1)
 				{
 					i_c = 0;
 				}
+
+				// --- 修复关键点 ---
+				// 在加载新图片之前，先释放上一张图片的资源
+				if (bgImg != null)
+				{
+					bgImg.Dispose();
+				}
+				// --- 修复结束 ---
+
 				bgImg = (Image)new ComponentResourceManager(typeof(FmLoading)).GetObject(i_c + fla_2 + ".png");
 				SetBits((Bitmap)bgImg);
 				i_c++;
+				
+				// var flag = fm_close != "窗体已开启";
+				// var flag2 = flag;
+				// var flag3 = flag2;
+				// var flag4 = flag3;
+				// var flag5 = flag4;
+				// var flag6 = flag5;
+				// var flag7 = flag6;
+				// var flag8 = flag7;
+				// var flag9 = flag8;
+				// if (flag9)
+				// {
+				// 	Close();
+				// }
+				// var flag10 = i_c >= fla_1;
+				// var flag11 = flag10;
+				// var flag12 = flag11;
+				// var flag13 = flag12;
+				// var flag14 = flag13;
+				// var flag15 = flag14;
+				// var flag16 = flag15;
+				// var flag17 = flag16;
+				// var flag18 = flag17;
+				// if (flag18)
+				// {
+				// 	i_c = 0;
+				// }
+				// bgImg = (Image)new ComponentResourceManager(typeof(FmLoading)).GetObject(i_c + fla_2 + ".png");
+				// SetBits((Bitmap)bgImg);
+				// i_c++;
 			}
 			catch
 			{
