@@ -2221,7 +2221,7 @@ namespace TrOCR
                         //  使用 await 关键字来异步等待识别结果
                         // 调用 RecognizeTextAsync 方法，它会返回一个 Task<string>
                         // await 会“暂停”这个方法，直到后台线程完成识别并将结果返回，期间UI不会卡死
-                        resultText = await PaddleOCRHelper.Instance.RecognizeTextAsync(localImage);
+                        //resultText = await PaddleOCRHelper.Instance.RecognizeTextAsync(localImage);
 
                     }
                 });
