@@ -702,6 +702,12 @@ namespace TrOCR
 			}
 			catch (Exception ex)
 			{
+				if (RuntimeInformation.ProcessArchitecture != Architecture.X64)
+				{
+					typeset_txt = split_txt="***微信OCR仅支持64位系统,不支持32位系统***";
+					return;
+					
+				}
 				typeset_txt = $"***微信OCR识别出错: {ex.Message}***";
 				if (esc == "退出")
 				{
@@ -980,8 +986,8 @@ namespace TrOCR
 			{
 				var result = PaddleOCRHelper.RecognizeText(image_screen);
 				image_screen?.Dispose();
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+                // GC.Collect();
+                // GC.WaitForPendingFinalizers();
 
 
                 if (!string.IsNullOrEmpty(result))
@@ -1015,7 +1021,13 @@ namespace TrOCR
 			}
 			catch (Exception ex)
 			{
-				if (esc != "退出")
+                //if (RuntimeInformation.ProcessArchitecture != Architecture.X64)
+                //{
+                //    typeset_txt = split_txt = "***PaddleOCR仅支持64位系统,不支持32位系统***";
+                //    return;
+
+                //}
+                if (esc != "退出")
 				{
                     //RichBoxBody.Text = "***PaddleOCR识别失败: " + ex.Message + "***";这里有bug，所以改为下面两行代码
                     typeset_txt = "***PaddleOCR识别失败: " + ex.Message + "***";
@@ -1041,8 +1053,8 @@ namespace TrOCR
 			{
 				var result = PaddleOCR2Helper.RecognizeText(image_screen);
 				image_screen?.Dispose();
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+                // GC.Collect();
+                // GC.WaitForPendingFinalizers();
 
                 if (!string.IsNullOrEmpty(result))
 				{
@@ -1074,7 +1086,13 @@ namespace TrOCR
 			}
 			catch (Exception ex)
 			{
-				if (esc != "退出")
+                //if (RuntimeInformation.ProcessArchitecture != Architecture.X64)
+                //{
+                //    typeset_txt = split_txt = "***PaddleOCR2仅支持64位系统,不支持32位系统***";
+                //    return;
+
+                //}
+                if (esc != "退出")
 				{
                     typeset_txt = "***PaddleOCR2识别失败: " + ex.Message + "***";
                     split_txt = typeset_txt;
@@ -1107,7 +1125,7 @@ namespace TrOCR
 						if (esc != "退出")
 						{
 							typeset_txt = result;
-                    		split_txt = typeset_txt; // 必须也把这个变量设置一下
+                   		split_txt = typeset_txt; // 必须也把这个变量设置一下
 						}
 						else
 						{
@@ -1131,15 +1149,15 @@ namespace TrOCR
 			{
 				if (esc != "退出")
 				{
-                    typeset_txt = "***RapidOCR识别失败: " + ex.Message + "***";
-                    split_txt = typeset_txt; // 必须也把这个变量设置一下
-                }
+                   typeset_txt = "***RapidOCR识别失败: " + ex.Message + "***";
+                   split_txt = typeset_txt; // 必须也把这个变量设置一下
+               }
 				else
 				{
-                    typeset_txt = "***该区域未发现文本***";
-                    split_txt = typeset_txt;
-                    esc = "";
-                }
+                   typeset_txt = "***该区域未发现文本***";
+                   split_txt = typeset_txt;
+                   esc = "";
+               }
 			}
 		}
 		#endregion
@@ -1707,7 +1725,7 @@ namespace TrOCR
 			 StaticValue.BaimiaoDeviceUuid = savedUuid;
 			}
 		}
-
+		
 		/// <summary>
 		/// 检查并替换文本中的中文冒号为英文冒号
 		/// 当中文冒号前后都是英文字符或标点符号时，将其替换为英文冒号
@@ -3625,9 +3643,9 @@ namespace TrOCR
 				graphics.Save();
 				graphics.Dispose();
 				image_ori = bitmap;
-				var image2 = new Image<Gray, byte>(bitmap);
-				var image3 = new Image<Gray, byte>((Bitmap)FindBundingBox(image2.ToBitmap()));
-				var draw = image3.Convert<Bgr, byte>();
+				var image2 = bitmap.ToImage<Gray, byte>();
+                var image3 = ((Bitmap)FindBundingBox(image2.ToBitmap())).ToImage<Gray, byte>();
+                var draw = image3.Convert<Bgr, byte>();
 				var image4 = image3.Clone();
 				CvInvoke.Canny(image3, image4, 0.0, 0.0, 5, true);
 				select_image(image4, draw);
@@ -4814,14 +4832,14 @@ namespace TrOCR
 		/// <returns>带有边界框标记的图像</returns>
 		public Image FindBundingBox(Bitmap bitmap)
 		{
-			var image = new Image<Bgr, byte>(bitmap);
-			var image2 = new Image<Gray, byte>(image.Width, image.Height);
+            var image = bitmap.ToImage<Bgr, byte>();
+            var image2 = new Image<Gray, byte>(image.Width, image.Height);
 			CvInvoke.CvtColor(image, image2, ColorConversion.Bgra2Gray);
 			var structuringElement = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(4, 4), new Point(1, 1));
 			CvInvoke.Erode(image2, image2, structuringElement, new Point(0, 2), 1, BorderType.Reflect101, default(MCvScalar));
 			CvInvoke.Threshold(image2, image2, 100.0, 255.0, (ThresholdType)9);
-			var image3 = new Image<Gray, byte>(image2.ToBitmap());
-			var draw = image3.Convert<Bgr, byte>();
+            var image3 = image2.ToBitmap().ToImage<Gray, byte>();
+            var draw = image3.Convert<Bgr, byte>();
 			var image4 = image3.Clone();
 			CvInvoke.Canny(image3, image4, 255.0, 255.0, 5, true);
 			return BoundingBox(image4, draw);
@@ -5980,7 +5998,7 @@ namespace TrOCR
 		/// <returns>处理后的图像，其中围栏区域被标记</returns>
 		public Image FindBoundingBoxFences(Bitmap bitmap)
 		{
-			var image = new Image<Bgr, byte>(bitmap);
+			var image = bitmap.ToImage<Bgr, byte>();
 			var image2 = new Image<Gray, byte>(image.Width, image.Height);
 			// 将彩色图像转换为灰度图像
 			CvInvoke.CvtColor(image, image2, ColorConversion.Bgra2Gray);
@@ -5990,7 +6008,7 @@ namespace TrOCR
 			CvInvoke.Erode(image2, image2, structuringElement, new Point(0, 2), 1, BorderType.Reflect101, default(MCvScalar));
 			// 应用阈值处理将图像二值化
 			CvInvoke.Threshold(image2, image2, 100.0, 255.0, (ThresholdType)9);
-			var image3 = new Image<Gray, byte>(image2.ToBitmap());
+			var image3 = image2.ToBitmap().ToImage<Gray, byte>();
 			var draw = image3.Convert<Bgr, byte>();
 			// 复制图像用于边缘检测
 			var image4 = image3.Clone();
@@ -5998,9 +6016,9 @@ namespace TrOCR
 			CvInvoke.Canny(image3, image4, 255.0, 255.0, 5, true);
 			// 查找并标记边界框区域
 			var image5 = BoundingBox_fences(image4, draw);
-			var image6 = new Image<Gray, byte>((Bitmap)image5);
-			// 对标记的区域进行进一步处理
-			BoundingBox_fences_Up(image6);
+            var image6 = ((Bitmap)image5).ToImage<Gray, byte>();
+            // 对标记的区域进行进一步处理
+            BoundingBox_fences_Up(image6);
 			// 释放资源
 			image.Dispose();
 			image2.Dispose();

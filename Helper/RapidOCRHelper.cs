@@ -2,47 +2,32 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Emgu.CV;
-using Emgu.CV.CvEnum;
 using OcrLiteLib;
-
+using System.Threading;
+using System.Drawing.Imaging;
+using System.Diagnostics; // for ImageFormat
+//支持ppocrv4，不支持ppocrv5，支持32位和64位
 namespace TrOCR.Helper
 {
     /// <summary>
-    /// RapidOCR离线识别帮助类
-    /// 基于OcrLiteLib库实现的单例模式OCR识别器
+    /// RapidOCR离线识别帮助类 (基于Lazy<T>的现代线程安全版本)
     /// </summary>
-    public class RapidOCRHelper
+    public sealed class RapidOCRHelper : IDisposable
     {
-        #region 单例模式
-        private static RapidOCRHelper _instance;
-        private static readonly object _lock = new object();
+        #region --- 1. 使用 Lazy<T> 实现单例 ---
+        private static Lazy<RapidOCRHelper> _lazyInstance =
+            new Lazy<RapidOCRHelper>(() => new RapidOCRHelper(), LazyThreadSafetyMode.ExecutionAndPublication);
 
-        public static RapidOCRHelper Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    lock (_lock)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new RapidOCRHelper();
-                        }
-                    }
-                }
-                return _instance;
-            }
-        }
+        public static RapidOCRHelper Instance => _lazyInstance.Value;
+
+        private static readonly object _resetLock = new object();
         #endregion
 
-        #region 私有字段
+        #region --- 私有字段 ---
         private OcrLite _ocrEngine;
-        private bool _isInitialized = false;
-        private string _modelsPath;
-        
-        // 默认参数配置
+        private bool _disposed = false;
+
+        // 保留为默认参数
         private int _padding = 50;
         private int _imgResize = 1024;
         private float _boxScoreThresh = 0.5f;
@@ -50,242 +35,164 @@ namespace TrOCR.Helper
         private float _unClipRatio = 1.6f;
         private bool _doAngle = true;
         private bool _mostAngle = true;
-        private int _numThreads = 4;
+        private int numThreads = 4;
         #endregion
 
-        #region 构造函数
+        #region --- 2. 构造函数负责所有初始化工作 ---
         private RapidOCRHelper()
         {
-            // 检查系统架构
-            CheckArchitecture();
             
-            // 设置默认模型路径
-            _modelsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "models");
-        }
-        #endregion
+            // 设置模型路径
+            string modelsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RapidOCR_data","models");
+            // numThreads = Environment.ProcessorCount; // 使用所有可用核心以获得最佳性能
 
-        #region 公共属性
-        /// <summary>
-        /// 是否已初始化
-        /// </summary>
-        public bool IsInitialized => _isInitialized;
-
-        /// <summary>
-        /// 模型文件路径
-        /// </summary>
-        public string ModelsPath
-        {
-            get => _modelsPath;
-            set => _modelsPath = value;
-        }
-
-        /// <summary>
-        /// 是否输出部分图片
-        /// </summary>
-        public bool IsPartImg
-        {
-            get => _ocrEngine?.isPartImg ?? false;
-            set
+            // 检查模型文件
+            var modelFiles = GetModelFilePaths(modelsPath);
+            if (!ValidateModelFiles(modelFiles))
             {
-                if (_ocrEngine != null)
-                    _ocrEngine.isPartImg = value;
+              
+                // 如果模型文件缺失，抛出异常，Lazy<T> 会捕获并缓存这个异常
+                // 下次访问 Instance 时会重新抛出同样的异常
+                throw new FileNotFoundException("RapidOCR模型文件缺失，无法初始化引擎。");
             }
-        }
 
-        /// <summary>
-        /// 是否输出调试图片
-        /// </summary>
-        public bool IsDebugImg
-        {
-            get => _ocrEngine?.isDebugImg ?? false;
-            set
-            {
-                if (_ocrEngine != null)
-                    _ocrEngine.isDebugImg = value;
-            }
-        }
-        #endregion
-
-        #region 初始化方法
-        /// <summary>
-        /// 初始化OCR引擎
-        /// </summary>
-        /// <param name="modelsPath">模型文件夹路径</param>
-        /// <param name="numThreads">线程数</param>
-        /// <returns>初始化是否成功</returns>
-        public bool Initialize(string modelsPath = null, int numThreads = 4)
-        {
+            // 创建并初始化OCR引擎
             try
             {
-                if (!string.IsNullOrEmpty(modelsPath))
-                    _modelsPath = modelsPath;
-
-                _numThreads = numThreads;
-
-                // 检查模型文件
-                var modelFiles = GetModelFilePaths();
-                if (!ValidateModelFiles(modelFiles))
-                {
-                    return false;
-                }
-
-                // 创建OCR引擎实例
                 _ocrEngine = new OcrLite();
-                
-                // 初始化模型
                 _ocrEngine.InitModels(
                     modelFiles.DetPath,
                     modelFiles.ClsPath,
                     modelFiles.RecPath,
                     modelFiles.KeysPath,
-                    _numThreads
-                );
-
-                _isInitialized = true;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"RapidOCR初始化失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 使用默认参数初始化
-        /// </summary>
-        /// <returns>初始化是否成功</returns>
-        public bool Initialize()
-        {
-            return Initialize(_modelsPath, _numThreads);
-        }
-        #endregion
-
-        #region OCR识别方法
-        /// <summary>
-        /// 识别图片文件
-        /// </summary>
-        /// <param name="imagePath">图片文件路径</param>
-        /// <returns>识别结果</returns>
-        public OcrResult RecognizeFromFile(string imagePath)
-        {
-            if (!_isInitialized)
-            {
-                throw new InvalidOperationException("OCR引擎未初始化，请先调用Initialize方法");
-            }
-
-            if (!File.Exists(imagePath))
-            {
-                throw new FileNotFoundException($"图片文件不存在: {imagePath}");
-            }
-
-            try
-            {
-                return _ocrEngine.Detect(
-                    imagePath,
-                    _padding,
-                    _imgResize,
-                    _boxScoreThresh,
-                    _boxThresh,
-                    _unClipRatio,
-                    _doAngle,
-                    _mostAngle
+                    numThreads
                 );
             }
             catch (Exception ex)
             {
-                throw new Exception($"OCR识别失败: {ex.Message}", ex);
+                throw new InvalidOperationException($"RapidOCR引擎初始化失败: {ex.Message}", ex);
             }
-        }
-
-        /// <summary>
-        /// 识别Bitmap图片
-        /// </summary>
-        /// <param name="bitmap">位图对象</param>
-        /// <returns>识别结果</returns>
-        public OcrResult RecognizeFromBitmap(Bitmap bitmap)
-        {
-            if (!_isInitialized)
-            {
-                throw new InvalidOperationException("OCR引擎未初始化，请先调用Initialize方法");
-            }
-
-            if (bitmap == null)
-            {
-                throw new ArgumentNullException(nameof(bitmap));
-            }
-
-            try
-            {
-                // 将Bitmap转换为临时文件
-                string tempPath = Path.GetTempFileName() + ".png";
-                bitmap.Save(tempPath, System.Drawing.Imaging.ImageFormat.Png);
-
-                try
-                {
-                    return RecognizeFromFile(tempPath);
-                }
-                finally
-                {
-                    // 清理临时文件
-                    if (File.Exists(tempPath))
-                    {
-                        File.Delete(tempPath);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"OCR识别失败: {ex.Message}", ex);
-            }
-        }
-
-        /// <summary>
-        /// 识别屏幕截图
-        /// </summary>
-        /// <param name="rect">截图区域</param>
-        /// <returns>识别结果</returns>
-        public OcrResult RecognizeFromScreen(Rectangle rect)
-        {
-            try
-            {
-                using (var bitmap = CaptureScreen(rect))
-                {
-                    return RecognizeFromBitmap(bitmap);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"屏幕截图OCR识别失败: {ex.Message}", ex);
-            }
-        }
-
-        /// <summary>
-        /// 快速识别，只返回文本结果
-        /// </summary>
-        /// <param name="imagePath">图片路径</param>
-        /// <returns>识别的文本</returns>
-        public string RecognizeText(string imagePath)
-        {
-            var result = RecognizeFromFile(imagePath);
-            return result?.StrRes ?? string.Empty;
-        }
-
-        /// <summary>
-        /// 快速识别Bitmap，只返回文本结果
-        /// </summary>
-        /// <param name="bitmap">位图对象</param>
-        /// <returns>识别的文本</returns>
-        public string RecognizeText(Bitmap bitmap)
-        {
-            var result = RecognizeFromBitmap(bitmap);
-            return result?.StrRes ?? string.Empty;
         }
         #endregion
 
-        #region 参数配置方法
+        #region --- 3. 新增和修改的识别方法 ---
         /// <summary>
-        /// 设置识别参数
+        /// 静态方法：使用默认参数识别图像
+        /// </summary>
+        public static string RecognizeText(Image image)
+        {
+            try
+            {
+                // 调用使用默认参数的实例方法
+                var result = Instance.Recognize(image);
+                Debug.WriteLine($"RapidOCR识别结果: {result?.StrRes}");
+                return result?.StrRes?.Trim() ?? "***该区域未发现文本***";
+            }
+            catch (Exception ex)
+            {
+                
+                // 告知用户初始化失败，并自动重置，以便下次重试
+                Reset(); // 关键：重置实例，以便下次有机会重新初始化
+                
+                return $"***RapidOCR识别失败: {ex.Message}***";
+            }
+        }
+
+        /// <summary>
+        /// /// 【新增重载】静态方法：使用JSON文件配置参数来识别图像
+        /// </summary>
+         public static string RecognizeText(Image image, string jsonFilePath)
+        {
+            try
+            {
+                // 调用使用JSON配置的实例方法
+                var result = Instance.Recognize(image, jsonFilePath);
+                Debug.WriteLine($"RapidOCR识别结果: {result?.StrRes}");
+                return result?.StrRes?.Trim() ?? "***该区域未发现文本***";
+            }
+            catch (Exception ex)
+            {
+                
+                // 告知用户初始化失败，并自动重置，以便下次重试
+                Reset(); // 关键：重置实例，以便下次有机会重新初始化
+                
+                return $"***RapidOCR识别失败: {ex.Message}***";
+            }
+        }
+
+        /// <summary>
+        /// /// /// 【新增重载】静态方法：传入所有参数来识别图像
+        /// </summary>
+        public static string RecognizeText(Image image, int padding, int imgResize, float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle, bool mostAngle)
+        {
+            try
+            {
+                // 调用传入所有参数的实例方法
+                var result = Instance.Recognize(image, padding, imgResize, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+                Debug.WriteLine($"RapidOCR识别结果: {result?.StrRes}");
+                return result?.StrRes?.Trim() ?? "***该区域未发现文本***";
+            }
+            catch (Exception ex)
+            {
+                
+                // 可告知用户初始化失败，并自动重置，以便下次重试
+                Reset(); // 关键：重置实例，以便下次有机会重新初始化
+                
+                return $"***RapidOCR识别失败: {ex.Message}***";
+            }
+        }
+
+        // -------- 实例方法 (被静态方法调用，执行具体操作) --------
+
+        /// <summary>
+        /// 【补全】实例方法：使用类中存储的默认参数进行识别
+        /// </summary>
+        private OcrResult Recognize(Image image)
+        {
+            if (_ocrEngine == null) throw new InvalidOperationException("OCR引擎未初始化。");
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            // 将Image转换为Bitmap并调用引擎
+            using (var bitmap = new Bitmap(image))
+            {
+                return _ocrEngine.Detect(bitmap, _padding, _imgResize, _boxScoreThresh, _boxThresh, _unClipRatio, _doAngle, _mostAngle);
+            }
+        }
+
+        /// <summary>
+        /// 【新增】实例方法：使用JSON文件配置进行识别
+        /// </summary>
+        private OcrResult Recognize(Image image, string jsonFilePath)
+        {
+            if (_ocrEngine == null) throw new InvalidOperationException("OCR引擎未初始化。");
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            if (!File.Exists(jsonFilePath)) throw new FileNotFoundException("JSON配置文件不存在。", jsonFilePath);
+
+            using (var bitmap = new Bitmap(image))
+            {
+                // 调用OcrLite中新增的json重载方法
+                return _ocrEngine.Detect(bitmap, jsonFilePath);
+            }
+        }
+
+        /// <summary>
+        /// 【新增】实例方法：使用传入的完整参数进行识别
+        /// </summary>
+        private OcrResult Recognize(Image image, int padding, int imgResize, float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle, bool mostAngle)
+        {
+            if (_ocrEngine == null) throw new InvalidOperationException("OCR引擎未初始化。");
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            
+            using (var bitmap = new Bitmap(image))
+            {
+                return _ocrEngine.Detect(bitmap, padding, imgResize, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// 设置全局默认参数 (此方法仍然有效)
         /// </summary>
         public void SetParameters(
             int padding = 50,
@@ -304,193 +211,97 @@ namespace TrOCR.Helper
             _doAngle = doAngle;
             _mostAngle = mostAngle;
         }
-        #endregion
 
-        #region 私有辅助方法
-        /// <summary>
-        /// 检查系统架构是否支持RapidOCR
-        /// </summary>
-        /// <returns>如果支持返回true，否则返回false</returns>
-        private static bool CheckArchitecture()
+        #region --- 4. 资源释放与重置 ---
+        public static void Reset()
+        {
+            lock (_resetLock)
+            {
+                if (_lazyInstance.IsValueCreated)
+                {
+                    try
+                    {
+                        // 尝试获取并释放旧实例。
+                        // 如果初始化成功，这里会正常执行 Dispose。
+                        // 如果初始化失败，访问 .Value 会抛出异常。
+                        _lazyInstance.Value.Dispose();
+                    }
+                    catch
+                    {
+                        // 捕获访问 .Value 时的异常。
+                        // 这说明实例本身就是坏的，没有资源需要释放，
+                        // 所以我们可以安全地忽略这个异常，继续执行重置的核心逻辑。
+                    }                   
+                }
+                _lazyInstance = new Lazy<RapidOCRHelper>(() => new RapidOCRHelper(), LazyThreadSafetyMode.ExecutionAndPublication);
+                TrOCRUtils.CleanMemory();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // 在此清理托管资源 (如果未来有的话)
+                }
+
+                
+                _ocrEngine = null;
+                _disposed = true;
+            }
+        }
+
+        ~RapidOCRHelper()
         {
             try
             {
-                // 检查是否为64位系统
-                bool is64Bit = Environment.Is64BitOperatingSystem && Environment.Is64BitProcess;
-                
-                // 记录系统信息
-                System.Diagnostics.Debug.WriteLine($"系统架构检查 - 操作系统: {(Environment.Is64BitOperatingSystem ? "64位" : "32位")}, 进程: {(Environment.Is64BitProcess ? "64位" : "32位")}");
-                
-                // RapidOCR通常支持32位和64位系统，但建议使用64位以获得更好性能
-                if (!is64Bit)
-                {
-                    System.Diagnostics.Debug.WriteLine("警告: 当前运行在32位环境下，RapidOCR性能可能受限，建议使用64位系统");
-                }
-                
-                return true; // RapidOCR支持32位和64位
+                Dispose(false);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"架构检查失败: {ex.Message}");
-                return false;
+                Debug.WriteLine($"RapidOCR Error in finalizer: {ex.Message}");               
+                return;
             }
+            
         }
+        #endregion
 
-        /// <summary>
-        /// 获取模型文件路径
-        /// </summary>
-        private (string DetPath, string ClsPath, string RecPath, string KeysPath) GetModelFilePaths()
+        #region --- 私有辅助方法 ---
+        // GetModelFilePaths, ValidateModelFiles, CheckArchitecture 等方法保持不变
+        private (string DetPath, string ClsPath, string RecPath, string KeysPath) GetModelFilePaths(string modelsPath)
         {
             return (
-                DetPath: Path.Combine(_modelsPath, "ch_PP-OCRv3_det_infer.onnx"),
-                ClsPath: Path.Combine(_modelsPath, "ch_ppocr_mobile_v2.0_cls_infer.onnx"),
-                RecPath: Path.Combine(_modelsPath, "ch_PP-OCRv3_rec_infer.onnx"),
-                KeysPath: Path.Combine(_modelsPath, "ppocr_keys_v1.txt")
+                DetPath: Path.Combine(modelsPath, "ch_PP-OCRv4_det_infer.onnx"),
+                ClsPath: Path.Combine(modelsPath, "ch_ppocr_mobile_v2.0_cls_infer.onnx"),
+                RecPath: Path.Combine(modelsPath, "ch_PP-OCRv4_rec_infer.onnx"),
+                KeysPath: Path.Combine(modelsPath, "ppocr_keys_v1.txt")
             );
         }
 
-        /// <summary>
-        /// 验证模型文件是否存在
-        /// </summary>
         private bool ValidateModelFiles((string DetPath, string ClsPath, string RecPath, string KeysPath) modelFiles)
         {
             var missingFiles = new System.Collections.Generic.List<string>();
-
-            if (!File.Exists(modelFiles.DetPath))
-                missingFiles.Add($"检测模型: {modelFiles.DetPath}");
-            
-            if (!File.Exists(modelFiles.ClsPath))
-                missingFiles.Add($"分类模型: {modelFiles.ClsPath}");
-            
-            if (!File.Exists(modelFiles.RecPath))
-                missingFiles.Add($"识别模型: {modelFiles.RecPath}");
-            
-            if (!File.Exists(modelFiles.KeysPath))
-                missingFiles.Add($"字典文件: {modelFiles.KeysPath}");
-
+            if (!File.Exists(modelFiles.DetPath)) missingFiles.Add($"检测模型: {modelFiles.DetPath}");
+            if (!File.Exists(modelFiles.ClsPath)) missingFiles.Add($"分类模型: {modelFiles.ClsPath}");
+            if (!File.Exists(modelFiles.RecPath)) missingFiles.Add($"识别模型: {modelFiles.RecPath}");
+            if (!File.Exists(modelFiles.KeysPath)) missingFiles.Add($"字典文件: {modelFiles.KeysPath}");
             if (missingFiles.Count > 0)
             {
                 string message = "以下模型文件不存在:\n" + string.Join("\n", missingFiles);
                 MessageBox.Show(message, "模型文件缺失", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-
             return true;
         }
 
-        /// <summary>
-        /// 截取屏幕指定区域
-        /// </summary>
-        private Bitmap CaptureScreen(Rectangle rect)
-        {
-            var bitmap = new Bitmap(rect.Width, rect.Height);
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                graphics.CopyFromScreen(rect.Location, Point.Empty, rect.Size);
-            }
-            return bitmap;
-        }
-        #endregion
-
-        #region 静态方法 - 用于天若OCR集成
-        /// <summary>
-        /// 静态方法：识别图像并返回文本结果
-        /// 用于与天若OCR主程序集成
-        /// </summary>
-        /// <param name="image">要识别的图像</param>
-        /// <returns>识别结果文本</returns>
-        public static string RecognizeText(Image image)
-        {
-            try
-            {
-                if (image == null)
-                    return "***图像为空***";
-
-                var instance = Instance;
-                
-                // 如果未初始化，尝试自动初始化
-                if (!instance.IsInitialized)
-                {
-                    if (!instance.Initialize())
-                    {
-                        return "***RapidOCR初始化失败***";
-                    }
-                }
-
-                // 将Image转换为Bitmap
-                Bitmap bitmap;
-                if (image is Bitmap bmp)
-                {
-                    bitmap = bmp;
-                }
-                else
-                {
-                    bitmap = new Bitmap(image);
-                }
-
-                var result = instance.RecognizeFromBitmap(bitmap);
-                
-                // 如果bitmap是新创建的，需要释放
-                if (!(image is Bitmap))
-                {
-                    bitmap.Dispose();
-                }
-
-                return result?.StrRes ?? "***该区域未发现文本***";
-            }
-            catch (Exception ex)
-            {
-                return $"***RapidOCR识别失败: {ex.Message}***";
-            }
-        }
-
-        /// <summary>
-        /// 重置并释放OCR引擎资源
-        /// 用于天若OCR在切换引擎时调用
-        /// </summary>
-        public static void Reset()
-        {
-            try
-            {
-                if (_instance != null)
-                {
-                    _instance.Dispose();
-                    _instance = null;
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"RapidOCR重置失败: {ex.Message}");
-            }
-        }
-        #endregion
-
-        #region 资源释放
-        /// <summary>
-        /// 释放资源
-        /// </summary>
-        public void Dispose()
-        {
-            try
-            {
-                //_ocrEngine?.Dispose();
-                _ocrEngine = null;
-                _isInitialized = false;
-            }
-            catch (Exception ex)
-            {
-                // 记录日志但不抛出异常
-                System.Diagnostics.Debug.WriteLine($"RapidOCR资源释放异常: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// 析构函数
-        /// </summary>
-        ~RapidOCRHelper()
-        {
-            Dispose();
-        }
         #endregion
     }
 }

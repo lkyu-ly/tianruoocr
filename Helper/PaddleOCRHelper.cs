@@ -5,13 +5,14 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using PaddleOCRSharp;
-using System.Diagnostics; // <--- 添加这个来解决 "Process" 不存在的问题
-using System.Runtime.InteropServices; // <--- 添加这个以支持 DllImport
-
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading; // <-- 引入命名空间以使用 LazyThreadSafetyMode
+//支持ppocrv5，支持64位，不支持32位，需要 CPU 支持 AVX指令集
 namespace TrOCR.Helper
 {
     /// <summary>
-    /// PaddleOCR离线识别帮助类
+    /// PaddleOCR离线识别帮助类 (使用 Lazy<T> 实现的最终线程安全版本)
     /// 采用单例模式和懒加载，支持资源回收
     /// </summary>
     public sealed class PaddleOCRHelper : IDisposable
@@ -22,43 +23,40 @@ namespace TrOCR.Helper
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetProcessWorkingSetSize(IntPtr process,
             IntPtr minimumWorkingSetSize, IntPtr maximumWorkingSetSize);
-        // 1. 修改：将 Lazy<T> 实例替换为可空的静态实例字段。
-        private static PaddleOCRHelper _instance;
+
+        // --- 修改点 1: 使用 Lazy<T> 实现单例 ---
+        // 替换掉原来的 _instance 和 _lock 字段
+        private static Lazy<PaddleOCRHelper> _lazyInstance =
+            new Lazy<PaddleOCRHelper>(() => new PaddleOCRHelper(), LazyThreadSafetyMode.ExecutionAndPublication);
+
+        // --- 修改点 2: Instance 属性变得极其简单 ---
+        public static PaddleOCRHelper Instance => _lazyInstance.Value;
+
+        // --- 新增: 为 Reset 方法的原子性操作保留一个锁 ---
+        private static readonly object _resetLock = new object();
 
         private PaddleOCREngine _engine;
         private readonly Architecture _architecture;
         private bool _disposed = false;
 
-        // 2. 修改：更改 Instance 属性的实现逻辑。
-        public static PaddleOCRHelper Instance
-        {
-            get
-            {
-                // 如果实例不存在，则创建一个新的。
-                if (_instance == null)
-                {
-                    _instance = new PaddleOCRHelper();
-                }
-                return _instance;
-            }
-        }
-
+        // 构造函数依然是私有的
         private PaddleOCRHelper()
         {
-            _architecture = RuntimeInformation.OSArchitecture;
-            
+            _architecture = RuntimeInformation.ProcessArchitecture ;
+
             if (_architecture != Architecture.X64)
-                return;
+                throw new NotSupportedException("***PaddleOCR仅支持64位系统, 不支持32位系统***");
 
             InitializeEngine();
         }
 
+        // InitializeEngine, Execute, ImageToBytes 等实例方法保持不变...
         private void InitializeEngine()
         {
             try
             {
                 // 1. 获取 paddleOCR 文件夹的根路径
-                string rootDir =Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "paddleOCR","win_x64");
+                string rootDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR_data", "win_x64");
 
                 // 2. 组合出 inference 模型文件夹的完整路径
                 string modelPath = Path.Combine(rootDir, "inference");
@@ -66,46 +64,61 @@ namespace TrOCR.Helper
                 // 3. 创建模型配置对象，并明确指定每个模型文件的路径
                 // 注意：下面的路径请根据您实际的模型版本调整
                 //  OCRModelConfig config = null;
-                // OCRModelConfig config = new OCRModelConfig();
-                // config.det_infer = Path.Combine(modelPath, "PP-OCRv5_mobile_det_infer");
-                // config.cls_infer = Path.Combine(modelPath, "ch_ppocr_mobile_v5.0_cls_infer");
-                // config.rec_infer = Path.Combine(modelPath, "PP-OCRv5_mobile_rec_infer");
-                // config.keys = Path.Combine(modelPath, "ppocr_keys.txt");
-               
-                 // 定义参数配置文件的路径
-                // string configJsonPath = Path.Combine(modelPath, "PaddleOCR.config.json");
+                OCRModelConfig config = new OCRModelConfig();
+                config.det_infer = Path.Combine(modelPath, "PP-OCRv5_mobile_det_infer");
+                config.cls_infer = Path.Combine(modelPath, "ch_ppocr_mobile_v5.0_cls_infer");
+                config.rec_infer = Path.Combine(modelPath, "PP-OCRv5_mobile_rec_infer");
+                config.keys = Path.Combine(modelPath, "ppocr_keys.txt");
 
-                // string ocrParamsJson = ""; // 如果文件不存在或为空，则使用引擎内部的默认参数
+                //  定义参数配置文件的路径
+                string configJsonPath = Path.Combine(modelPath, "PaddleOCR.config.json");
 
-                // if (File.Exists(configJsonPath))
-                // {
-                //     ocrParamsJson = File.ReadAllText(configJsonPath);
-                // }
-                OCRParameter param = new OCRParameter();
-                param.enable_mkldnn = false;
+                string ocrParamsJson = ""; // 如果文件不存在或为空，则使用引擎内部的默认参数
 
-                _engine = new PaddleOCREngine(null, param);
+                if (File.Exists(configJsonPath))
+                {
+                    ocrParamsJson = File.ReadAllText(configJsonPath);
+                }
+                _engine = new PaddleOCREngine(config ,ocrParamsJson);
+
+
+                // OCRParameter param = new OCRParameter();
+                // param.enable_mkldnn = false;
+                // _engine = new PaddleOCREngine(null, param);
             }
             catch (Exception ex)
             {
                 // 初始化失败时，确保 _engine 为 null，以便 Execute 方法能正确报告错误。
-                _engine = null; 
+                _engine = null;
+                
                 throw new Exception($"PaddleOCR引擎初始化失败: {ex.Message}");
             }
         }
-
         public static string RecognizeText(Image image)
-        {
-            return Instance.Execute(image);
-        }
-
-        private string Execute(Image image)
         {
             try
             {
-                if (_architecture != Architecture.X64)
-                    return "***PaddleOCR不支持32位系统，请使用64位系统***";
-                
+                return Instance.Execute(image);
+            }
+            catch (Exception ex)
+            {
+                // 关键：捕获初始化或执行期间的任何异常
+                // 调用 Reset() 来清除“中毒”的 Lazy 实例
+                Reset();
+                // 返回一个对用户友好的错误信息
+                // ex.Message 会包含来自构造函数的具体错误，如 "PaddleOCR引擎初始化失败: ..."
+                return $"***PaddleOCR识别失败: {ex.Message}***";
+            }
+        }
+      
+        private string Execute(Image image)
+        {
+            try
+            {   
+                //用不到了
+                // if (_architecture != Architecture.X64)
+                //     return "***PaddleOCR不支持32位系统，请使用64位系统***";
+
                 // 此处的检查现在可以捕获初始化失败的情况。
                 if (_engine == null)
                     return "***PaddleOCR引擎未初始化***";
@@ -113,12 +126,13 @@ namespace TrOCR.Helper
                 if (image == null)
                     return "***图像为空***";
 
-                byte[] imageBytes = ImageToBytes(image);
-                var ocrResult = _engine.DetectText(imageBytes);
+                // byte[] imageBytes = ImageToBytes(image);
+                // var ocrResult = _engine.DetectText(imageBytes);
+                var ocrResult = _engine.DetectText((Bitmap)image);
 
                 if (ocrResult?.TextBlocks == null || ocrResult.TextBlocks.Count == 0)
                     return "***该区域未发现文本***";
-
+                Debug.WriteLine($"识别结果：{ocrResult}");
                 var sb = new StringBuilder();
                 foreach (var textBlock in ocrResult.TextBlocks)
                 {
@@ -134,7 +148,6 @@ namespace TrOCR.Helper
                 return $"***PaddleOCR识别失败: {ex.Message}***";
             }
         }
-
         private byte[] ImageToBytes(Image image)
         {
             using (var ms = new MemoryStream())
@@ -144,39 +157,69 @@ namespace TrOCR.Helper
             }
         }
 
+
+        // 完整的 Dispose 模式和终结器 (最佳实践)
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
         {
             if (!_disposed)
             {
+                if (disposing) { /* 清理托管资源 */ }
                 _engine?.Dispose();
                 _engine = null;
                 _disposed = true;
             }
-           
         }
+        ~PaddleOCRHelper()
+        {
+            try
+            {
+                Dispose(false);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"PaddleOCR Error in finalizer: {ex.Message}");
+                return;
+            }
+            
+        } 
 
-        // 3. 修改：Reset 方法现在会销毁实例，允许垃圾回收。
+
+        // --- 修改点 3: 更新 Reset 方法以适配 Lazy<T> ---
         public static void Reset()
         {
-            if (_instance != null)
+            // 锁定以确保 Reset 操作的原子性，防止多个线程同时重置
+            lock (_resetLock)
             {
-                _instance.Dispose();
-                _instance = null; // 关键：移除静态引用，使对象可被回收。
-
-                // 新增：强制进行垃圾回收，以立即释放引擎占用的内存
-                // 这对于处理大型非托管资源（如OCR模型）非常有效
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                // 检查实例是否已经被创建过
+                if (_lazyInstance.IsValueCreated)
                 {
-                    SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle, (IntPtr)(-1), (IntPtr)(-1));
+                    try
+                    {
+                        // 尝试释放旧实例。如果初始化失败，访问.Value会抛出异常
+                        _lazyInstance.Value.Dispose();
+                    }
+                    catch
+                    {
+                        // 忽略异常，因为实例本身就是坏的，继续执行重置核心逻辑
+                    }
                 }
+                // 创建一个全新的 Lazy<T> 实例来替换旧的。
+                // 下一次访问 .Instance 时，会自动创建新的 PaddleOCRHelper 对象。
+                _lazyInstance = new Lazy<PaddleOCRHelper>(() => new PaddleOCRHelper(), LazyThreadSafetyMode.ExecutionAndPublication);
+                // 强制垃圾回收
+                TrOCRUtils.CleanMemory();
             }
         }
 
         public static bool IsSupported()
         {
-            return RuntimeInformation.OSArchitecture == Architecture.X64;
+            return RuntimeInformation.ProcessArchitecture == Architecture.X64;
         }
     }
 }

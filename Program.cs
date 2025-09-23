@@ -21,7 +21,9 @@ namespace TrOCR
     {
         // 导入 Windows API 函数
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool SetDllDirectory(string lpPathName);
+        //关键修改: 在这里添加 LoadLibrary 的声明，废弃，也无用了
+         private static extern IntPtr LoadLibrary(string lpFileName);
+        // 无用：private static extern bool SetDllDirectory(string lpPathName);
         /// <summary>
         /// DPI缩放因子
         /// </summary>
@@ -34,16 +36,42 @@ namespace TrOCR
         [STAThread]
         public static void Main(string[] args)
         {
-            
-        	try
-            {
-                 string paddlePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "paddleOCR","win_x64");
 
-                // 检查目录是否存在，如果存在则添加到搜索路径
-                if (Directory.Exists(paddlePath))
+            try
+            {
+                 //【新增】使用 NativeLibrary.Load 抢先加载 Sdcb.PaddleOCR 的核心DLL
+                //    这必须是 Main 方法中的第一件事。
+                 // ==========================================================
+                //  PreloadPaddleOcrNativeLibs();
+                // 1. 启用新的DLL搜索模式，这是使用 AddDllDirectory 的前提
+                // 我们告诉系统，除了我们手动添加的目录，也别忘了搜索默认的系统目录
+                TrOCRUtils.SetDefaultDllDirectories(0x00001000 | 0x00000400); // LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_USER_DIRS
+
+                // 2. 根据当前进程的架构，动态地构建需要搜索的路径列表
+                var pathsToAdd = new System.Collections.Generic.List<string>();
+                var processArchitecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
+
+                if (processArchitecture == System.Runtime.InteropServices.Architecture.X64)
                 {
-                    // 这行代码会告诉程序在加载原生DLL时，也去指定的路径下查找
-                    SetDllDirectory(paddlePath);
+                    // 程序是64位进程，只添加64位的路径
+                    pathsToAdd.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR_data", "win_x64"));
+                    //pathsToAdd.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR2_data", "win_x64"));
+                    //这里对PaddleOCR2无效，改用PreloadPaddleOcrNativeLibs()
+                    pathsToAdd.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RapidOCR_data", "win_x64"));
+                }
+                else if (processArchitecture == System.Runtime.InteropServices.Architecture.X86)
+                {
+                    // 程序是32位进程，只添加32位的路径
+                    pathsToAdd.Add(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RapidOCR_data", "win_x86"));
+                }
+
+                // 3. 遍历列表，将所有存在的目录添加到搜索路径中
+                foreach (var path in pathsToAdd)
+                {
+                    if (Directory.Exists(path))
+                    {
+                        TrOCRUtils.AddDllDirectory(path);
+                    }
                 }
                 // 设置异常处理模式和事件处理程序
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -114,7 +142,59 @@ namespace TrOCR
                 MessageBox.Show(errorMsg, "TrOCR 启动错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-      
+        /// <summary>
+        /// 预加载 Sdcb.PaddleOCR 需要的本地C++库，废弃，无用，查看源码发现这个库是写死的读取dll的目录位置，抢先加载也改变不了
+        /// </summary>
+        // private static void PreloadPaddleOcrNativeLibs()
+        // {
+        //     if (RuntimeInformation.ProcessArchitecture != Architecture.X64) return;
+
+        //     string customPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR2_data", "win_x64");
+        //     if (!Directory.Exists(customPath)) return;
+
+        //     var libsToLoad = new[]
+        //     {
+        //         "common.dll",
+        //         "onnxruntime.dll",
+        //         "onnxruntime_providers_shared.dll",
+        //         "openblas.dll",
+        //         "opencv_videoio_ffmpeg4110_64.dll",
+        //         "OpenCvSharpExtern.dll",
+        //         "paddle2onnx.dll",
+        //         "paddle_inference_c.dll"
+        //     };
+
+        //     foreach (var libName in libsToLoad)
+        //     {
+        //         string fullPath = Path.Combine(customPath, libName);
+        //         try
+        //         {
+        //             if (File.Exists(fullPath))
+        //             {
+        //                 // --- 关键修改 2: 使用 LoadLibrary 代替 NativeLibrary.Load ---
+        //                 IntPtr handle = LoadLibrary(fullPath);
+
+        //                 // 检查加载是否成功。如果返回的句柄是0，则加载失败。
+        //                 if (handle == IntPtr.Zero)
+        //                 {
+        //                     // 获取详细的Windows错误代码，方便调试
+        //                     int errorCode = Marshal.GetLastWin32Error();
+        //                     throw new DllNotFoundException($"无法加载本地库 '{fullPath}'。Windows 错误代码: {errorCode}");
+        //                 }
+        //                 System.Diagnostics.Debug.WriteLine($"Successfully pre-loaded: {fullPath}");
+        //             }
+        //             else
+        //             {
+        //                 System.Diagnostics.Debug.WriteLine($"Warning: Pre-load file not found: {fullPath}");
+        //             }
+        //         }
+        //         catch (Exception ex)
+        //         {
+        //             MessageBox.Show($"抢先加载本地库失败: {fullPath}\n\n错误: {ex.Message}",
+        //                             "致命错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //         }
+        //     }
+        // }
         /// <summary>
         /// 处理线程异常事件
         /// </summary>
@@ -122,9 +202,9 @@ namespace TrOCR
         /// <param name="e">线程异常事件参数</param>
         private static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
-        	MessageBox.Show("捕获到线程异常: " + e.Exception.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("捕获到线程异常: " + e.Exception.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-      
+
         /// <summary>
         /// 处理未处理的异常事件
         /// </summary>
@@ -132,16 +212,16 @@ namespace TrOCR
         /// <param name="e">未处理异常事件参数</param>
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-        	MessageBox.Show("捕获到未经处理的异常: " + e.ExceptionObject.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("捕获到未经处理的异常: " + e.ExceptionObject.ToString(), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        
 
-/// <summary>
-/// 检查应用程序更新
-/// </summary>
-public static void CheckUpdate()
-{
+
+        /// <summary>
+        /// 检查应用程序更新
+        /// </summary>
+        public static void CheckUpdate()
+        {
             try
             {
                 // 1. 读取配置确定是否检查预发布版
@@ -293,7 +373,7 @@ public static void CheckUpdate()
             }
             catch (System.Net.WebException ex)
             {
-                 // --- ETag 缓存机制 - 处理 304 响应 ---
+                // --- ETag 缓存机制 - 处理 304 响应 ---
 
                 // 2d. 检查是否收到了 304 Not Modified 响应
                 if (ex.Response is HttpWebResponse httpResponse && httpResponse.StatusCode == HttpStatusCode.NotModified)
@@ -319,88 +399,88 @@ public static void CheckUpdate()
                 // 其他错误
                 CommonHelper.ShowHelpMsg($"检查更新时出错：{ex.Message}");
             }
-}
-
-/// <summary>
-/// 比较版本号大小，支持预发布标签 (e.g., -beta, -rc.1)
-/// </summary>
-/// <param name="newVersionStr">新版本号</param>
-/// <param name="curVersionStr">当前版本号</param>
-/// <returns>如果有新版本返回true，否则返回false</returns>
-private static bool CheckVersion(string newVersionStr, string curVersionStr)
-{
-    try
-    {
-        // 1. 将版本号在第一个 '-' 处分割，分离出 [数字部分] 和 [预发布标签]
-        var newVersionParts = newVersionStr.Split(new[] { '-' }, 2);
-        var curVersionParts = curVersionStr.Split(new[] { '-' }, 2);
-
-        var newNumericPart = newVersionParts[0];
-        var curNumericPart = curVersionParts[0];
-
-        // 2. 使用 System.Version 类来安全、准确地比较数字部分
-        var newVer = new Version(newNumericPart);
-        var curVer = new Version(curNumericPart);
-
-        int comparison = newVer.CompareTo(curVer);
-
-        // 3. 如果数字部分不相等，直接得出结论
-        if (comparison != 0)
-        {
-            // 例如: 6.1 vs 6.0, 或者 5.9 vs 6.0
-            return comparison > 0;
         }
 
-        // --- 至此，数字部分完全相同 (例如, 都是 6.0.0) ---
-
-        // 4. 根据预发布标签的有无来判断
-        bool newIsPreRelease = newVersionParts.Length > 1;
-        bool curIsPreRelease = curVersionParts.Length > 1;
-
-        // 规则: 稳定版 > 预发布版
-        if (!newIsPreRelease && curIsPreRelease)
+        /// <summary>
+        /// 比较版本号大小，支持预发布标签 (e.g., -beta, -rc.1)
+        /// </summary>
+        /// <param name="newVersionStr">新版本号</param>
+        /// <param name="curVersionStr">当前版本号</param>
+        /// <returns>如果有新版本返回true，否则返回false</returns>
+        private static bool CheckVersion(string newVersionStr, string curVersionStr)
         {
-            // 新版是稳定版 (6.0.0), 当前是预发布版 (6.0.0-beta) -> 新版更"新"
-            return true;
-        }
+            try
+            {
+                // 1. 将版本号在第一个 '-' 处分割，分离出 [数字部分] 和 [预发布标签]
+                var newVersionParts = newVersionStr.Split(new[] { '-' }, 2);
+                var curVersionParts = curVersionStr.Split(new[] { '-' }, 2);
 
-        if (newIsPreRelease && !curIsPreRelease)
-        {
-            // 新版是预发布版 (6.0.0-beta), 当前是稳定版 (6.0.0) -> 新版不更"新"
-            return false;
-        }
+                var newNumericPart = newVersionParts[0];
+                var curNumericPart = curVersionParts[0];
 
-        if (!newIsPreRelease && !curIsPreRelease)
-        {
-            // 两者都是同版本的稳定版 (6.0.0 vs 6.0.0) -> 没有更新
-            return false;
-        }
+                // 2. 使用 System.Version 类来安全、准确地比较数字部分
+                var newVer = new Version(newNumericPart);
+                var curVer = new Version(curNumericPart);
 
-        // 5. 两者都是同一数字版本的预发布版，比较标签
-        // 例如: 6.0.0-rc.1 vs 6.0.0-beta.2
-        // 简单的字符串比较可以覆盖大部分情况 ("rc.1" > "beta.2")
-        return string.Compare(newVersionParts[1], curVersionParts[1], StringComparison.OrdinalIgnoreCase) > 0;
-    }
-    catch (Exception ex)
-    {
-        // 如果任何解析失败，回退到简单的字符串比较作为保险措施
-        System.Diagnostics.Debug.WriteLine($"版本比较时发生错误: {ex.Message}。回退到字符串比较。");
-        // 确保不会因为预发布标签导致错误的回退结果
-        // 例如 "6.0-beta" vs "6.0"，简单的字符串比较会认为 "-beta"更大，这是错误的
-        // 所以我们只在解析失败时做一个最基础的、不含标签的比较
-        try
-        {
-            var newNumericPart = newVersionStr.Split('-')[0];
-            var curNumericPart = curVersionStr.Split('-')[0];
-            return new Version(newNumericPart).CompareTo(new Version(curNumericPart)) > 0;
+                int comparison = newVer.CompareTo(curVer);
+
+                // 3. 如果数字部分不相等，直接得出结论
+                if (comparison != 0)
+                {
+                    // 例如: 6.1 vs 6.0, 或者 5.9 vs 6.0
+                    return comparison > 0;
+                }
+
+                // --- 至此，数字部分完全相同 (例如, 都是 6.0.0) ---
+
+                // 4. 根据预发布标签的有无来判断
+                bool newIsPreRelease = newVersionParts.Length > 1;
+                bool curIsPreRelease = curVersionParts.Length > 1;
+
+                // 规则: 稳定版 > 预发布版
+                if (!newIsPreRelease && curIsPreRelease)
+                {
+                    // 新版是稳定版 (6.0.0), 当前是预发布版 (6.0.0-beta) -> 新版更"新"
+                    return true;
+                }
+
+                if (newIsPreRelease && !curIsPreRelease)
+                {
+                    // 新版是预发布版 (6.0.0-beta), 当前是稳定版 (6.0.0) -> 新版不更"新"
+                    return false;
+                }
+
+                if (!newIsPreRelease && !curIsPreRelease)
+                {
+                    // 两者都是同版本的稳定版 (6.0.0 vs 6.0.0) -> 没有更新
+                    return false;
+                }
+
+                // 5. 两者都是同一数字版本的预发布版，比较标签
+                // 例如: 6.0.0-rc.1 vs 6.0.0-beta.2
+                // 简单的字符串比较可以覆盖大部分情况 ("rc.1" > "beta.2")
+                return string.Compare(newVersionParts[1], curVersionParts[1], StringComparison.OrdinalIgnoreCase) > 0;
+            }
+            catch (Exception ex)
+            {
+                // 如果任何解析失败，回退到简单的字符串比较作为保险措施
+                System.Diagnostics.Debug.WriteLine($"版本比较时发生错误: {ex.Message}。回退到字符串比较。");
+                // 确保不会因为预发布标签导致错误的回退结果
+                // 例如 "6.0-beta" vs "6.0"，简单的字符串比较会认为 "-beta"更大，这是错误的
+                // 所以我们只在解析失败时做一个最基础的、不含标签的比较
+                try
+                {
+                    var newNumericPart = newVersionStr.Split('-')[0];
+                    var curNumericPart = curVersionStr.Split('-')[0];
+                    return new Version(newNumericPart).CompareTo(new Version(curNumericPart)) > 0;
+                }
+                catch
+                {
+                    // 如果连这个都失败了，那只能放弃比较
+                    return false;
+                }
+            }
         }
-        catch
-        {
-            // 如果连这个都失败了，那只能放弃比较
-            return false; 
-        }
-    }
-}
         /// <summary>
         /// 初始化配置文件(config.ini)，如果配置文件不存在则创建它
         /// </summary>

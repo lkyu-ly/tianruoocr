@@ -72,7 +72,7 @@ namespace TrOCR.Helper
             }
             return result;
         }
-
+        //内置的微信接口，不支持不含AVX2指令集的CPU。CPU必须支持AVX2，只支持AVX不行
         public static async Task<string> WeChat(byte[] imageBytes)
         {
             var tcs = new TaskCompletionSource<string>();
