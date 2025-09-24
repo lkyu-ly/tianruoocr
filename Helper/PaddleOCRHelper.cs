@@ -48,36 +48,55 @@ namespace TrOCR.Helper
         {
             try
             {
-                // 1. 获取 paddleOCR 文件夹的根路径
-                string rootDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR_data", "win_x64");
+                // 从INI配置文件读取模型路径及配置
+                string detPath = GetConfigValue("模型配置_PaddleOCR", "Det");
+                string clsPath = GetConfigValue("模型配置_PaddleOCR", "Cls");
+                string recPath = GetConfigValue("模型配置_PaddleOCR", "Rec");
+                string keysPath = GetConfigValue("模型配置_PaddleOCR", "Keys");
+                 string advancedConfigPath = GetConfigValue("模型配置_PaddleOCR", "AdvancedConfig");
 
-                // 2. 组合出 inference 模型文件夹的完整路径
-                string modelPath = Path.Combine(rootDir, "inference");
-
-                // 3. 创建模型配置对象，并明确指定每个模型文件的路径
-                // 注意：下面的路径请根据您实际的模型版本调整
-                //  OCRModelConfig config = null;
-                OCRModelConfig config = new OCRModelConfig();
-                config.det_infer = Path.Combine(modelPath, "PP-OCRv5_mobile_det_infer");
-                config.cls_infer = Path.Combine(modelPath, "ch_ppocr_mobile_v5.0_cls_infer");
-                config.rec_infer = Path.Combine(modelPath, "PP-OCRv5_mobile_rec_infer");
-                config.keys = Path.Combine(modelPath, "ppocr_keys.txt");
-
-                //  定义参数配置文件的路径
-                string configJsonPath = Path.Combine(modelPath, "PaddleOCR.config.json");
-
-                string ocrParamsJson = ""; // 如果文件不存在或为空，则使用引擎内部的默认参数
-
-                if (File.Exists(configJsonPath))
+                // 如果配置为空，使用默认路径
+                if (string.IsNullOrEmpty(detPath) || string.IsNullOrEmpty(clsPath) ||
+                    string.IsNullOrEmpty(recPath) || string.IsNullOrEmpty(keysPath))
                 {
-                    ocrParamsJson = File.ReadAllText(configJsonPath);
+                    // 使用默认路径
+                    string rootDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR_data", "win_x64");
+                    string modelPath = Path.Combine(rootDir, "inference");
+
+                    detPath = string.IsNullOrEmpty(detPath) ? Path.Combine(modelPath, "PP-OCRv5_mobile_det_infer") : detPath;
+                    clsPath = string.IsNullOrEmpty(clsPath) ? Path.Combine(modelPath, "ch_ppocr_mobile_v5.0_cls_infer") : clsPath;
+                    recPath = string.IsNullOrEmpty(recPath) ? Path.Combine(modelPath, "PP-OCRv5_mobile_rec_infer") : recPath;
+                    keysPath = string.IsNullOrEmpty(keysPath) ? Path.Combine(modelPath, "ppocr_keys.txt") : keysPath;
                 }
-                _engine = new PaddleOCREngine(config ,ocrParamsJson);
 
+                // 创建模型配置对象
+                OCRModelConfig config = new OCRModelConfig();
+                config.det_infer = detPath;
+                config.cls_infer = clsPath;
+                config.rec_infer = recPath;
+                config.keys = keysPath;
 
-                // OCRParameter param = new OCRParameter();
-                // param.enable_mkldnn = false;
-                // _engine = new PaddleOCREngine(null, param);
+                // --- 加载用户指定的高级参数JSON文件 ---
+                string ocrParamsJson = ""; // 默认为空，引擎将使用内部默认参数
+
+                // 检查用户是否配置了高级参数文件路径，并且该文件确实存在
+                if (!string.IsNullOrEmpty(advancedConfigPath) && File.Exists(advancedConfigPath))
+                {
+                    try
+                    {
+                        // 读取用户指定的JSON文件内容
+                        ocrParamsJson = File.ReadAllText(advancedConfigPath);
+                        Debug.WriteLine($"成功加载高级配置文件: {advancedConfigPath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        // 如果读取文件失败，记录日志，但程序继续使用默认参数运行
+                        Debug.WriteLine($"读取高级配置文件 '{advancedConfigPath}' 失败: {ex.Message}");
+                    }
+                }
+
+                // 使用模型配置和高级参数（可能为空）初始化引擎
+                _engine = new PaddleOCREngine(config, ocrParamsJson);
             }
             catch (Exception ex)
             {
@@ -85,6 +104,22 @@ namespace TrOCR.Helper
                 _engine = null;
                 
                 throw new Exception($"PaddleOCR引擎初始化失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 获取配置值的辅助方法
+        /// </summary>
+        private string GetConfigValue(string section, string key)
+        {
+            try
+            {
+                var value = TrOCR.Helper.IniHelper.GetValue(section, key);
+                return value == "发生错误" ? "" : value;
+            }
+            catch
+            {
+                return "";
             }
         }
         public static string RecognizeText(Image image)

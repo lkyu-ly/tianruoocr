@@ -231,8 +231,59 @@ namespace TrOCR
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.inPage_PaddleOCR = new System.Windows.Forms.TabPage();
+            this.button2 = new System.Windows.Forms.Button();
+            this.textBox5 = new System.Windows.Forms.TextBox();
+            this.label29 = new System.Windows.Forms.Label();
+            this.btn_PaddleOCR_Keys_Browse = new System.Windows.Forms.Button();
+            this.textBox_PaddleOCR_Keys = new System.Windows.Forms.TextBox();
+            this.label_PaddleOCR_Keys = new System.Windows.Forms.Label();
+            this.btn_PaddleOCR_Rec_Browse = new System.Windows.Forms.Button();
+            this.textBox_PaddleOCR_Rec = new System.Windows.Forms.TextBox();
+            this.label_PaddleOCR_Rec = new System.Windows.Forms.Label();
+            this.btn_PaddleOCR_Cls_Browse = new System.Windows.Forms.Button();
+            this.textBox_PaddleOCR_Cls = new System.Windows.Forms.TextBox();
+            this.label_PaddleOCR_Cls = new System.Windows.Forms.Label();
+            this.btn_PaddleOCR_Det_Browse = new System.Windows.Forms.Button();
+            this.textBox_PaddleOCR_Det = new System.Windows.Forms.TextBox();
+            this.label_PaddleOCR_Det = new System.Windows.Forms.Label();
             this.inPage_PaddleOCR2 = new System.Windows.Forms.TabPage();
+            this.comboBox_PaddleOCR2_rec_Version = new System.Windows.Forms.ComboBox();
+            this.comboBox_PaddleOCR2_cls_Version = new System.Windows.Forms.ComboBox();
+            this.label_PaddleOCR2_rec_Version = new System.Windows.Forms.Label();
+            this.label_PaddleOCR2_cls_Version = new System.Windows.Forms.Label();
+            this.comboBox_PaddleOCR2_det_Version = new System.Windows.Forms.ComboBox();
+            this.label_PaddleOCR2_det_Version = new System.Windows.Forms.Label();
+            this.btn_PaddleOCR2_Keys_Browse = new System.Windows.Forms.Button();
+            this.textBox_PaddleOCR2_Keys = new System.Windows.Forms.TextBox();
+            this.label_PaddleOCR2_Keys = new System.Windows.Forms.Label();
+            this.btn_PaddleOCR2_Rec_Browse = new System.Windows.Forms.Button();
+            this.textBox_PaddleOCR2_Rec = new System.Windows.Forms.TextBox();
+            this.label_PaddleOCR2_Rec = new System.Windows.Forms.Label();
+            this.btn_PaddleOCR2_Cls_Browse = new System.Windows.Forms.Button();
+            this.textBox_PaddleOCR2_Cls = new System.Windows.Forms.TextBox();
+            this.label_PaddleOCR2_Cls = new System.Windows.Forms.Label();
+            this.btn_PaddleOCR2_Det_Browse = new System.Windows.Forms.Button();
+            this.textBox_PaddleOCR2_Det = new System.Windows.Forms.TextBox();
+            this.label_PaddleOCR2_Det = new System.Windows.Forms.Label();
             this.inPage_RapidOCR = new System.Windows.Forms.TabPage();
+            this.btn_RapidOCR_Keys_Browse = new System.Windows.Forms.Button();
+            this.textBox_RapidOCR_Keys = new System.Windows.Forms.TextBox();
+            this.label_RapidOCR_Keys = new System.Windows.Forms.Label();
+            this.btn_RapidOCR_Rec_Browse = new System.Windows.Forms.Button();
+            this.textBox_RapidOCR_Rec = new System.Windows.Forms.TextBox();
+            this.label_RapidOCR_Rec = new System.Windows.Forms.Label();
+            this.btn_RapidOCR_Cls_Browse = new System.Windows.Forms.Button();
+            this.textBox_RapidOCR_Cls = new System.Windows.Forms.TextBox();
+            this.label_RapidOCR_Cls = new System.Windows.Forms.Label();
+            this.btn_RapidOCR_Det_Browse = new System.Windows.Forms.Button();
+            this.textBox_RapidOCR_Det = new System.Windows.Forms.TextBox();
+            this.label_RapidOCR_Det = new System.Windows.Forms.Label();
+            this.groupBox_PaddleOCR_Config = new System.Windows.Forms.GroupBox();
+            this.label_PaddleOCR_Status = new System.Windows.Forms.Label();
+            this.groupBox_PaddleOCR2_Config = new System.Windows.Forms.GroupBox();
+            this.label_PaddleOCR2_Status = new System.Windows.Forms.Label();
+            this.groupBox_RapidOCR_Config = new System.Windows.Forms.GroupBox();
+            this.label_RapidOCR_Status = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.Page_快捷键 = new System.Windows.Forms.TabPage();
             this.快捷键Button = new System.Windows.Forms.Button();
@@ -318,6 +369,14 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
+            this.label30 = new System.Windows.Forms.Label();
+            this.textBox6 = new System.Windows.Forms.TextBox();
+            this.button3 = new System.Windows.Forms.Button();
+            this.label31 = new System.Windows.Forms.Label();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.button4 = new System.Windows.Forms.Button();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.label_OcrApiHelpText = new System.Windows.Forms.Label();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -383,6 +442,9 @@ namespace TrOCR
             this.inPage_腾讯接口.SuspendLayout();
             this.inPage_腾讯高精度接口.SuspendLayout();
             this.inPage_腾讯表格v3.SuspendLayout();
+            this.inPage_PaddleOCR.SuspendLayout();
+            this.inPage_PaddleOCR2.SuspendLayout();
+            this.inPage_RapidOCR.SuspendLayout();
             this.Page_快捷键.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_静默识别)).BeginInit();
@@ -411,6 +473,7 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
+            this.groupBox7.SuspendLayout();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -1618,7 +1681,7 @@ namespace TrOCR
             this.tabPage_白描接口.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage_白描接口.Name = "tabPage_白描接口";
             this.tabPage_白描接口.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage_白描接口.Size = new System.Drawing.Size(496, 159);
+            this.tabPage_白描接口.Size = new System.Drawing.Size(496, 231);
             this.tabPage_白描接口.TabIndex = 2;
             this.tabPage_白描接口.Text = "白描识别接口";
             // 
@@ -2252,6 +2315,7 @@ namespace TrOCR
             // Page_密钥
             // 
             this.Page_密钥.BackColor = System.Drawing.Color.White;
+            this.Page_密钥.Controls.Add(this.groupBox7);
             this.Page_密钥.Controls.Add(this.百度_btn);
             this.Page_密钥.Controls.Add(this.密钥Button_apply);
             this.Page_密钥.Controls.Add(this.密钥Button);
@@ -2267,7 +2331,7 @@ namespace TrOCR
             // 百度_btn
             // 
             this.百度_btn.BackColor = System.Drawing.Color.White;
-            this.百度_btn.Location = new System.Drawing.Point(203, 202);
+            this.百度_btn.Location = new System.Drawing.Point(203, 214);
             this.百度_btn.Margin = new System.Windows.Forms.Padding(4);
             this.百度_btn.Name = "百度_btn";
             this.百度_btn.Size = new System.Drawing.Size(100, 29);
@@ -2279,7 +2343,7 @@ namespace TrOCR
             // 密钥Button_apply
             // 
             this.密钥Button_apply.BackColor = System.Drawing.Color.White;
-            this.密钥Button_apply.Location = new System.Drawing.Point(8, 202);
+            this.密钥Button_apply.Location = new System.Drawing.Point(8, 214);
             this.密钥Button_apply.Margin = new System.Windows.Forms.Padding(4);
             this.密钥Button_apply.Name = "密钥Button_apply";
             this.密钥Button_apply.Size = new System.Drawing.Size(100, 29);
@@ -2291,7 +2355,7 @@ namespace TrOCR
             // 密钥Button
             // 
             this.密钥Button.BackColor = System.Drawing.Color.White;
-            this.密钥Button.Location = new System.Drawing.Point(412, 202);
+            this.密钥Button.Location = new System.Drawing.Point(412, 214);
             this.密钥Button.Margin = new System.Windows.Forms.Padding(4);
             this.密钥Button.Name = "密钥Button";
             this.密钥Button.Size = new System.Drawing.Size(100, 29);
@@ -2312,8 +2376,9 @@ namespace TrOCR
             this.tabControl2.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl2.Name = "tabControl2";
             this.tabControl2.SelectedIndex = 0;
-            this.tabControl2.Size = new System.Drawing.Size(504, 188);
+            this.tabControl2.Size = new System.Drawing.Size(504, 200);
             this.tabControl2.TabIndex = 0;
+            this.tabControl2.SelectedIndexChanged += new System.EventHandler(this.tabControl2_SelectedIndexChanged_1);
             // 
             // tabPage_百度OCR
             // 
@@ -2321,7 +2386,7 @@ namespace TrOCR
             this.tabPage_百度OCR.Location = new System.Drawing.Point(4, 25);
             this.tabPage_百度OCR.Name = "tabPage_百度OCR";
             this.tabPage_百度OCR.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_百度OCR.Size = new System.Drawing.Size(496, 159);
+            this.tabPage_百度OCR.Size = new System.Drawing.Size(496, 231);
             this.tabPage_百度OCR.TabIndex = 5;
             this.tabPage_百度OCR.Text = "百度OCR";
             this.tabPage_百度OCR.UseVisualStyleBackColor = true;
@@ -2335,7 +2400,7 @@ namespace TrOCR
             this.tabControl_BaiduApiType.Location = new System.Drawing.Point(3, 3);
             this.tabControl_BaiduApiType.Name = "tabControl_BaiduApiType";
             this.tabControl_BaiduApiType.SelectedIndex = 0;
-            this.tabControl_BaiduApiType.Size = new System.Drawing.Size(490, 153);
+            this.tabControl_BaiduApiType.Size = new System.Drawing.Size(490, 225);
             this.tabControl_BaiduApiType.TabIndex = 0;
             // 
             // inPage_百度接口
@@ -2351,7 +2416,7 @@ namespace TrOCR
             this.inPage_百度接口.Margin = new System.Windows.Forms.Padding(4);
             this.inPage_百度接口.Name = "inPage_百度接口";
             this.inPage_百度接口.Padding = new System.Windows.Forms.Padding(4);
-            this.inPage_百度接口.Size = new System.Drawing.Size(482, 124);
+            this.inPage_百度接口.Size = new System.Drawing.Size(482, 196);
             this.inPage_百度接口.TabIndex = 0;
             this.inPage_百度接口.Text = "标准版";
             // 
@@ -2428,7 +2493,7 @@ namespace TrOCR
             this.inPage_百度高精度接口.Margin = new System.Windows.Forms.Padding(4);
             this.inPage_百度高精度接口.Name = "inPage_百度高精度接口";
             this.inPage_百度高精度接口.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_百度高精度接口.Size = new System.Drawing.Size(482, 124);
+            this.inPage_百度高精度接口.Size = new System.Drawing.Size(482, 136);
             this.inPage_百度高精度接口.TabIndex = 1;
             this.inPage_百度高精度接口.Text = "高精度";
             this.inPage_百度高精度接口.UseVisualStyleBackColor = true;
@@ -2502,7 +2567,7 @@ namespace TrOCR
             this.inPage_百度表格.Margin = new System.Windows.Forms.Padding(4);
             this.inPage_百度表格.Name = "inPage_百度表格";
             this.inPage_百度表格.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_百度表格.Size = new System.Drawing.Size(482, 124);
+            this.inPage_百度表格.Size = new System.Drawing.Size(482, 136);
             this.inPage_百度表格.TabIndex = 2;
             this.inPage_百度表格.Text = "表格";
             this.inPage_百度表格.UseVisualStyleBackColor = true;
@@ -2561,7 +2626,7 @@ namespace TrOCR
             this.tabPage_腾讯OCR.Location = new System.Drawing.Point(4, 25);
             this.tabPage_腾讯OCR.Name = "tabPage_腾讯OCR";
             this.tabPage_腾讯OCR.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_腾讯OCR.Size = new System.Drawing.Size(496, 159);
+            this.tabPage_腾讯OCR.Size = new System.Drawing.Size(496, 231);
             this.tabPage_腾讯OCR.TabIndex = 6;
             this.tabPage_腾讯OCR.Text = "腾讯OCR";
             this.tabPage_腾讯OCR.UseVisualStyleBackColor = true;
@@ -2575,7 +2640,7 @@ namespace TrOCR
             this.tabControl_TXApiType.Location = new System.Drawing.Point(3, 3);
             this.tabControl_TXApiType.Name = "tabControl_TXApiType";
             this.tabControl_TXApiType.SelectedIndex = 0;
-            this.tabControl_TXApiType.Size = new System.Drawing.Size(490, 153);
+            this.tabControl_TXApiType.Size = new System.Drawing.Size(490, 225);
             this.tabControl_TXApiType.TabIndex = 0;
             // 
             // inPage_腾讯接口
@@ -2591,7 +2656,7 @@ namespace TrOCR
             this.inPage_腾讯接口.Margin = new System.Windows.Forms.Padding(4);
             this.inPage_腾讯接口.Name = "inPage_腾讯接口";
             this.inPage_腾讯接口.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_腾讯接口.Size = new System.Drawing.Size(482, 124);
+            this.inPage_腾讯接口.Size = new System.Drawing.Size(482, 196);
             this.inPage_腾讯接口.TabIndex = 0;
             this.inPage_腾讯接口.Text = "标准版";
             this.inPage_腾讯接口.UseVisualStyleBackColor = true;
@@ -2667,7 +2732,7 @@ namespace TrOCR
             this.inPage_腾讯高精度接口.Margin = new System.Windows.Forms.Padding(4);
             this.inPage_腾讯高精度接口.Name = "inPage_腾讯高精度接口";
             this.inPage_腾讯高精度接口.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_腾讯高精度接口.Size = new System.Drawing.Size(482, 124);
+            this.inPage_腾讯高精度接口.Size = new System.Drawing.Size(482, 136);
             this.inPage_腾讯高精度接口.TabIndex = 1;
             this.inPage_腾讯高精度接口.Text = "高精度";
             this.inPage_腾讯高精度接口.UseVisualStyleBackColor = true;
@@ -2741,7 +2806,7 @@ namespace TrOCR
             this.inPage_腾讯表格v3.Margin = new System.Windows.Forms.Padding(4);
             this.inPage_腾讯表格v3.Name = "inPage_腾讯表格v3";
             this.inPage_腾讯表格v3.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_腾讯表格v3.Size = new System.Drawing.Size(482, 124);
+            this.inPage_腾讯表格v3.Size = new System.Drawing.Size(482, 136);
             this.inPage_腾讯表格v3.TabIndex = 2;
             this.inPage_腾讯表格v3.Text = "表格v3";
             this.inPage_腾讯表格v3.UseVisualStyleBackColor = true;
@@ -2796,33 +2861,523 @@ namespace TrOCR
             // 
             // inPage_PaddleOCR
             // 
+            this.inPage_PaddleOCR.Controls.Add(this.button2);
+            this.inPage_PaddleOCR.Controls.Add(this.textBox5);
+            this.inPage_PaddleOCR.Controls.Add(this.label29);
+            this.inPage_PaddleOCR.Controls.Add(this.btn_PaddleOCR_Keys_Browse);
+            this.inPage_PaddleOCR.Controls.Add(this.textBox_PaddleOCR_Keys);
+            this.inPage_PaddleOCR.Controls.Add(this.label_PaddleOCR_Keys);
+            this.inPage_PaddleOCR.Controls.Add(this.btn_PaddleOCR_Rec_Browse);
+            this.inPage_PaddleOCR.Controls.Add(this.textBox_PaddleOCR_Rec);
+            this.inPage_PaddleOCR.Controls.Add(this.label_PaddleOCR_Rec);
+            this.inPage_PaddleOCR.Controls.Add(this.btn_PaddleOCR_Cls_Browse);
+            this.inPage_PaddleOCR.Controls.Add(this.textBox_PaddleOCR_Cls);
+            this.inPage_PaddleOCR.Controls.Add(this.label_PaddleOCR_Cls);
+            this.inPage_PaddleOCR.Controls.Add(this.btn_PaddleOCR_Det_Browse);
+            this.inPage_PaddleOCR.Controls.Add(this.textBox_PaddleOCR_Det);
+            this.inPage_PaddleOCR.Controls.Add(this.label_PaddleOCR_Det);
             this.inPage_PaddleOCR.Location = new System.Drawing.Point(4, 25);
             this.inPage_PaddleOCR.Name = "inPage_PaddleOCR";
             this.inPage_PaddleOCR.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_PaddleOCR.Size = new System.Drawing.Size(496, 159);
+            this.inPage_PaddleOCR.Size = new System.Drawing.Size(496, 171);
             this.inPage_PaddleOCR.TabIndex = 7;
             this.inPage_PaddleOCR.Text = "PaddleOCR";
             this.inPage_PaddleOCR.UseVisualStyleBackColor = true;
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(451, 132);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(39, 25);
+            this.button2.TabIndex = 14;
+            this.button2.Text = "...";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // textBox5
+            // 
+            this.textBox5.Location = new System.Drawing.Point(142, 132);
+            this.textBox5.Name = "textBox5";
+            this.textBox5.Size = new System.Drawing.Size(303, 25);
+            this.textBox5.TabIndex = 13;
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(13, 138);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(105, 15);
+            this.label29.TabIndex = 12;
+            this.label29.Text = "高级配置文件:";
+            // 
+            // btn_PaddleOCR_Keys_Browse
+            // 
+            this.btn_PaddleOCR_Keys_Browse.Location = new System.Drawing.Point(451, 102);
+            this.btn_PaddleOCR_Keys_Browse.Name = "btn_PaddleOCR_Keys_Browse";
+            this.btn_PaddleOCR_Keys_Browse.Size = new System.Drawing.Size(39, 25);
+            this.btn_PaddleOCR_Keys_Browse.TabIndex = 11;
+            this.btn_PaddleOCR_Keys_Browse.Text = "...";
+            this.btn_PaddleOCR_Keys_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_PaddleOCR_Keys
+            // 
+            this.textBox_PaddleOCR_Keys.Location = new System.Drawing.Point(142, 102);
+            this.textBox_PaddleOCR_Keys.Name = "textBox_PaddleOCR_Keys";
+            this.textBox_PaddleOCR_Keys.Size = new System.Drawing.Size(303, 25);
+            this.textBox_PaddleOCR_Keys.TabIndex = 10;
+            // 
+            // label_PaddleOCR_Keys
+            // 
+            this.label_PaddleOCR_Keys.AutoSize = true;
+            this.label_PaddleOCR_Keys.Location = new System.Drawing.Point(13, 108);
+            this.label_PaddleOCR_Keys.Name = "label_PaddleOCR_Keys";
+            this.label_PaddleOCR_Keys.Size = new System.Drawing.Size(123, 15);
+            this.label_PaddleOCR_Keys.TabIndex = 9;
+            this.label_PaddleOCR_Keys.Text = "字典文件(keys):";
+            // 
+            // btn_PaddleOCR_Rec_Browse
+            // 
+            this.btn_PaddleOCR_Rec_Browse.Location = new System.Drawing.Point(451, 72);
+            this.btn_PaddleOCR_Rec_Browse.Name = "btn_PaddleOCR_Rec_Browse";
+            this.btn_PaddleOCR_Rec_Browse.Size = new System.Drawing.Size(39, 25);
+            this.btn_PaddleOCR_Rec_Browse.TabIndex = 8;
+            this.btn_PaddleOCR_Rec_Browse.Text = "...";
+            this.btn_PaddleOCR_Rec_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_PaddleOCR_Rec
+            // 
+            this.textBox_PaddleOCR_Rec.Location = new System.Drawing.Point(126, 72);
+            this.textBox_PaddleOCR_Rec.Name = "textBox_PaddleOCR_Rec";
+            this.textBox_PaddleOCR_Rec.Size = new System.Drawing.Size(319, 25);
+            this.textBox_PaddleOCR_Rec.TabIndex = 7;
+            // 
+            // label_PaddleOCR_Rec
+            // 
+            this.label_PaddleOCR_Rec.AutoSize = true;
+            this.label_PaddleOCR_Rec.Location = new System.Drawing.Point(13, 78);
+            this.label_PaddleOCR_Rec.Name = "label_PaddleOCR_Rec";
+            this.label_PaddleOCR_Rec.Size = new System.Drawing.Size(115, 15);
+            this.label_PaddleOCR_Rec.TabIndex = 6;
+            this.label_PaddleOCR_Rec.Text = "识别模型(rec):";
+            // 
+            // btn_PaddleOCR_Cls_Browse
+            // 
+            this.btn_PaddleOCR_Cls_Browse.Location = new System.Drawing.Point(451, 42);
+            this.btn_PaddleOCR_Cls_Browse.Name = "btn_PaddleOCR_Cls_Browse";
+            this.btn_PaddleOCR_Cls_Browse.Size = new System.Drawing.Size(39, 25);
+            this.btn_PaddleOCR_Cls_Browse.TabIndex = 5;
+            this.btn_PaddleOCR_Cls_Browse.Text = "...";
+            this.btn_PaddleOCR_Cls_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_PaddleOCR_Cls
+            // 
+            this.textBox_PaddleOCR_Cls.Location = new System.Drawing.Point(126, 42);
+            this.textBox_PaddleOCR_Cls.Name = "textBox_PaddleOCR_Cls";
+            this.textBox_PaddleOCR_Cls.Size = new System.Drawing.Size(319, 25);
+            this.textBox_PaddleOCR_Cls.TabIndex = 4;
+            // 
+            // label_PaddleOCR_Cls
+            // 
+            this.label_PaddleOCR_Cls.AutoSize = true;
+            this.label_PaddleOCR_Cls.Location = new System.Drawing.Point(13, 48);
+            this.label_PaddleOCR_Cls.Name = "label_PaddleOCR_Cls";
+            this.label_PaddleOCR_Cls.Size = new System.Drawing.Size(115, 15);
+            this.label_PaddleOCR_Cls.TabIndex = 3;
+            this.label_PaddleOCR_Cls.Text = "方向模型(cls):";
+            // 
+            // btn_PaddleOCR_Det_Browse
+            // 
+            this.btn_PaddleOCR_Det_Browse.Location = new System.Drawing.Point(451, 12);
+            this.btn_PaddleOCR_Det_Browse.Name = "btn_PaddleOCR_Det_Browse";
+            this.btn_PaddleOCR_Det_Browse.Size = new System.Drawing.Size(39, 25);
+            this.btn_PaddleOCR_Det_Browse.TabIndex = 2;
+            this.btn_PaddleOCR_Det_Browse.Text = "...";
+            this.btn_PaddleOCR_Det_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_PaddleOCR_Det
+            // 
+            this.textBox_PaddleOCR_Det.Location = new System.Drawing.Point(126, 12);
+            this.textBox_PaddleOCR_Det.Name = "textBox_PaddleOCR_Det";
+            this.textBox_PaddleOCR_Det.Size = new System.Drawing.Size(319, 25);
+            this.textBox_PaddleOCR_Det.TabIndex = 1;
+            // 
+            // label_PaddleOCR_Det
+            // 
+            this.label_PaddleOCR_Det.AutoSize = true;
+            this.label_PaddleOCR_Det.Location = new System.Drawing.Point(13, 18);
+            this.label_PaddleOCR_Det.Name = "label_PaddleOCR_Det";
+            this.label_PaddleOCR_Det.Size = new System.Drawing.Size(115, 15);
+            this.label_PaddleOCR_Det.TabIndex = 0;
+            this.label_PaddleOCR_Det.Text = "检测模型(det):";
+            // 
             // inPage_PaddleOCR2
             // 
+            this.inPage_PaddleOCR2.Controls.Add(this.button3);
+            this.inPage_PaddleOCR2.Controls.Add(this.textBox6);
+            this.inPage_PaddleOCR2.Controls.Add(this.label30);
+            this.inPage_PaddleOCR2.Controls.Add(this.comboBox_PaddleOCR2_rec_Version);
+            this.inPage_PaddleOCR2.Controls.Add(this.comboBox_PaddleOCR2_cls_Version);
+            this.inPage_PaddleOCR2.Controls.Add(this.label_PaddleOCR2_rec_Version);
+            this.inPage_PaddleOCR2.Controls.Add(this.label_PaddleOCR2_cls_Version);
+            this.inPage_PaddleOCR2.Controls.Add(this.comboBox_PaddleOCR2_det_Version);
+            this.inPage_PaddleOCR2.Controls.Add(this.label_PaddleOCR2_det_Version);
+            this.inPage_PaddleOCR2.Controls.Add(this.btn_PaddleOCR2_Keys_Browse);
+            this.inPage_PaddleOCR2.Controls.Add(this.textBox_PaddleOCR2_Keys);
+            this.inPage_PaddleOCR2.Controls.Add(this.label_PaddleOCR2_Keys);
+            this.inPage_PaddleOCR2.Controls.Add(this.btn_PaddleOCR2_Rec_Browse);
+            this.inPage_PaddleOCR2.Controls.Add(this.textBox_PaddleOCR2_Rec);
+            this.inPage_PaddleOCR2.Controls.Add(this.label_PaddleOCR2_Rec);
+            this.inPage_PaddleOCR2.Controls.Add(this.btn_PaddleOCR2_Cls_Browse);
+            this.inPage_PaddleOCR2.Controls.Add(this.textBox_PaddleOCR2_Cls);
+            this.inPage_PaddleOCR2.Controls.Add(this.label_PaddleOCR2_Cls);
+            this.inPage_PaddleOCR2.Controls.Add(this.btn_PaddleOCR2_Det_Browse);
+            this.inPage_PaddleOCR2.Controls.Add(this.textBox_PaddleOCR2_Det);
+            this.inPage_PaddleOCR2.Controls.Add(this.label_PaddleOCR2_Det);
             this.inPage_PaddleOCR2.Location = new System.Drawing.Point(4, 25);
             this.inPage_PaddleOCR2.Name = "inPage_PaddleOCR2";
             this.inPage_PaddleOCR2.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_PaddleOCR2.Size = new System.Drawing.Size(496, 159);
+            this.inPage_PaddleOCR2.Size = new System.Drawing.Size(496, 171);
             this.inPage_PaddleOCR2.TabIndex = 8;
             this.inPage_PaddleOCR2.Text = "PaddleOCR2";
             this.inPage_PaddleOCR2.UseVisualStyleBackColor = true;
             // 
+            // comboBox_PaddleOCR2_rec_Version
+            // 
+            this.comboBox_PaddleOCR2_rec_Version.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_PaddleOCR2_rec_Version.FormattingEnabled = true;
+            this.comboBox_PaddleOCR2_rec_Version.Items.AddRange(new object[] {
+            "v2",
+            "v3",
+            "v4",
+            "v5"});
+            this.comboBox_PaddleOCR2_rec_Version.Location = new System.Drawing.Point(445, 75);
+            this.comboBox_PaddleOCR2_rec_Version.Name = "comboBox_PaddleOCR2_rec_Version";
+            this.comboBox_PaddleOCR2_rec_Version.Size = new System.Drawing.Size(45, 23);
+            this.comboBox_PaddleOCR2_rec_Version.TabIndex = 18;
+            // 
+            // comboBox_PaddleOCR2_cls_Version
+            // 
+            this.comboBox_PaddleOCR2_cls_Version.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_PaddleOCR2_cls_Version.FormattingEnabled = true;
+            this.comboBox_PaddleOCR2_cls_Version.Items.AddRange(new object[] {
+            "v2",
+            "v3",
+            "v4",
+            "v5"});
+            this.comboBox_PaddleOCR2_cls_Version.Location = new System.Drawing.Point(445, 46);
+            this.comboBox_PaddleOCR2_cls_Version.Name = "comboBox_PaddleOCR2_cls_Version";
+            this.comboBox_PaddleOCR2_cls_Version.Size = new System.Drawing.Size(45, 23);
+            this.comboBox_PaddleOCR2_cls_Version.TabIndex = 17;
+            // 
+            // label_PaddleOCR2_rec_Version
+            // 
+            this.label_PaddleOCR2_rec_Version.AutoSize = true;
+            this.label_PaddleOCR2_rec_Version.Location = new System.Drawing.Point(394, 79);
+            this.label_PaddleOCR2_rec_Version.Name = "label_PaddleOCR2_rec_Version";
+            this.label_PaddleOCR2_rec_Version.Size = new System.Drawing.Size(45, 15);
+            this.label_PaddleOCR2_rec_Version.TabIndex = 15;
+            this.label_PaddleOCR2_rec_Version.Text = "版本:";
+            // 
+            // label_PaddleOCR2_cls_Version
+            // 
+            this.label_PaddleOCR2_cls_Version.AutoSize = true;
+            this.label_PaddleOCR2_cls_Version.Location = new System.Drawing.Point(394, 48);
+            this.label_PaddleOCR2_cls_Version.Name = "label_PaddleOCR2_cls_Version";
+            this.label_PaddleOCR2_cls_Version.Size = new System.Drawing.Size(45, 15);
+            this.label_PaddleOCR2_cls_Version.TabIndex = 14;
+            this.label_PaddleOCR2_cls_Version.Text = "版本:";
+            // 
+            // comboBox_PaddleOCR2_det_Version
+            // 
+            this.comboBox_PaddleOCR2_det_Version.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_PaddleOCR2_det_Version.FormattingEnabled = true;
+            this.comboBox_PaddleOCR2_det_Version.Items.AddRange(new object[] {
+            "v2",
+            "v3",
+            "v4",
+            "v5"});
+            this.comboBox_PaddleOCR2_det_Version.Location = new System.Drawing.Point(445, 14);
+            this.comboBox_PaddleOCR2_det_Version.Name = "comboBox_PaddleOCR2_det_Version";
+            this.comboBox_PaddleOCR2_det_Version.Size = new System.Drawing.Size(45, 23);
+            this.comboBox_PaddleOCR2_det_Version.TabIndex = 13;
+            // 
+            // label_PaddleOCR2_det_Version
+            // 
+            this.label_PaddleOCR2_det_Version.AutoSize = true;
+            this.label_PaddleOCR2_det_Version.Location = new System.Drawing.Point(394, 17);
+            this.label_PaddleOCR2_det_Version.Name = "label_PaddleOCR2_det_Version";
+            this.label_PaddleOCR2_det_Version.Size = new System.Drawing.Size(45, 15);
+            this.label_PaddleOCR2_det_Version.TabIndex = 12;
+            this.label_PaddleOCR2_det_Version.Text = "版本:";
+            // 
+            // btn_PaddleOCR2_Keys_Browse
+            // 
+            this.btn_PaddleOCR2_Keys_Browse.Location = new System.Drawing.Point(445, 104);
+            this.btn_PaddleOCR2_Keys_Browse.Name = "btn_PaddleOCR2_Keys_Browse";
+            this.btn_PaddleOCR2_Keys_Browse.Size = new System.Drawing.Size(40, 25);
+            this.btn_PaddleOCR2_Keys_Browse.TabIndex = 11;
+            this.btn_PaddleOCR2_Keys_Browse.Text = "...";
+            this.btn_PaddleOCR2_Keys_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_PaddleOCR2_Keys
+            // 
+            this.textBox_PaddleOCR2_Keys.Location = new System.Drawing.Point(142, 102);
+            this.textBox_PaddleOCR2_Keys.Name = "textBox_PaddleOCR2_Keys";
+            this.textBox_PaddleOCR2_Keys.Size = new System.Drawing.Size(297, 25);
+            this.textBox_PaddleOCR2_Keys.TabIndex = 10;
+            // 
+            // label_PaddleOCR2_Keys
+            // 
+            this.label_PaddleOCR2_Keys.AutoSize = true;
+            this.label_PaddleOCR2_Keys.Location = new System.Drawing.Point(13, 108);
+            this.label_PaddleOCR2_Keys.Name = "label_PaddleOCR2_Keys";
+            this.label_PaddleOCR2_Keys.Size = new System.Drawing.Size(123, 15);
+            this.label_PaddleOCR2_Keys.TabIndex = 9;
+            this.label_PaddleOCR2_Keys.Text = "字典文件(keys):";
+            // 
+            // btn_PaddleOCR2_Rec_Browse
+            // 
+            this.btn_PaddleOCR2_Rec_Browse.Location = new System.Drawing.Point(348, 74);
+            this.btn_PaddleOCR2_Rec_Browse.Name = "btn_PaddleOCR2_Rec_Browse";
+            this.btn_PaddleOCR2_Rec_Browse.Size = new System.Drawing.Size(40, 25);
+            this.btn_PaddleOCR2_Rec_Browse.TabIndex = 8;
+            this.btn_PaddleOCR2_Rec_Browse.Text = "...";
+            this.btn_PaddleOCR2_Rec_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_PaddleOCR2_Rec
+            // 
+            this.textBox_PaddleOCR2_Rec.Location = new System.Drawing.Point(126, 72);
+            this.textBox_PaddleOCR2_Rec.Name = "textBox_PaddleOCR2_Rec";
+            this.textBox_PaddleOCR2_Rec.Size = new System.Drawing.Size(217, 25);
+            this.textBox_PaddleOCR2_Rec.TabIndex = 7;
+            // 
+            // label_PaddleOCR2_Rec
+            // 
+            this.label_PaddleOCR2_Rec.AutoSize = true;
+            this.label_PaddleOCR2_Rec.Location = new System.Drawing.Point(13, 78);
+            this.label_PaddleOCR2_Rec.Name = "label_PaddleOCR2_Rec";
+            this.label_PaddleOCR2_Rec.Size = new System.Drawing.Size(115, 15);
+            this.label_PaddleOCR2_Rec.TabIndex = 6;
+            this.label_PaddleOCR2_Rec.Text = "识别模型(rec):";
+            // 
+            // btn_PaddleOCR2_Cls_Browse
+            // 
+            this.btn_PaddleOCR2_Cls_Browse.Location = new System.Drawing.Point(348, 43);
+            this.btn_PaddleOCR2_Cls_Browse.Name = "btn_PaddleOCR2_Cls_Browse";
+            this.btn_PaddleOCR2_Cls_Browse.Size = new System.Drawing.Size(40, 25);
+            this.btn_PaddleOCR2_Cls_Browse.TabIndex = 5;
+            this.btn_PaddleOCR2_Cls_Browse.Text = "...";
+            this.btn_PaddleOCR2_Cls_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_PaddleOCR2_Cls
+            // 
+            this.textBox_PaddleOCR2_Cls.Location = new System.Drawing.Point(126, 42);
+            this.textBox_PaddleOCR2_Cls.Name = "textBox_PaddleOCR2_Cls";
+            this.textBox_PaddleOCR2_Cls.Size = new System.Drawing.Size(217, 25);
+            this.textBox_PaddleOCR2_Cls.TabIndex = 4;
+            // 
+            // label_PaddleOCR2_Cls
+            // 
+            this.label_PaddleOCR2_Cls.AutoSize = true;
+            this.label_PaddleOCR2_Cls.Location = new System.Drawing.Point(13, 48);
+            this.label_PaddleOCR2_Cls.Name = "label_PaddleOCR2_Cls";
+            this.label_PaddleOCR2_Cls.Size = new System.Drawing.Size(115, 15);
+            this.label_PaddleOCR2_Cls.TabIndex = 3;
+            this.label_PaddleOCR2_Cls.Text = "方向模型(cls):";
+            // 
+            // btn_PaddleOCR2_Det_Browse
+            // 
+            this.btn_PaddleOCR2_Det_Browse.Location = new System.Drawing.Point(348, 12);
+            this.btn_PaddleOCR2_Det_Browse.Name = "btn_PaddleOCR2_Det_Browse";
+            this.btn_PaddleOCR2_Det_Browse.Size = new System.Drawing.Size(40, 25);
+            this.btn_PaddleOCR2_Det_Browse.TabIndex = 2;
+            this.btn_PaddleOCR2_Det_Browse.Text = "...";
+            this.btn_PaddleOCR2_Det_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_PaddleOCR2_Det
+            // 
+            this.textBox_PaddleOCR2_Det.Location = new System.Drawing.Point(126, 12);
+            this.textBox_PaddleOCR2_Det.Name = "textBox_PaddleOCR2_Det";
+            this.textBox_PaddleOCR2_Det.Size = new System.Drawing.Size(217, 25);
+            this.textBox_PaddleOCR2_Det.TabIndex = 1;
+            // 
+            // label_PaddleOCR2_Det
+            // 
+            this.label_PaddleOCR2_Det.AutoSize = true;
+            this.label_PaddleOCR2_Det.Location = new System.Drawing.Point(13, 18);
+            this.label_PaddleOCR2_Det.Name = "label_PaddleOCR2_Det";
+            this.label_PaddleOCR2_Det.Size = new System.Drawing.Size(115, 15);
+            this.label_PaddleOCR2_Det.TabIndex = 0;
+            this.label_PaddleOCR2_Det.Text = "检测模型(det):";
+            // 
             // inPage_RapidOCR
             // 
+            this.inPage_RapidOCR.Controls.Add(this.button4);
+            this.inPage_RapidOCR.Controls.Add(this.textBox7);
+            this.inPage_RapidOCR.Controls.Add(this.label31);
+            this.inPage_RapidOCR.Controls.Add(this.btn_RapidOCR_Keys_Browse);
+            this.inPage_RapidOCR.Controls.Add(this.textBox_RapidOCR_Keys);
+            this.inPage_RapidOCR.Controls.Add(this.label_RapidOCR_Keys);
+            this.inPage_RapidOCR.Controls.Add(this.btn_RapidOCR_Rec_Browse);
+            this.inPage_RapidOCR.Controls.Add(this.textBox_RapidOCR_Rec);
+            this.inPage_RapidOCR.Controls.Add(this.label_RapidOCR_Rec);
+            this.inPage_RapidOCR.Controls.Add(this.btn_RapidOCR_Cls_Browse);
+            this.inPage_RapidOCR.Controls.Add(this.textBox_RapidOCR_Cls);
+            this.inPage_RapidOCR.Controls.Add(this.label_RapidOCR_Cls);
+            this.inPage_RapidOCR.Controls.Add(this.btn_RapidOCR_Det_Browse);
+            this.inPage_RapidOCR.Controls.Add(this.textBox_RapidOCR_Det);
+            this.inPage_RapidOCR.Controls.Add(this.label_RapidOCR_Det);
             this.inPage_RapidOCR.Location = new System.Drawing.Point(4, 25);
             this.inPage_RapidOCR.Name = "inPage_RapidOCR";
             this.inPage_RapidOCR.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_RapidOCR.Size = new System.Drawing.Size(496, 159);
+            this.inPage_RapidOCR.Size = new System.Drawing.Size(496, 171);
             this.inPage_RapidOCR.TabIndex = 9;
             this.inPage_RapidOCR.Text = "RapidOCR";
             this.inPage_RapidOCR.UseVisualStyleBackColor = true;
+            // 
+            // btn_RapidOCR_Keys_Browse
+            // 
+            this.btn_RapidOCR_Keys_Browse.Location = new System.Drawing.Point(443, 100);
+            this.btn_RapidOCR_Keys_Browse.Name = "btn_RapidOCR_Keys_Browse";
+            this.btn_RapidOCR_Keys_Browse.Size = new System.Drawing.Size(39, 25);
+            this.btn_RapidOCR_Keys_Browse.TabIndex = 11;
+            this.btn_RapidOCR_Keys_Browse.Text = "...";
+            this.btn_RapidOCR_Keys_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_RapidOCR_Keys
+            // 
+            this.textBox_RapidOCR_Keys.Location = new System.Drawing.Point(138, 102);
+            this.textBox_RapidOCR_Keys.Name = "textBox_RapidOCR_Keys";
+            this.textBox_RapidOCR_Keys.Size = new System.Drawing.Size(299, 25);
+            this.textBox_RapidOCR_Keys.TabIndex = 10;
+            // 
+            // label_RapidOCR_Keys
+            // 
+            this.label_RapidOCR_Keys.AutoSize = true;
+            this.label_RapidOCR_Keys.Location = new System.Drawing.Point(13, 108);
+            this.label_RapidOCR_Keys.Name = "label_RapidOCR_Keys";
+            this.label_RapidOCR_Keys.Size = new System.Drawing.Size(123, 15);
+            this.label_RapidOCR_Keys.TabIndex = 9;
+            this.label_RapidOCR_Keys.Text = "字典文件(keys):";
+            // 
+            // btn_RapidOCR_Rec_Browse
+            // 
+            this.btn_RapidOCR_Rec_Browse.Location = new System.Drawing.Point(443, 70);
+            this.btn_RapidOCR_Rec_Browse.Name = "btn_RapidOCR_Rec_Browse";
+            this.btn_RapidOCR_Rec_Browse.Size = new System.Drawing.Size(39, 25);
+            this.btn_RapidOCR_Rec_Browse.TabIndex = 8;
+            this.btn_RapidOCR_Rec_Browse.Text = "...";
+            this.btn_RapidOCR_Rec_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_RapidOCR_Rec
+            // 
+            this.textBox_RapidOCR_Rec.Location = new System.Drawing.Point(127, 72);
+            this.textBox_RapidOCR_Rec.Name = "textBox_RapidOCR_Rec";
+            this.textBox_RapidOCR_Rec.Size = new System.Drawing.Size(310, 25);
+            this.textBox_RapidOCR_Rec.TabIndex = 7;
+            // 
+            // label_RapidOCR_Rec
+            // 
+            this.label_RapidOCR_Rec.AutoSize = true;
+            this.label_RapidOCR_Rec.Location = new System.Drawing.Point(13, 78);
+            this.label_RapidOCR_Rec.Name = "label_RapidOCR_Rec";
+            this.label_RapidOCR_Rec.Size = new System.Drawing.Size(115, 15);
+            this.label_RapidOCR_Rec.TabIndex = 6;
+            this.label_RapidOCR_Rec.Text = "识别模型(rec):";
+            // 
+            // btn_RapidOCR_Cls_Browse
+            // 
+            this.btn_RapidOCR_Cls_Browse.Location = new System.Drawing.Point(443, 40);
+            this.btn_RapidOCR_Cls_Browse.Name = "btn_RapidOCR_Cls_Browse";
+            this.btn_RapidOCR_Cls_Browse.Size = new System.Drawing.Size(39, 25);
+            this.btn_RapidOCR_Cls_Browse.TabIndex = 5;
+            this.btn_RapidOCR_Cls_Browse.Text = "...";
+            this.btn_RapidOCR_Cls_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_RapidOCR_Cls
+            // 
+            this.textBox_RapidOCR_Cls.Location = new System.Drawing.Point(127, 42);
+            this.textBox_RapidOCR_Cls.Name = "textBox_RapidOCR_Cls";
+            this.textBox_RapidOCR_Cls.Size = new System.Drawing.Size(310, 25);
+            this.textBox_RapidOCR_Cls.TabIndex = 4;
+            // 
+            // label_RapidOCR_Cls
+            // 
+            this.label_RapidOCR_Cls.AutoSize = true;
+            this.label_RapidOCR_Cls.Location = new System.Drawing.Point(13, 48);
+            this.label_RapidOCR_Cls.Name = "label_RapidOCR_Cls";
+            this.label_RapidOCR_Cls.Size = new System.Drawing.Size(115, 15);
+            this.label_RapidOCR_Cls.TabIndex = 3;
+            this.label_RapidOCR_Cls.Text = "方向模型(cls):";
+            // 
+            // btn_RapidOCR_Det_Browse
+            // 
+            this.btn_RapidOCR_Det_Browse.Location = new System.Drawing.Point(443, 10);
+            this.btn_RapidOCR_Det_Browse.Name = "btn_RapidOCR_Det_Browse";
+            this.btn_RapidOCR_Det_Browse.Size = new System.Drawing.Size(39, 25);
+            this.btn_RapidOCR_Det_Browse.TabIndex = 2;
+            this.btn_RapidOCR_Det_Browse.Text = "...";
+            this.btn_RapidOCR_Det_Browse.UseVisualStyleBackColor = true;
+            // 
+            // textBox_RapidOCR_Det
+            // 
+            this.textBox_RapidOCR_Det.Location = new System.Drawing.Point(127, 12);
+            this.textBox_RapidOCR_Det.Name = "textBox_RapidOCR_Det";
+            this.textBox_RapidOCR_Det.Size = new System.Drawing.Size(310, 25);
+            this.textBox_RapidOCR_Det.TabIndex = 1;
+            // 
+            // label_RapidOCR_Det
+            // 
+            this.label_RapidOCR_Det.AutoSize = true;
+            this.label_RapidOCR_Det.Location = new System.Drawing.Point(13, 18);
+            this.label_RapidOCR_Det.Name = "label_RapidOCR_Det";
+            this.label_RapidOCR_Det.Size = new System.Drawing.Size(115, 15);
+            this.label_RapidOCR_Det.TabIndex = 0;
+            this.label_RapidOCR_Det.Text = "检测模型(det):";
+            // 
+            // groupBox_PaddleOCR_Config
+            // 
+            this.groupBox_PaddleOCR_Config.Location = new System.Drawing.Point(0, 0);
+            this.groupBox_PaddleOCR_Config.Name = "groupBox_PaddleOCR_Config";
+            this.groupBox_PaddleOCR_Config.Size = new System.Drawing.Size(200, 100);
+            this.groupBox_PaddleOCR_Config.TabIndex = 0;
+            this.groupBox_PaddleOCR_Config.TabStop = false;
+            // 
+            // label_PaddleOCR_Status
+            // 
+            this.label_PaddleOCR_Status.Location = new System.Drawing.Point(0, 0);
+            this.label_PaddleOCR_Status.Name = "label_PaddleOCR_Status";
+            this.label_PaddleOCR_Status.Size = new System.Drawing.Size(100, 23);
+            this.label_PaddleOCR_Status.TabIndex = 0;
+            // 
+            // groupBox_PaddleOCR2_Config
+            // 
+            this.groupBox_PaddleOCR2_Config.Location = new System.Drawing.Point(0, 0);
+            this.groupBox_PaddleOCR2_Config.Name = "groupBox_PaddleOCR2_Config";
+            this.groupBox_PaddleOCR2_Config.Size = new System.Drawing.Size(200, 100);
+            this.groupBox_PaddleOCR2_Config.TabIndex = 0;
+            this.groupBox_PaddleOCR2_Config.TabStop = false;
+            // 
+            // label_PaddleOCR2_Status
+            // 
+            this.label_PaddleOCR2_Status.Location = new System.Drawing.Point(0, 0);
+            this.label_PaddleOCR2_Status.Name = "label_PaddleOCR2_Status";
+            this.label_PaddleOCR2_Status.Size = new System.Drawing.Size(100, 23);
+            this.label_PaddleOCR2_Status.TabIndex = 0;
+            // 
+            // groupBox_RapidOCR_Config
+            // 
+            this.groupBox_RapidOCR_Config.Location = new System.Drawing.Point(0, 0);
+            this.groupBox_RapidOCR_Config.Name = "groupBox_RapidOCR_Config";
+            this.groupBox_RapidOCR_Config.Size = new System.Drawing.Size(200, 100);
+            this.groupBox_RapidOCR_Config.TabIndex = 0;
+            this.groupBox_RapidOCR_Config.TabStop = false;
+            // 
+            // label_RapidOCR_Status
+            // 
+            this.label_RapidOCR_Status.Location = new System.Drawing.Point(0, 0);
+            this.label_RapidOCR_Status.Name = "label_RapidOCR_Status";
+            this.label_RapidOCR_Status.Size = new System.Drawing.Size(100, 23);
+            this.label_RapidOCR_Status.TabIndex = 0;
             // 
             // button1
             // 
@@ -3852,6 +4407,77 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(13, 138);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(105, 15);
+            this.label30.TabIndex = 19;
+            this.label30.Text = "高级配置文件:";
+            // 
+            // textBox6
+            // 
+            this.textBox6.Location = new System.Drawing.Point(142, 132);
+            this.textBox6.Name = "textBox6";
+            this.textBox6.Size = new System.Drawing.Size(297, 25);
+            this.textBox6.TabIndex = 20;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(445, 132);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(40, 25);
+            this.button3.TabIndex = 21;
+            this.button3.Text = "...";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(13, 138);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(105, 15);
+            this.label31.TabIndex = 12;
+            this.label31.Text = "高级配置文件:";
+            // 
+            // textBox7
+            // 
+            this.textBox7.Location = new System.Drawing.Point(138, 133);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.Size = new System.Drawing.Size(299, 25);
+            this.textBox7.TabIndex = 13;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(443, 133);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(39, 25);
+            this.button4.TabIndex = 14;
+            this.button4.Text = "...";
+            this.button4.UseVisualStyleBackColor = true;
+            // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.label_OcrApiHelpText);
+            this.groupBox7.Location = new System.Drawing.Point(12, 214);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(500, 160);
+            this.groupBox7.TabIndex = 11;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "说明";
+            this.groupBox7.Visible = false;
+            // 
+            // label_OcrApiHelpText
+            // 
+            this.label_OcrApiHelpText.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label_OcrApiHelpText.Location = new System.Drawing.Point(3, 21);
+            this.label_OcrApiHelpText.Name = "label_OcrApiHelpText";
+            this.label_OcrApiHelpText.Size = new System.Drawing.Size(494, 136);
+            this.label_OcrApiHelpText.TabIndex = 24;
+            this.label_OcrApiHelpText.Text = "说明1：此接口只支持64位，支持ppocrv5和低版本的模型\r\n说明2：需要cpu支持avx指令集，不支持请使用PaddleOCR2接口\r\n说明3：高级配置文件留" +
+    "空则使用默认值，普通用户推荐留空\r\n";
+            // 
             // FmSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -3977,6 +4603,12 @@ namespace TrOCR
             this.inPage_腾讯高精度接口.PerformLayout();
             this.inPage_腾讯表格v3.ResumeLayout(false);
             this.inPage_腾讯表格v3.PerformLayout();
+            this.inPage_PaddleOCR.ResumeLayout(false);
+            this.inPage_PaddleOCR.PerformLayout();
+            this.inPage_PaddleOCR2.ResumeLayout(false);
+            this.inPage_PaddleOCR2.PerformLayout();
+            this.inPage_RapidOCR.ResumeLayout(false);
+            this.inPage_RapidOCR.PerformLayout();
             this.Page_快捷键.ResumeLayout(false);
             this.Page_快捷键.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -4017,6 +4649,7 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
+            this.groupBox7.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -4323,5 +4956,70 @@ namespace TrOCR
         private System.Windows.Forms.CheckBox checkBox_ShowOcrPaddleOCR;
         private System.Windows.Forms.CheckBox checkBox_ShowOcrPaddleOCR2;
         private System.Windows.Forms.CheckBox checkBox_ShowOcrRapidOCR;
+        
+        // PaddleOCR配置控件
+        private System.Windows.Forms.GroupBox groupBox_PaddleOCR_Config;
+        private System.Windows.Forms.Label label_PaddleOCR_Det;
+        private System.Windows.Forms.TextBox textBox_PaddleOCR_Det;
+        private System.Windows.Forms.Button btn_PaddleOCR_Det_Browse;
+        private System.Windows.Forms.Label label_PaddleOCR_Cls;
+        private System.Windows.Forms.TextBox textBox_PaddleOCR_Cls;
+        private System.Windows.Forms.Button btn_PaddleOCR_Cls_Browse;
+        private System.Windows.Forms.Label label_PaddleOCR_Rec;
+        private System.Windows.Forms.TextBox textBox_PaddleOCR_Rec;
+        private System.Windows.Forms.Button btn_PaddleOCR_Rec_Browse;
+        private System.Windows.Forms.Label label_PaddleOCR_Keys;
+        private System.Windows.Forms.TextBox textBox_PaddleOCR_Keys;
+        private System.Windows.Forms.Button btn_PaddleOCR_Keys_Browse;
+        private System.Windows.Forms.Label label_PaddleOCR_Status;
+        
+        // PaddleOCR2配置控件
+        private System.Windows.Forms.GroupBox groupBox_PaddleOCR2_Config;
+        private System.Windows.Forms.Label label_PaddleOCR2_Det;
+        private System.Windows.Forms.TextBox textBox_PaddleOCR2_Det;
+        private System.Windows.Forms.Button btn_PaddleOCR2_Det_Browse;
+        private System.Windows.Forms.Label label_PaddleOCR2_Cls;
+        private System.Windows.Forms.TextBox textBox_PaddleOCR2_Cls;
+        private System.Windows.Forms.Button btn_PaddleOCR2_Cls_Browse;
+        private System.Windows.Forms.Label label_PaddleOCR2_Rec;
+        private System.Windows.Forms.TextBox textBox_PaddleOCR2_Rec;
+        private System.Windows.Forms.Button btn_PaddleOCR2_Rec_Browse;
+        private System.Windows.Forms.Label label_PaddleOCR2_Keys;
+        private System.Windows.Forms.TextBox textBox_PaddleOCR2_Keys;
+        private System.Windows.Forms.Button btn_PaddleOCR2_Keys_Browse;
+        private System.Windows.Forms.Label label_PaddleOCR2_det_Version;
+        private System.Windows.Forms.ComboBox comboBox_PaddleOCR2_det_Version;
+        private System.Windows.Forms.Label label_PaddleOCR2_Status;
+        
+        // RapidOCR配置控件
+        private System.Windows.Forms.GroupBox groupBox_RapidOCR_Config;
+        private System.Windows.Forms.Label label_RapidOCR_Det;
+        private System.Windows.Forms.TextBox textBox_RapidOCR_Det;
+        private System.Windows.Forms.Button btn_RapidOCR_Det_Browse;
+        private System.Windows.Forms.Label label_RapidOCR_Cls;
+        private System.Windows.Forms.TextBox textBox_RapidOCR_Cls;
+        private System.Windows.Forms.Button btn_RapidOCR_Cls_Browse;
+        private System.Windows.Forms.Label label_RapidOCR_Rec;
+        private System.Windows.Forms.TextBox textBox_RapidOCR_Rec;
+        private System.Windows.Forms.Button btn_RapidOCR_Rec_Browse;
+        private System.Windows.Forms.Label label_RapidOCR_Keys;
+        private System.Windows.Forms.TextBox textBox_RapidOCR_Keys;
+        private System.Windows.Forms.Button btn_RapidOCR_Keys_Browse;
+        private System.Windows.Forms.Label label_RapidOCR_Status;
+        private System.Windows.Forms.ComboBox comboBox_PaddleOCR2_rec_Version;
+        private System.Windows.Forms.ComboBox comboBox_PaddleOCR2_cls_Version;
+        private System.Windows.Forms.Label label_PaddleOCR2_rec_Version;
+        private System.Windows.Forms.Label label_PaddleOCR2_cls_Version;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.Label label30;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.TextBox textBox7;
+        private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.GroupBox groupBox7;
+        private System.Windows.Forms.Label label_OcrApiHelpText;
     }
 }

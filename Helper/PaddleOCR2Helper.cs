@@ -39,33 +39,86 @@ namespace TrOCR.Helper
 
             try
             {
-                // 1. 定义模型文件所在的根目录
-                string modelBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR2_data","models");
+                // --- 步骤1：从INI读取所有相关配置 ---
+                string detModelPath = GetConfigValue("模型配置_PaddleOCR2", "Det");
+                string clsModelPath = GetConfigValue("模型配置_PaddleOCR2", "Cls");
+                string recModelPath = GetConfigValue("模型配置_PaddleOCR2", "Rec");
+                string keysPath = GetConfigValue("模型配置_PaddleOCR2", "Keys");
 
-                // 2. 分别构建每个模型组件的完整路径
-                string detModelPath = Path.Combine(modelBasePath, "PP-OCRv4_mobile_det_infer");
-                string clsModelPath = Path.Combine(modelBasePath, "ch_ppocr_mobile_v2.0_cls_infer");
-                string recModelPath = Path.Combine(modelBasePath, "PP-OCRv4_mobile_rec_infer");
-                string keysPath = Path.Combine(modelBasePath, "ppocr_keys.txt");
+                // 读取独立的版本号
+                string detVersionStr = GetConfigValue("模型配置_PaddleOCR2", "Det_Version");
+                string clsVersionStr = GetConfigValue("模型配置_PaddleOCR2", "Cls_Version");
+                string recVersionStr = GetConfigValue("模型配置_PaddleOCR2", "Rec_Version");
 
-                // 3. 使用 FromDirectory 静态方法分别创建每个模型对象
-                //    这些方法正是您在源码中看到的，它们是推荐的使用方式
-                DetectionModel detModel = DetectionModel.FromDirectory(detModelPath,ModelVersion.V5);
-                ClassificationModel clsModel = ClassificationModel.FromDirectory(clsModelPath,ModelVersion.V2);
-                // 识别模型需要额外的字典文件路径
-                RecognizationModel recModel = RecognizationModel.FromDirectory(recModelPath, keysPath,ModelVersion.V5);
+                // 读取高级配置文件路径
+                string advancedConfigPath = GetConfigValue("模型配置_PaddleOCR2", "AdvancedConfig");
 
-                // 4. 将分别创建的模型对象组合成一个完整的 FullOcrModel
-                FullOcrModel customModel = new FullOcrModel(detModel, clsModel, recModel);
-
-                // 5. 使用这个自定义的、组合好的模型来初始化引擎
-                //    这里的 _ocrEngine 就是您 PaddleOCR2Helper 类中的字段
-                _ocrEngine = new PaddleOcrAll(customModel, PaddleDevice.Blas())
+                // 如果模型路径配置为空，使用默认路径 (保持不变)
+                if (string.IsNullOrEmpty(detModelPath) || string.IsNullOrEmpty(clsModelPath) ||
+                    string.IsNullOrEmpty(recModelPath) || string.IsNullOrEmpty(keysPath))
                 {
-                    AllowRotateDetection = true,
-                    Enable180Classification = false
-                };
-                //_ocrEngine.Detector.MaxSize = 960;
+                    string modelBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR2_data", "models");
+                    detModelPath = string.IsNullOrEmpty(detModelPath) ? Path.Combine(modelBasePath, "PP-OCRv5_mobile_det_infer") : detModelPath;
+                    clsModelPath = string.IsNullOrEmpty(clsModelPath) ? Path.Combine(modelBasePath, "ch_ppocr_mobile_v2.0_cls_infer") : clsModelPath;
+                    recModelPath = string.IsNullOrEmpty(recModelPath) ? Path.Combine(modelBasePath, "PP-OCRv5_mobile_rec_infer") : recModelPath;
+                    keysPath = string.IsNullOrEmpty(keysPath) ? Path.Combine(modelBasePath, "ppocr_keys.txt") : keysPath;
+                }
+
+                // --- 步骤2：解析独立的版本配置 ---
+                ModelVersion detVersion = ParseModelVersion(detVersionStr);
+                ModelVersion clsVersion = ParseModelVersion(clsVersionStr);
+                ModelVersion recVersion = ParseModelVersion(recVersionStr);
+
+                // --- 步骤3：创建并组合模型对象 ---
+                DetectionModel detModel = DetectionModel.FromDirectory(detModelPath, detVersion);
+                ClassificationModel clsModel = ClassificationModel.FromDirectory(clsModelPath, clsVersion);
+                RecognizationModel recModel = RecognizationModel.FromDirectory(recModelPath, keysPath, recVersion);
+                FullOcrModel customModel = new FullOcrModel(detModel, clsModel, recModel);
+                 // --- 步骤4：初始化引擎 ---
+                _ocrEngine = new PaddleOcrAll(customModel, PaddleDevice.Blas());
+
+                // --- 步骤5：加载并应用高级JSON参数 ---
+                if (!string.IsNullOrEmpty(advancedConfigPath) && File.Exists(advancedConfigPath))
+                {
+                    try
+                    {
+                        string jsonContent = File.ReadAllText(advancedConfigPath);
+                        var configJson = Newtonsoft.Json.Linq.JObject.Parse(jsonContent);
+                        var paddleConfig = configJson["PaddleOCR2"];
+
+                        if (paddleConfig != null)
+                        {
+                            // 应用顶层参数
+                            _ocrEngine.Enable180Classification = paddleConfig["TopLevel"]?["Enable180Classification"]?.Value<bool>() ?? _ocrEngine.Enable180Classification;
+                            _ocrEngine.AllowRotateDetection = paddleConfig["TopLevel"]?["AllowRotateDetection"]?.Value<bool>() ?? _ocrEngine.AllowRotateDetection;
+
+                            // 应用检测器参数
+                            var detConfig = paddleConfig["Detector"];
+                            if (detConfig != null)
+                            {
+                                _ocrEngine.Detector.MaxSize = detConfig["MaxSize"]?.Value<int>() ?? _ocrEngine.Detector.MaxSize;
+                                _ocrEngine.Detector.BoxScoreThreahold = detConfig["BoxScoreThreahold"]?.Value<float>() ?? _ocrEngine.Detector.BoxScoreThreahold;
+                                _ocrEngine.Detector.BoxThreshold = detConfig["BoxThreshold"]?.Value<float>() ?? _ocrEngine.Detector.BoxThreshold;
+                                _ocrEngine.Detector.MinSize = detConfig["MinSize"]?.Value<int>() ?? _ocrEngine.Detector.MinSize;
+                                _ocrEngine.Detector.UnclipRatio = detConfig["UnclipRatio"]?.Value<float>() ?? _ocrEngine.Detector.UnclipRatio;
+                            }
+
+                            // 应用分类器参数
+                            var clsConfig = paddleConfig["Classifier"];
+                            if (clsConfig != null && _ocrEngine.Classifier != null)
+                            {
+                                _ocrEngine.Classifier.RotateThreshold = clsConfig["RotateThreshold"]?.Value<double>() ?? _ocrEngine.Classifier.RotateThreshold;
+                            }
+                            Debug.WriteLine($"成功加载并应用高级配置文件: {advancedConfigPath}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"解析或应用高级配置文件 '{advancedConfigPath}' 失败: {ex.Message}");
+                        // 即使JSON解析失败，引擎也已经用默认参数初始化好了，程序可以继续运行
+                    }
+                }
+                
             }
             catch (Exception ex)
             {
@@ -135,6 +188,40 @@ namespace TrOCR.Helper
         }
 
         // --- 其他辅助方法和Dispose模式 ---
+        /// <summary>
+        /// 获取配置值的辅助方法
+        /// </summary>
+        private string GetConfigValue(string section, string key)
+        {
+            try
+            {
+                var value = TrOCR.Helper.IniHelper.GetValue(section, key);
+                return value == "发生错误" ? "" : value;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// 解析模型版本配置
+        /// </summary>
+        private ModelVersion ParseModelVersion(string version)
+        {
+            if (string.IsNullOrEmpty(version))
+                return ModelVersion.V5; // 默认v5
+
+            switch (version.ToLower())
+            {
+                case "v2": return ModelVersion.V2;
+                case "v3": return ModelVersion.V3;
+                case "v4": return ModelVersion.V4;
+                case "v5": return ModelVersion.V5;
+                default: return ModelVersion.V5;
+            }
+        }
+
         private Mat ImageToMat(Image image)
         {
             using (var ms = new MemoryStream())

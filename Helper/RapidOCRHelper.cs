@@ -5,7 +5,8 @@ using System.Windows.Forms;
 using OcrLiteLib;
 using System.Threading;
 using System.Drawing.Imaging;
-using System.Diagnostics; // for ImageFormat
+using System.Diagnostics;
+using Newtonsoft.Json.Linq; 
 //支持ppocrv4，不支持ppocrv5，支持32位和64位
 namespace TrOCR.Helper
 {
@@ -41,22 +42,79 @@ namespace TrOCR.Helper
         #region --- 2. 构造函数负责所有初始化工作 ---
         private RapidOCRHelper()
         {
-            
-            // 设置模型路径
-            string modelsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RapidOCR_data","models");
-            // numThreads = Environment.ProcessorCount; // 使用所有可用核心以获得最佳性能
+             // --- 步骤1：从INI读取所有路径配置 ---
+            string detPath = GetConfigValue("模型配置_RapidOCR", "Det");
+            string clsPath = GetConfigValue("模型配置_RapidOCR", "Cls");
+            string recPath = GetConfigValue("模型配置_RapidOCR", "Rec");
+            string keysPath = GetConfigValue("模型配置_RapidOCR", "Keys");
+            string advancedConfigPath = GetConfigValue("模型配置_RapidOCR", "AdvancedConfig");
 
-            // 检查模型文件
-            var modelFiles = GetModelFilePaths(modelsPath);
+            // 如果模型路径配置为空，使用默认路径 (逻辑保持不变)
+            if (string.IsNullOrEmpty(detPath) || string.IsNullOrEmpty(clsPath) || 
+                string.IsNullOrEmpty(recPath) || string.IsNullOrEmpty(keysPath))
+            {
+                string modelsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "RapidOCR_data", "models");
+                var defaultModelFiles = GetModelFilePaths(modelsPath);
+
+                detPath = string.IsNullOrEmpty(detPath) ? defaultModelFiles.DetPath : detPath;
+                clsPath = string.IsNullOrEmpty(clsPath) ? defaultModelFiles.ClsPath : clsPath;
+                recPath = string.IsNullOrEmpty(recPath) ? defaultModelFiles.RecPath : recPath;
+                keysPath = string.IsNullOrEmpty(keysPath) ? defaultModelFiles.KeysPath : keysPath;
+            }
+
+            // --- 步骤2：加载并应用高级JSON参数 ---
+            if (!string.IsNullOrEmpty(advancedConfigPath) && File.Exists(advancedConfigPath))
+            {
+                try
+                {
+                    string jsonContent = File.ReadAllText(advancedConfigPath);
+                    var configJson = Newtonsoft.Json.Linq.JObject.Parse(jsonContent);
+                    var rapidConfig = configJson["RapidOCR"];
+
+                    if (rapidConfig != null)
+                    {
+                        // 从JSON读取参数，如果JSON中缺少某个键，则使用字段的当前默认值
+                        int padding = rapidConfig["padding"]?.Value<int>() ?? this._padding;
+                        int imgResize = rapidConfig["imgResize"]?.Value<int>() ?? this._imgResize;
+                        float boxScoreThresh = rapidConfig["boxScoreThresh"]?.Value<float>() ?? this._boxScoreThresh;
+                        float boxThresh = rapidConfig["boxThresh"]?.Value<float>() ?? this._boxThresh;
+                        float unClipRatio = rapidConfig["unClipRatio"]?.Value<float>() ?? this._unClipRatio;
+                        bool doAngle = rapidConfig["doAngle"]?.Value<bool>() ?? this._doAngle;
+                        bool mostAngle = rapidConfig["mostAngle"]?.Value<bool>() ?? this._mostAngle;
+
+                        // numThreads 是初始化参数，需要在这里直接更新
+                        this.numThreads = rapidConfig["numThreads"]?.Value<int>() ?? this.numThreads;
+
+                        // 使用 SetParameters 方法更新其他参数字段
+                        SetParameters(padding, imgResize, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+
+                        Debug.WriteLine($"成功加载并应用RapidOCR高级配置文件: {advancedConfigPath}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"解析或应用RapidOCR高级配置文件 '{advancedConfigPath}' 失败: {ex.Message}");
+                    // 即使JSON解析失败，程序也会继续使用硬编码的默认参数运行
+                }
+            }
+
+
+            // 验证模型文件
+            var modelFiles = new ModelFilePaths
+            {
+                DetPath = detPath,
+                ClsPath = clsPath,
+                RecPath = recPath,
+                KeysPath = keysPath
+            };
+
             if (!ValidateModelFiles(modelFiles))
             {
-              
                 // 如果模型文件缺失，抛出异常，Lazy<T> 会捕获并缓存这个异常
-                // 下次访问 Instance 时会重新抛出同样的异常
                 throw new FileNotFoundException("RapidOCR模型文件缺失，无法初始化引擎。");
             }
 
-            // 创建并初始化OCR引擎
+            // --- 步骤3：使用最终确定的参数初始化引擎 ---
             try
             {
                 _ocrEngine = new OcrLite();
@@ -66,7 +124,7 @@ namespace TrOCR.Helper
                     modelFiles.RecPath,
                     modelFiles.KeysPath,
                     numThreads
-                );
+                    );
             }
             catch (Exception ex)
             {
@@ -275,7 +333,33 @@ namespace TrOCR.Helper
         #endregion
 
         #region --- 私有辅助方法 ---
-        // GetModelFilePaths, ValidateModelFiles, CheckArchitecture 等方法保持不变
+        /// <summary>
+        /// 获取配置值的辅助方法
+        /// </summary>
+        private string GetConfigValue(string section, string key)
+        {
+            try
+            {
+                var value = TrOCR.Helper.IniHelper.GetValue(section, key);
+                return value == "发生错误" ? "" : value;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// 模型文件路径结构
+        /// </summary>
+        private struct ModelFilePaths
+        {
+            public string DetPath { get; set; }
+            public string ClsPath { get; set; }
+            public string RecPath { get; set; }
+            public string KeysPath { get; set; }
+        }
+
         private (string DetPath, string ClsPath, string RecPath, string KeysPath) GetModelFilePaths(string modelsPath)
         {
             return (
@@ -286,7 +370,7 @@ namespace TrOCR.Helper
             );
         }
 
-        private bool ValidateModelFiles((string DetPath, string ClsPath, string RecPath, string KeysPath) modelFiles)
+        private bool ValidateModelFiles(ModelFilePaths modelFiles)
         {
             var missingFiles = new System.Collections.Generic.List<string>();
             if (!File.Exists(modelFiles.DetPath)) missingFiles.Add($"检测模型: {modelFiles.DetPath}");
