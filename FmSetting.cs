@@ -740,6 +740,10 @@ namespace TrOCR
 			setOcrVisibility("TableAli", checkBox_ShowOcrTableAli, null);
 			setOcrVisibility("ShupaiLR", checkBox_ShowOcrShupaiLR, null);
 			setOcrVisibility("ShupaiRL", checkBox_ShowOcrShupaiRL, null);
+			setOcrVisibility("TencentTable", checkBox_ShowOcrTableTencent, null);
+			setOcrVisibility("PaddleOCR", checkBox_ShowOcrPaddleOCR, null);
+			setOcrVisibility("PaddleOCR2", checkBox_ShowOcrPaddleOCR2, null);
+			setOcrVisibility("RapidOCR", checkBox_ShowOcrRapidOCR, null);
 		}
 
 		/// <summary>
@@ -855,6 +859,10 @@ namespace TrOCR
 			checkBox_ShowOcrTableAli.CheckedChanged += ApiVisibility_CheckedChanged;
 			checkBox_ShowOcrShupaiLR.CheckedChanged += ApiVisibility_CheckedChanged;
 			checkBox_ShowOcrShupaiRL.CheckedChanged += ApiVisibility_CheckedChanged;
+			checkBox_ShowOcrTableTencent.CheckedChanged += ApiVisibility_CheckedChanged;
+			checkBox_ShowOcrPaddleOCR.CheckedChanged += ApiVisibility_CheckedChanged;
+			checkBox_ShowOcrPaddleOCR2.CheckedChanged += ApiVisibility_CheckedChanged;
+			checkBox_ShowOcrRapidOCR.CheckedChanged += ApiVisibility_CheckedChanged;
 			checkBox_ShowGoogle.CheckedChanged += ApiVisibility_CheckedChanged;
 			checkBox_ShowBaidu.CheckedChanged += ApiVisibility_CheckedChanged;
 			checkBox_ShowTencent.CheckedChanged += ApiVisibility_CheckedChanged;
@@ -1843,6 +1851,10 @@ namespace TrOCR
 			IniHelper.SetValue("Ocr接口显示", "TableAli", checkBox_ShowOcrTableAli.Checked.ToString());
 			IniHelper.SetValue("Ocr接口显示", "ShupaiLR", checkBox_ShowOcrShupaiLR.Checked.ToString());
 			IniHelper.SetValue("Ocr接口显示", "ShupaiRL", checkBox_ShowOcrShupaiRL.Checked.ToString());
+			IniHelper.SetValue("Ocr接口显示", "TencentTable", checkBox_ShowOcrTableTencent.Checked.ToString());
+			IniHelper.SetValue("Ocr接口显示", "PaddleOCR", checkBox_ShowOcrPaddleOCR.Checked.ToString());
+			IniHelper.SetValue("Ocr接口显示", "PaddleOCR2", checkBox_ShowOcrPaddleOCR2.Checked.ToString());
+			IniHelper.SetValue("Ocr接口显示", "RapidOCR", checkBox_ShowOcrRapidOCR.Checked.ToString());
 	
 			DialogResult = DialogResult.OK;
 			StaticValue.LoadConfig();

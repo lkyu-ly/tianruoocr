@@ -145,6 +145,10 @@ namespace TrOCR
             this.checkBox_ShowVolcano = new System.Windows.Forms.CheckBox();
             this.checkBox_ShowCaiyun2 = new System.Windows.Forms.CheckBox();
             this.groupBox_Ocr = new System.Windows.Forms.GroupBox();
+            this.checkBox_ShowOcrTableTencent = new System.Windows.Forms.CheckBox();
+            this.checkBox_ShowOcrPaddleOCR = new System.Windows.Forms.CheckBox();
+            this.checkBox_ShowOcrPaddleOCR2 = new System.Windows.Forms.CheckBox();
+            this.checkBox_ShowOcrRapidOCR = new System.Windows.Forms.CheckBox();
             this.checkBox_ShowOcrBaidu = new System.Windows.Forms.CheckBox();
             this.checkBox_ShowOcrBaiduAccurate = new System.Windows.Forms.CheckBox();
             this.checkBox_ShowOcrTencent = new System.Windows.Forms.CheckBox();
@@ -228,6 +232,7 @@ namespace TrOCR
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.inPage_PaddleOCR = new System.Windows.Forms.TabPage();
             this.inPage_PaddleOCR2 = new System.Windows.Forms.TabPage();
+            this.inPage_RapidOCR = new System.Windows.Forms.TabPage();
             this.button1 = new System.Windows.Forms.Button();
             this.Page_快捷键 = new System.Windows.Forms.TabPage();
             this.快捷键Button = new System.Windows.Forms.Button();
@@ -313,11 +318,6 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
-            this.inPage_RapidOCR = new System.Windows.Forms.TabPage();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -1819,10 +1819,10 @@ namespace TrOCR
             // 
             // groupBox_Ocr
             // 
-            this.groupBox_Ocr.Controls.Add(this.checkBox4);
-            this.groupBox_Ocr.Controls.Add(this.checkBox3);
-            this.groupBox_Ocr.Controls.Add(this.checkBox2);
-            this.groupBox_Ocr.Controls.Add(this.checkBox1);
+            this.groupBox_Ocr.Controls.Add(this.checkBox_ShowOcrTableTencent);
+            this.groupBox_Ocr.Controls.Add(this.checkBox_ShowOcrPaddleOCR);
+            this.groupBox_Ocr.Controls.Add(this.checkBox_ShowOcrPaddleOCR2);
+            this.groupBox_Ocr.Controls.Add(this.checkBox_ShowOcrRapidOCR);
             this.groupBox_Ocr.Controls.Add(this.checkBox_ShowOcrBaidu);
             this.groupBox_Ocr.Controls.Add(this.checkBox_ShowOcrBaiduAccurate);
             this.groupBox_Ocr.Controls.Add(this.checkBox_ShowOcrTencent);
@@ -1846,6 +1846,50 @@ namespace TrOCR
             this.groupBox_Ocr.TabIndex = 0;
             this.groupBox_Ocr.TabStop = false;
             this.groupBox_Ocr.Text = "选择要显示的ocr接口";
+            // 
+            // checkBox_ShowOcrTableTencent
+            // 
+            this.checkBox_ShowOcrTableTencent.AutoSize = true;
+            this.checkBox_ShowOcrTableTencent.Location = new System.Drawing.Point(243, 144);
+            this.checkBox_ShowOcrTableTencent.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_ShowOcrTableTencent.Name = "checkBox_ShowOcrTableTencent";
+            this.checkBox_ShowOcrTableTencent.Size = new System.Drawing.Size(89, 19);
+            this.checkBox_ShowOcrTableTencent.TabIndex = 29;
+            this.checkBox_ShowOcrTableTencent.Text = "腾讯表格";
+            this.checkBox_ShowOcrTableTencent.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_ShowOcrPaddleOCR
+            // 
+            this.checkBox_ShowOcrPaddleOCR.AutoSize = true;
+            this.checkBox_ShowOcrPaddleOCR.Location = new System.Drawing.Point(20, 181);
+            this.checkBox_ShowOcrPaddleOCR.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_ShowOcrPaddleOCR.Name = "checkBox_ShowOcrPaddleOCR";
+            this.checkBox_ShowOcrPaddleOCR.Size = new System.Drawing.Size(101, 19);
+            this.checkBox_ShowOcrPaddleOCR.TabIndex = 28;
+            this.checkBox_ShowOcrPaddleOCR.Text = "PaddleOCR";
+            this.checkBox_ShowOcrPaddleOCR.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_ShowOcrPaddleOCR2
+            // 
+            this.checkBox_ShowOcrPaddleOCR2.AutoSize = true;
+            this.checkBox_ShowOcrPaddleOCR2.Location = new System.Drawing.Point(133, 181);
+            this.checkBox_ShowOcrPaddleOCR2.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_ShowOcrPaddleOCR2.Name = "checkBox_ShowOcrPaddleOCR2";
+            this.checkBox_ShowOcrPaddleOCR2.Size = new System.Drawing.Size(109, 19);
+            this.checkBox_ShowOcrPaddleOCR2.TabIndex = 27;
+            this.checkBox_ShowOcrPaddleOCR2.Text = "PaddleOCR2";
+            this.checkBox_ShowOcrPaddleOCR2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_ShowOcrRapidOCR
+            // 
+            this.checkBox_ShowOcrRapidOCR.AutoSize = true;
+            this.checkBox_ShowOcrRapidOCR.Location = new System.Drawing.Point(243, 181);
+            this.checkBox_ShowOcrRapidOCR.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_ShowOcrRapidOCR.Name = "checkBox_ShowOcrRapidOCR";
+            this.checkBox_ShowOcrRapidOCR.Size = new System.Drawing.Size(93, 19);
+            this.checkBox_ShowOcrRapidOCR.TabIndex = 26;
+            this.checkBox_ShowOcrRapidOCR.Text = "RapidOCR";
+            this.checkBox_ShowOcrRapidOCR.UseVisualStyleBackColor = true;
             // 
             // checkBox_ShowOcrBaidu
             // 
@@ -2004,12 +2048,12 @@ namespace TrOCR
             // checkBox_ShowOcrShupaiRL
             // 
             this.checkBox_ShowOcrShupaiRL.AutoSize = true;
-            this.checkBox_ShowOcrShupaiRL.Location = new System.Drawing.Point(247, 144);
+            this.checkBox_ShowOcrShupaiRL.Location = new System.Drawing.Point(360, 144);
             this.checkBox_ShowOcrShupaiRL.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_ShowOcrShupaiRL.Name = "checkBox_ShowOcrShupaiRL";
             this.checkBox_ShowOcrShupaiRL.Size = new System.Drawing.Size(89, 19);
             this.checkBox_ShowOcrShupaiRL.TabIndex = 25;
-            this.checkBox_ShowOcrShupaiRL.Text = "腾讯表格";
+            this.checkBox_ShowOcrShupaiRL.Text = "从右向左";
             this.checkBox_ShowOcrShupaiRL.UseVisualStyleBackColor = true;
             // 
             // Page_About
@@ -2769,6 +2813,16 @@ namespace TrOCR
             this.inPage_PaddleOCR2.TabIndex = 8;
             this.inPage_PaddleOCR2.Text = "PaddleOCR2";
             this.inPage_PaddleOCR2.UseVisualStyleBackColor = true;
+            // 
+            // inPage_RapidOCR
+            // 
+            this.inPage_RapidOCR.Location = new System.Drawing.Point(4, 25);
+            this.inPage_RapidOCR.Name = "inPage_RapidOCR";
+            this.inPage_RapidOCR.Padding = new System.Windows.Forms.Padding(3);
+            this.inPage_RapidOCR.Size = new System.Drawing.Size(496, 159);
+            this.inPage_RapidOCR.TabIndex = 9;
+            this.inPage_RapidOCR.Text = "RapidOCR";
+            this.inPage_RapidOCR.UseVisualStyleBackColor = true;
             // 
             // button1
             // 
@@ -3798,60 +3852,6 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
-            // inPage_RapidOCR
-            // 
-            this.inPage_RapidOCR.Location = new System.Drawing.Point(4, 25);
-            this.inPage_RapidOCR.Name = "inPage_RapidOCR";
-            this.inPage_RapidOCR.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_RapidOCR.Size = new System.Drawing.Size(496, 159);
-            this.inPage_RapidOCR.TabIndex = 9;
-            this.inPage_RapidOCR.Text = "RapidOCR";
-            this.inPage_RapidOCR.UseVisualStyleBackColor = true;
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(243, 181);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(4);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(93, 19);
-            this.checkBox1.TabIndex = 26;
-            this.checkBox1.Text = "RapidOCR";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(133, 181);
-            this.checkBox2.Margin = new System.Windows.Forms.Padding(4);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(109, 19);
-            this.checkBox2.TabIndex = 27;
-            this.checkBox2.Text = "PaddleOCR2";
-            this.checkBox2.UseVisualStyleBackColor = true;
-            // 
-            // checkBox3
-            // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(20, 181);
-            this.checkBox3.Margin = new System.Windows.Forms.Padding(4);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(101, 19);
-            this.checkBox3.TabIndex = 28;
-            this.checkBox3.Text = "PaddleOCR";
-            this.checkBox3.UseVisualStyleBackColor = true;
-            // 
-            // checkBox4
-            // 
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Location = new System.Drawing.Point(360, 144);
-            this.checkBox4.Margin = new System.Windows.Forms.Padding(4);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(89, 19);
-            this.checkBox4.TabIndex = 29;
-            this.checkBox4.Text = "从右向左";
-            this.checkBox4.UseVisualStyleBackColor = true;
-            // 
             // FmSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -4319,9 +4319,9 @@ namespace TrOCR
         private System.Windows.Forms.TabPage inPage_PaddleOCR;
         private System.Windows.Forms.TabPage inPage_PaddleOCR2;
         private System.Windows.Forms.TabPage inPage_RapidOCR;
-        private System.Windows.Forms.CheckBox checkBox4;
-        private System.Windows.Forms.CheckBox checkBox3;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.CheckBox checkBox_ShowOcrTableTencent;
+        private System.Windows.Forms.CheckBox checkBox_ShowOcrPaddleOCR;
+        private System.Windows.Forms.CheckBox checkBox_ShowOcrPaddleOCR2;
+        private System.Windows.Forms.CheckBox checkBox_ShowOcrRapidOCR;
     }
 }
