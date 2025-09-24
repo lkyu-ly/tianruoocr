@@ -749,6 +749,9 @@ namespace TrOCR
             Font font = new Font("宋体", 16f * Program.Factor, GraphicsUnit.Pixel);
             this.richTextBox1.Font = font;
             this.richTextBox1.Text = text;
+            
+            // 保存字体设置到配置文件
+            IniHelper.SetValue("工具栏", "字体", "宋体");
         }
 
         public void font_黑体c(object sender, EventArgs e)
@@ -763,6 +766,9 @@ namespace TrOCR
             Font font = new Font("黑体", 16f * Program.Factor, GraphicsUnit.Pixel);
             this.richTextBox1.Font = font;
             this.richTextBox1.Text = text;
+            
+            // 保存字体设置到配置文件
+            IniHelper.SetValue("工具栏", "字体", "黑体");
         }
 
         public void font_楷体c(object sender, EventArgs e)
@@ -777,6 +783,9 @@ namespace TrOCR
             Font font = new Font("STKaiti", 16f * Program.Factor, GraphicsUnit.Pixel);
             this.richTextBox1.Font = font;
             this.richTextBox1.Text = text;
+            
+            // 保存字体设置到配置文件
+            IniHelper.SetValue("工具栏", "字体", "楷体");
         }
 
         public void font_微软雅黑c(object sender, EventArgs e)
@@ -791,6 +800,9 @@ namespace TrOCR
             Font font = new Font("微软雅黑", 16f * Program.Factor, GraphicsUnit.Pixel);
             this.richTextBox1.Font = font;
             this.richTextBox1.Text = text;
+            
+            // 保存字体设置到配置文件
+            IniHelper.SetValue("工具栏", "字体", "微软雅黑");
         }
 
         public void font_新罗马c(object sender, EventArgs e)
@@ -805,6 +817,9 @@ namespace TrOCR
             Font font = new Font("Times New Roman", 16f * Program.Factor, GraphicsUnit.Pixel);
             this.richTextBox1.Font = font;
             this.richTextBox1.Text = text;
+            
+            // 保存字体设置到配置文件
+            IniHelper.SetValue("工具栏", "字体", "新罗马");
         }
 
         public void indent_two(int fla)
@@ -1191,9 +1206,90 @@ namespace TrOCR
             if (this.transcolor)
             {
                 this.toolStripButtonTrans.Image = (Image)componentResourceManager.GetObject("toolStripButtonTrans2.Image");
-                return;
             }
-            this.toolStripButtonTrans.Image = (Image)componentResourceManager.GetObject("toolStripButtonTrans.Image");
+            else
+            {
+                this.toolStripButtonTrans.Image = (Image)componentResourceManager.GetObject("toolStripButtonTrans.Image");
+            }
+            
+            // 加载字体设置
+            LoadFontSettings();
+        }
+        
+        /// <summary>
+        /// 从配置文件加载字体设置并应用
+        /// </summary>
+        private void LoadFontSettings()
+        {
+            try
+            {
+                string savedFont = IniHelper.GetValue("工具栏", "字体");
+                if (savedFont != "发生错误" && !string.IsNullOrEmpty(savedFont))
+                {
+                    ApplyFontSetting(savedFont);
+                }
+                else
+                {
+                    // 如果没有保存的字体设置，默认使用宋体
+                    ApplyFontSetting("新罗马");
+                }
+            }
+            catch (Exception ex)
+            {
+                // 记录错误但不中断程序执行
+                System.Diagnostics.Debug.WriteLine($"加载字体设置失败: {ex.Message}");
+                // 出错时使用默认字体
+                ApplyFontSetting("新罗马");
+            }
+        }
+        
+        /// <summary>
+        /// 应用指定的字体设置
+        /// </summary>
+        /// <param name="fontName">字体名称</param>
+        private void ApplyFontSetting(string fontName)
+        {
+            // 重置所有字体菜单项颜色
+            this.font_宋体.ForeColor = Color.Black;
+            this.font_黑体.ForeColor = Color.Black;
+            this.font_楷体.ForeColor = Color.Black;
+            this.font_微软雅黑.ForeColor = Color.Black;
+            this.font_新罗马.ForeColor = Color.Black;
+            
+            string text = this.richTextBox1.Text;
+            this.richTextBox1.Text = "";
+            
+            Font font;
+            switch (fontName)
+            {
+                case "宋体":
+                    this.font_宋体.ForeColor = Color.Red;
+                    font = new Font("宋体", 16f * Program.Factor, GraphicsUnit.Pixel);
+                    break;
+                case "黑体":
+                    this.font_黑体.ForeColor = Color.Red;
+                    font = new Font("黑体", 16f * Program.Factor, GraphicsUnit.Pixel);
+                    break;
+                case "楷体":
+                    this.font_楷体.ForeColor = Color.Red;
+                    font = new Font("STKaiti", 16f * Program.Factor, GraphicsUnit.Pixel);
+                    break;
+                case "微软雅黑":
+                    this.font_微软雅黑.ForeColor = Color.Red;
+                    font = new Font("微软雅黑", 16f * Program.Factor, GraphicsUnit.Pixel);
+                    break;
+                case "新罗马":
+                    this.font_新罗马.ForeColor = Color.Red;
+                    font = new Font("Times New Roman", 16f * Program.Factor, GraphicsUnit.Pixel);
+                    break;
+                default:
+                    this.font_宋体.ForeColor = Color.Red;
+                    font = new Font("宋体", 16f * Program.Factor, GraphicsUnit.Pixel);
+                    break;
+            }
+            
+            this.richTextBox1.Font = font;
+            this.richTextBox1.Text = text;
         }
 
         public void saveIniFile()
