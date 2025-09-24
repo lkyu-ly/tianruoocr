@@ -11,6 +11,8 @@ using Sdcb.PaddleOCR;
 using Sdcb.PaddleInference;
 using Sdcb.PaddleOCR.Models;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 //支持ppocrv5，支持64位，不支持32位，不需要 CPU 支持 AVX指令集，cpu不支持avx的使用此接口
 namespace TrOCR.Helper
 {
@@ -44,14 +46,12 @@ namespace TrOCR.Helper
                 string clsModelPath = GetConfigValue("模型配置_PaddleOCR2", "Cls");
                 string recModelPath = GetConfigValue("模型配置_PaddleOCR2", "Rec");
                 string keysPath = GetConfigValue("模型配置_PaddleOCR2", "Keys");
+                string advancedConfigPath = GetConfigValue("模型配置_PaddleOCR2", "AdvancedConfig");
 
                 // 读取独立的版本号
                 string detVersionStr = GetConfigValue("模型配置_PaddleOCR2", "Det_Version");
                 string clsVersionStr = GetConfigValue("模型配置_PaddleOCR2", "Cls_Version");
                 string recVersionStr = GetConfigValue("模型配置_PaddleOCR2", "Rec_Version");
-
-                // 读取高级配置文件路径
-                string advancedConfigPath = GetConfigValue("模型配置_PaddleOCR2", "AdvancedConfig");
 
                 // 如果模型路径配置为空，使用默认路径 (保持不变)
                 if (string.IsNullOrEmpty(detModelPath) || string.IsNullOrEmpty(clsModelPath) ||
@@ -74,62 +74,117 @@ namespace TrOCR.Helper
                 ClassificationModel clsModel = ClassificationModel.FromDirectory(clsModelPath, clsVersion);
                 RecognizationModel recModel = RecognizationModel.FromDirectory(recModelPath, keysPath, recVersion);
                 FullOcrModel customModel = new FullOcrModel(detModel, clsModel, recModel);
-                 // --- 步骤4：初始化引擎 ---
-                _ocrEngine = new PaddleOcrAll(customModel, PaddleDevice.Blas());
 
-                // --- 步骤5：加载并应用高级JSON参数 ---
+                // --- 步骤4：读取并解析JSON文件 (只执行一次) ---
+                JToken paddleConfig = null;
                 if (!string.IsNullOrEmpty(advancedConfigPath) && File.Exists(advancedConfigPath))
                 {
                     try
                     {
                         string jsonContent = File.ReadAllText(advancedConfigPath);
-                        var configJson = Newtonsoft.Json.Linq.JObject.Parse(jsonContent);
-                        var paddleConfig = configJson["PaddleOCR2"];
-
-                        if (paddleConfig != null)
-                        {
-                            // 应用顶层参数
-                            _ocrEngine.Enable180Classification = paddleConfig["TopLevel"]?["Enable180Classification"]?.Value<bool>() ?? _ocrEngine.Enable180Classification;
-                            _ocrEngine.AllowRotateDetection = paddleConfig["TopLevel"]?["AllowRotateDetection"]?.Value<bool>() ?? _ocrEngine.AllowRotateDetection;
-
-                            // 应用检测器参数
-                            var detConfig = paddleConfig["Detector"];
-                            if (detConfig != null)
-                            {
-                                _ocrEngine.Detector.MaxSize = detConfig["MaxSize"]?.Value<int>() ?? _ocrEngine.Detector.MaxSize;
-                                _ocrEngine.Detector.BoxScoreThreahold = detConfig["BoxScoreThreahold"]?.Value<float>() ?? _ocrEngine.Detector.BoxScoreThreahold;
-                                _ocrEngine.Detector.BoxThreshold = detConfig["BoxThreshold"]?.Value<float>() ?? _ocrEngine.Detector.BoxThreshold;
-                                _ocrEngine.Detector.MinSize = detConfig["MinSize"]?.Value<int>() ?? _ocrEngine.Detector.MinSize;
-                                _ocrEngine.Detector.UnclipRatio = detConfig["UnclipRatio"]?.Value<float>() ?? _ocrEngine.Detector.UnclipRatio;
-                            }
-
-                            // 应用分类器参数
-                            var clsConfig = paddleConfig["Classifier"];
-                            if (clsConfig != null && _ocrEngine.Classifier != null)
-                            {
-                                _ocrEngine.Classifier.RotateThreshold = clsConfig["RotateThreshold"]?.Value<double>() ?? _ocrEngine.Classifier.RotateThreshold;
-                            }
-                            Debug.WriteLine($"成功加载并应用高级配置文件: {advancedConfigPath}");
-                        }
+                        paddleConfig = Newtonsoft.Json.Linq.JObject.Parse(jsonContent)?["PaddleOCR2"];
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"解析或应用高级配置文件 '{advancedConfigPath}' 失败: {ex.Message}");
-                        // 即使JSON解析失败，引擎也已经用默认参数初始化好了，程序可以继续运行
+                        Debug.WriteLine($"解析高级配置文件 '{advancedConfigPath}' 失败: {ex.Message}");
                     }
                 }
-                
+                // --- 步骤5：根据解析结果创建设备动作 ---
+                Action<PaddleConfig> device = CreateDeviceAction(paddleConfig);
+
+                // --- 步骤6：初始化引擎 (只执行一次) ---
+                _ocrEngine = new PaddleOcrAll(customModel, device);
+
+                // --- 步骤7：应用高级算法参数 ---
+                ApplyAdvancedParameters(_ocrEngine, paddleConfig);
             }
             catch (Exception ex)
             {
-                // 1. 手动拼接一个更详细、更友好的错误消息
                 string detailedMessage = $"从自定义路径加载模型失败，请检查路径和模型文件是否完整且版本匹配。\n根本原因: {ex.Message}";
-
-                // 2. 抛出新异常，使用我们刚刚拼接好的详细消息，并依然保留完整的 ex 作为 InnerException
                 throw new Exception(detailedMessage, ex);
             }
         }
+            
+        // --- 新增辅助方法1：创建设备动作 ---
+        private Action<PaddleConfig> CreateDeviceAction(JToken paddleConfig)
+        {
+            try
+            {
+                if (paddleConfig?["Device"] != null)
+                {
+                    var deviceConfig = paddleConfig["Device"];
+                    string deviceType = deviceConfig["Type"]?.Value<string>() ?? "CpuBlas";
 
+                    switch (deviceType)
+                    {   //其实不起作用，因为运行时依赖不是Mkldnn，这里保留为了后续功能开发
+                        case "CpuMkldnn":
+                            var mkldnnParams = deviceConfig["CpuMkldnn"];
+                            int cacheCapacity = mkldnnParams?["cacheCapacity"]?.Value<int>() ?? 10;
+                            int cpuThreads = mkldnnParams?["cpuMathThreadCount"]?.Value<int>() ?? 0;
+                            bool memOptimizedMkl = mkldnnParams?["memoryOptimized"]?.Value<bool>() ?? true; // 默认true
+                            bool glogMkl = mkldnnParams?["glogEnabled"]?.Value<bool>() ?? false;// 默认false
+                            Debug.WriteLine("PaddleOCR2: Using MKLDNN device.");
+                            return PaddleDevice.Mkldnn(cacheCapacity, cpuThreads, memOptimizedMkl, glogMkl);
+
+                        case "CpuBlas":
+                            var blasParams = deviceConfig["CpuBlas"];
+                            int blasThreads = blasParams?["cpuMathThreadCount"]?.Value<int>() ?? 0;
+                            bool memOptimizedBlas = blasParams?["memoryOptimized"]?.Value<bool>() ?? true; // 从 blasParams 读取
+                            bool glogBlas = blasParams?["glogEnabled"]?.Value<bool>() ?? false;          // 从 blasParams 读取
+                            Debug.WriteLine("PaddleOCR2: Using BLAS device.");
+                            return PaddleDevice.Blas(blasThreads, memOptimizedBlas, glogBlas);
+                        //case "Gpu":
+                        //运行时不支持cpu
+                            
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"创建设备动作失败: {ex.Message}");
+            }
+
+            // 如果没有配置文件或解析失败，使用最安全的默认值
+            Debug.WriteLine("PaddleOCR2: Using default BLAS device.");
+            return PaddleDevice.Blas();
+        }
+
+        // --- 新增辅助方法2：应用高级算法参数 ---
+        private void ApplyAdvancedParameters(PaddleOcrAll engine, JToken paddleConfig)
+        {
+            if (paddleConfig == null) return;
+
+            try
+            {
+                // 应用顶层参数
+                engine.Enable180Classification = paddleConfig["TopLevel"]?["Enable180Classification"]?.Value<bool>() ?? engine.Enable180Classification;
+                engine.AllowRotateDetection = paddleConfig["TopLevel"]?["AllowRotateDetection"]?.Value<bool>() ?? engine.AllowRotateDetection;
+
+                // 应用检测器参数
+                var detConfig = paddleConfig["Detector"];
+                if (detConfig != null)
+                {
+                    engine.Detector.MaxSize = detConfig["MaxSize"]?.Value<int>() ?? engine.Detector.MaxSize;
+                    engine.Detector.BoxScoreThreahold = detConfig["BoxScoreThreahold"]?.Value<float>() ?? engine.Detector.BoxScoreThreahold;
+                    engine.Detector.BoxThreshold = detConfig["BoxThreshold"]?.Value<float>() ?? engine.Detector.BoxThreshold;
+                    engine.Detector.MinSize = detConfig["MinSize"]?.Value<int>() ?? engine.Detector.MinSize;
+                    engine.Detector.UnclipRatio = detConfig["UnclipRatio"]?.Value<float>() ?? engine.Detector.UnclipRatio;
+                }
+
+                // 应用分类器参数
+                // var clsConfig = paddleConfig["Classifier"];
+                // if (clsConfig != null && engine.Classifier != null)
+                // {
+                //     engine.Classifier.RotateThreshold = clsConfig["RotateThreshold"]?.Value<double>() ?? engine.Classifier.RotateThreshold;
+                // }
+                Debug.WriteLine("成功应用高级算法参数。");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"应用高级算法参数失败: {ex.Message}");
+                // 即使JSON解析失败，引擎也已经用默认参数初始化好了，程序可以继续运行
+            }
+        }
         // --- 3. 公共方法恢复同步，调用更简单 ---
         /// <summary>
         /// 识别图像中的文字
