@@ -182,6 +182,8 @@ namespace TrOCR
             this.combox_代理 = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
             this.Page_密钥 = new System.Windows.Forms.TabPage();
+            this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.label_OcrApiHelpText = new System.Windows.Forms.Label();
             this.百度_btn = new System.Windows.Forms.Button();
             this.密钥Button_apply = new System.Windows.Forms.Button();
             this.密钥Button = new System.Windows.Forms.Button();
@@ -247,6 +249,9 @@ namespace TrOCR
             this.textBox_PaddleOCR_Det = new System.Windows.Forms.TextBox();
             this.label_PaddleOCR_Det = new System.Windows.Forms.Label();
             this.inPage_PaddleOCR2 = new System.Windows.Forms.TabPage();
+            this.button3 = new System.Windows.Forms.Button();
+            this.textBox6 = new System.Windows.Forms.TextBox();
+            this.label30 = new System.Windows.Forms.Label();
             this.comboBox_PaddleOCR2_rec_Version = new System.Windows.Forms.ComboBox();
             this.comboBox_PaddleOCR2_cls_Version = new System.Windows.Forms.ComboBox();
             this.label_PaddleOCR2_rec_Version = new System.Windows.Forms.Label();
@@ -266,6 +271,9 @@ namespace TrOCR
             this.textBox_PaddleOCR2_Det = new System.Windows.Forms.TextBox();
             this.label_PaddleOCR2_Det = new System.Windows.Forms.Label();
             this.inPage_RapidOCR = new System.Windows.Forms.TabPage();
+            this.button4 = new System.Windows.Forms.Button();
+            this.textBox7 = new System.Windows.Forms.TextBox();
+            this.label31 = new System.Windows.Forms.Label();
             this.btn_RapidOCR_Keys_Browse = new System.Windows.Forms.Button();
             this.textBox_RapidOCR_Keys = new System.Windows.Forms.TextBox();
             this.label_RapidOCR_Keys = new System.Windows.Forms.Label();
@@ -369,14 +377,11 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
-            this.label30 = new System.Windows.Forms.Label();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.label31 = new System.Windows.Forms.Label();
-            this.textBox7 = new System.Windows.Forms.TextBox();
-            this.button4 = new System.Windows.Forms.Button();
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.label_OcrApiHelpText = new System.Windows.Forms.Label();
+            this.Page_常规2 = new System.Windows.Forms.TabPage();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.cbBox_ListenClipboard = new System.Windows.Forms.CheckBox();
+            this.cbBox_AutoCopyListenClipboardTranslation = new System.Windows.Forms.CheckBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -431,6 +436,7 @@ namespace TrOCR
             this.Page_代理.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.Page_密钥.SuspendLayout();
+            this.groupBox7.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this.tabPage_百度OCR.SuspendLayout();
             this.tabControl_BaiduApiType.SuspendLayout();
@@ -473,7 +479,9 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
-            this.groupBox7.SuspendLayout();
+            this.Page_常规2.SuspendLayout();
+            this.groupBox9.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -1681,7 +1689,7 @@ namespace TrOCR
             this.tabPage_白描接口.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage_白描接口.Name = "tabPage_白描接口";
             this.tabPage_白描接口.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage_白描接口.Size = new System.Drawing.Size(496, 231);
+            this.tabPage_白描接口.Size = new System.Drawing.Size(496, 171);
             this.tabPage_白描接口.TabIndex = 2;
             this.tabPage_白描接口.Text = "白描识别接口";
             // 
@@ -2328,6 +2336,27 @@ namespace TrOCR
             this.Page_密钥.TabIndex = 3;
             this.Page_密钥.Text = "密钥";
             // 
+            // groupBox7
+            // 
+            this.groupBox7.Controls.Add(this.label_OcrApiHelpText);
+            this.groupBox7.Location = new System.Drawing.Point(12, 214);
+            this.groupBox7.Name = "groupBox7";
+            this.groupBox7.Size = new System.Drawing.Size(500, 160);
+            this.groupBox7.TabIndex = 11;
+            this.groupBox7.TabStop = false;
+            this.groupBox7.Text = "说明";
+            this.groupBox7.Visible = false;
+            // 
+            // label_OcrApiHelpText
+            // 
+            this.label_OcrApiHelpText.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label_OcrApiHelpText.Location = new System.Drawing.Point(3, 21);
+            this.label_OcrApiHelpText.Name = "label_OcrApiHelpText";
+            this.label_OcrApiHelpText.Size = new System.Drawing.Size(494, 136);
+            this.label_OcrApiHelpText.TabIndex = 24;
+            this.label_OcrApiHelpText.Text = "说明1：此接口只支持64位，支持ppocrv5和低版本的模型\r\n说明2：需要cpu支持avx指令集，不支持请使用PaddleOCR2接口\r\n说明3：高级配置文件留" +
+    "空则使用默认值，普通用户推荐留空\r\n";
+            // 
             // 百度_btn
             // 
             this.百度_btn.BackColor = System.Drawing.Color.White;
@@ -2386,7 +2415,7 @@ namespace TrOCR
             this.tabPage_百度OCR.Location = new System.Drawing.Point(4, 25);
             this.tabPage_百度OCR.Name = "tabPage_百度OCR";
             this.tabPage_百度OCR.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_百度OCR.Size = new System.Drawing.Size(496, 231);
+            this.tabPage_百度OCR.Size = new System.Drawing.Size(496, 171);
             this.tabPage_百度OCR.TabIndex = 5;
             this.tabPage_百度OCR.Text = "百度OCR";
             this.tabPage_百度OCR.UseVisualStyleBackColor = true;
@@ -2400,7 +2429,7 @@ namespace TrOCR
             this.tabControl_BaiduApiType.Location = new System.Drawing.Point(3, 3);
             this.tabControl_BaiduApiType.Name = "tabControl_BaiduApiType";
             this.tabControl_BaiduApiType.SelectedIndex = 0;
-            this.tabControl_BaiduApiType.Size = new System.Drawing.Size(490, 225);
+            this.tabControl_BaiduApiType.Size = new System.Drawing.Size(490, 165);
             this.tabControl_BaiduApiType.TabIndex = 0;
             // 
             // inPage_百度接口
@@ -2416,7 +2445,7 @@ namespace TrOCR
             this.inPage_百度接口.Margin = new System.Windows.Forms.Padding(4);
             this.inPage_百度接口.Name = "inPage_百度接口";
             this.inPage_百度接口.Padding = new System.Windows.Forms.Padding(4);
-            this.inPage_百度接口.Size = new System.Drawing.Size(482, 196);
+            this.inPage_百度接口.Size = new System.Drawing.Size(482, 136);
             this.inPage_百度接口.TabIndex = 0;
             this.inPage_百度接口.Text = "标准版";
             // 
@@ -2626,7 +2655,7 @@ namespace TrOCR
             this.tabPage_腾讯OCR.Location = new System.Drawing.Point(4, 25);
             this.tabPage_腾讯OCR.Name = "tabPage_腾讯OCR";
             this.tabPage_腾讯OCR.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_腾讯OCR.Size = new System.Drawing.Size(496, 231);
+            this.tabPage_腾讯OCR.Size = new System.Drawing.Size(496, 171);
             this.tabPage_腾讯OCR.TabIndex = 6;
             this.tabPage_腾讯OCR.Text = "腾讯OCR";
             this.tabPage_腾讯OCR.UseVisualStyleBackColor = true;
@@ -2640,7 +2669,7 @@ namespace TrOCR
             this.tabControl_TXApiType.Location = new System.Drawing.Point(3, 3);
             this.tabControl_TXApiType.Name = "tabControl_TXApiType";
             this.tabControl_TXApiType.SelectedIndex = 0;
-            this.tabControl_TXApiType.Size = new System.Drawing.Size(490, 225);
+            this.tabControl_TXApiType.Size = new System.Drawing.Size(490, 165);
             this.tabControl_TXApiType.TabIndex = 0;
             // 
             // inPage_腾讯接口
@@ -2656,7 +2685,7 @@ namespace TrOCR
             this.inPage_腾讯接口.Margin = new System.Windows.Forms.Padding(4);
             this.inPage_腾讯接口.Name = "inPage_腾讯接口";
             this.inPage_腾讯接口.Padding = new System.Windows.Forms.Padding(3);
-            this.inPage_腾讯接口.Size = new System.Drawing.Size(482, 196);
+            this.inPage_腾讯接口.Size = new System.Drawing.Size(482, 136);
             this.inPage_腾讯接口.TabIndex = 0;
             this.inPage_腾讯接口.Text = "标准版";
             this.inPage_腾讯接口.UseVisualStyleBackColor = true;
@@ -3040,6 +3069,31 @@ namespace TrOCR
             this.inPage_PaddleOCR2.Text = "PaddleOCR2";
             this.inPage_PaddleOCR2.UseVisualStyleBackColor = true;
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(445, 132);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(40, 25);
+            this.button3.TabIndex = 21;
+            this.button3.Text = "...";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // textBox6
+            // 
+            this.textBox6.Location = new System.Drawing.Point(142, 132);
+            this.textBox6.Name = "textBox6";
+            this.textBox6.Size = new System.Drawing.Size(297, 25);
+            this.textBox6.TabIndex = 20;
+            // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(13, 138);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(105, 15);
+            this.label30.TabIndex = 19;
+            this.label30.Text = "高级配置文件:";
+            // 
             // comboBox_PaddleOCR2_rec_Version
             // 
             this.comboBox_PaddleOCR2_rec_Version.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -3233,6 +3287,31 @@ namespace TrOCR
             this.inPage_RapidOCR.TabIndex = 9;
             this.inPage_RapidOCR.Text = "RapidOCR";
             this.inPage_RapidOCR.UseVisualStyleBackColor = true;
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(443, 133);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(39, 25);
+            this.button4.TabIndex = 14;
+            this.button4.Text = "...";
+            this.button4.UseVisualStyleBackColor = true;
+            // 
+            // textBox7
+            // 
+            this.textBox7.Location = new System.Drawing.Point(138, 133);
+            this.textBox7.Name = "textBox7";
+            this.textBox7.Size = new System.Drawing.Size(299, 25);
+            this.textBox7.TabIndex = 13;
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(13, 138);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(105, 15);
+            this.label31.TabIndex = 12;
+            this.label31.Text = "高级配置文件:";
             // 
             // btn_RapidOCR_Keys_Browse
             // 
@@ -4076,6 +4155,7 @@ namespace TrOCR
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tab_标签.Controls.Add(this.page_常规);
+            this.tab_标签.Controls.Add(this.Page_常规2);
             this.tab_标签.Controls.Add(this.Page_快捷键);
             this.tab_标签.Controls.Add(this.Page_密钥);
             this.tab_标签.Controls.Add(this.Page_翻译接口);
@@ -4407,76 +4487,63 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
-            // label30
+            // Page_常规2
             // 
-            this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(13, 138);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(105, 15);
-            this.label30.TabIndex = 19;
-            this.label30.Text = "高级配置文件:";
+            this.Page_常规2.Controls.Add(this.groupBox9);
+            this.Page_常规2.Location = new System.Drawing.Point(4, 25);
+            this.Page_常规2.Name = "Page_常规2";
+            this.Page_常规2.Padding = new System.Windows.Forms.Padding(3);
+            this.Page_常规2.Size = new System.Drawing.Size(523, 515);
+            this.Page_常规2.TabIndex = 13;
+            this.Page_常规2.Text = "常规2";
+            this.Page_常规2.UseVisualStyleBackColor = true;
             // 
-            // textBox6
+            // groupBox9
             // 
-            this.textBox6.Location = new System.Drawing.Point(142, 132);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(297, 25);
-            this.textBox6.TabIndex = 20;
+            this.groupBox9.Controls.Add(this.tableLayoutPanel1);
+            this.groupBox9.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox9.Location = new System.Drawing.Point(3, 3);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(517, 100);
+            this.groupBox9.TabIndex = 0;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "剪贴板";
             // 
-            // button3
+            // tableLayoutPanel1
             // 
-            this.button3.Location = new System.Drawing.Point(445, 132);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(40, 25);
-            this.button3.TabIndex = 21;
-            this.button3.Text = "...";
-            this.button3.UseVisualStyleBackColor = true;
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 207F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 44F));
+            this.tableLayoutPanel1.Controls.Add(this.cbBox_AutoCopyListenClipboardTranslation, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbBox_ListenClipboard, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 21);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(511, 76);
+            this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // label31
+            // cbBox_ListenClipboard
             // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(13, 138);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(105, 15);
-            this.label31.TabIndex = 12;
-            this.label31.Text = "高级配置文件:";
+            this.cbBox_ListenClipboard.AutoSize = true;
+            this.cbBox_ListenClipboard.Location = new System.Drawing.Point(3, 3);
+            this.cbBox_ListenClipboard.Name = "cbBox_ListenClipboard";
+            this.cbBox_ListenClipboard.Size = new System.Drawing.Size(179, 19);
+            this.cbBox_ListenClipboard.TabIndex = 0;
+            this.cbBox_ListenClipboard.Text = "监听剪贴板并自动翻译";
+            this.cbBox_ListenClipboard.UseVisualStyleBackColor = true;
             // 
-            // textBox7
+            // cbBox_AutoCopyListenClipboardTranslation
             // 
-            this.textBox7.Location = new System.Drawing.Point(138, 133);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(299, 25);
-            this.textBox7.TabIndex = 13;
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(443, 133);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(39, 25);
-            this.button4.TabIndex = 14;
-            this.button4.Text = "...";
-            this.button4.UseVisualStyleBackColor = true;
-            // 
-            // groupBox7
-            // 
-            this.groupBox7.Controls.Add(this.label_OcrApiHelpText);
-            this.groupBox7.Location = new System.Drawing.Point(12, 214);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(500, 160);
-            this.groupBox7.TabIndex = 11;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "说明";
-            this.groupBox7.Visible = false;
-            // 
-            // label_OcrApiHelpText
-            // 
-            this.label_OcrApiHelpText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label_OcrApiHelpText.Location = new System.Drawing.Point(3, 21);
-            this.label_OcrApiHelpText.Name = "label_OcrApiHelpText";
-            this.label_OcrApiHelpText.Size = new System.Drawing.Size(494, 136);
-            this.label_OcrApiHelpText.TabIndex = 24;
-            this.label_OcrApiHelpText.Text = "说明1：此接口只支持64位，支持ppocrv5和低版本的模型\r\n说明2：需要cpu支持avx指令集，不支持请使用PaddleOCR2接口\r\n说明3：高级配置文件留" +
-    "空则使用默认值，普通用户推荐留空\r\n";
+            this.cbBox_AutoCopyListenClipboardTranslation.AutoSize = true;
+            this.cbBox_AutoCopyListenClipboardTranslation.Location = new System.Drawing.Point(210, 3);
+            this.cbBox_AutoCopyListenClipboardTranslation.Name = "cbBox_AutoCopyListenClipboardTranslation";
+            this.cbBox_AutoCopyListenClipboardTranslation.Size = new System.Drawing.Size(239, 19);
+            this.cbBox_AutoCopyListenClipboardTranslation.TabIndex = 1;
+            this.cbBox_AutoCopyListenClipboardTranslation.Text = "监听剪贴板自动翻译后自动复制";
+            this.cbBox_AutoCopyListenClipboardTranslation.UseVisualStyleBackColor = true;
             // 
             // FmSetting
             // 
@@ -4586,6 +4653,7 @@ namespace TrOCR
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.Page_密钥.ResumeLayout(false);
+            this.groupBox7.ResumeLayout(false);
             this.tabControl2.ResumeLayout(false);
             this.tabPage_百度OCR.ResumeLayout(false);
             this.tabControl_BaiduApiType.ResumeLayout(false);
@@ -4649,7 +4717,10 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
-            this.groupBox7.ResumeLayout(false);
+            this.Page_常规2.ResumeLayout(false);
+            this.groupBox9.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -5021,5 +5092,10 @@ namespace TrOCR
         private System.Windows.Forms.Label label31;
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.Label label_OcrApiHelpText;
+        private System.Windows.Forms.TabPage Page_常规2;
+        private System.Windows.Forms.GroupBox groupBox9;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.CheckBox cbBox_ListenClipboard;
+        private System.Windows.Forms.CheckBox cbBox_AutoCopyListenClipboardTranslation;
     }
 }

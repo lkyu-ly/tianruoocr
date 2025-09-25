@@ -435,11 +435,16 @@ namespace TrOCR
             // 3. 根据设置，自动复制结果
             if (StaticValue.IsSplitAutoCopy)
             {
-                try 
-                { 
-                    Clipboard.SetDataObject(splitText, true, 5, 100);
-                }
-                catch {}
+                
+                    // 【核心修改】通过 FindForm() 获取主窗口实例并加锁
+                    var mainForm = this.FindForm() as FmMain;
+                    if (mainForm != null)
+                    {
+                        mainForm.SetClipboardWithLock(splitText);
+                    }
+              
+                
+                
             }
 
             HelpWin32.SetForegroundWindow(StaticValue.mainHandle);
@@ -574,7 +579,14 @@ namespace TrOCR
             this.richTextBox1.Text = finalText;
             if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
             {
-                try { Clipboard.SetDataObject(finalText, true, 5, 100); } catch { }
+
+                // 【核心修改】通过 FindForm() 获取主窗口实例并加锁
+                var mainForm = this.FindForm() as FmMain;
+                if (mainForm != null)
+                {
+                    mainForm.SetClipboardWithLock(finalText);
+                }
+                
             }
             HelpWin32.SetForegroundWindow(StaticValue.mainHandle);
         }
@@ -619,8 +631,12 @@ namespace TrOCR
             string textToCopy = string.IsNullOrEmpty(this.richTextBox1.SelectedText)
                 ? this.richTextBox1.Text  // 没有选中文本，复制全部
                 : this.richTextBox1.SelectedText;  // 有选中文本，只复制选中部分
-                
-            Clipboard.SetDataObject(textToCopy);
+            // 【核心修改】通过 FindForm() 获取主窗口实例并加锁
+            var mainForm = this.FindForm() as FmMain;
+            if (mainForm != null)
+            {
+                mainForm.SetClipboardWithLock(textToCopy);
+            }    
             HelpWin32.SendMessage(HelpWin32.GetForegroundWindow(), 786, 530);
             HelpWin32.keybd_event(Keys.ControlKey, 0, 0u, 0u);
             HelpWin32.keybd_event(Keys.V, 0, 0u, 0u);

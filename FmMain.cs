@@ -43,6 +43,19 @@ namespace TrOCR
 	public sealed partial class FmMain
 	{
 		private Size lastNormalSize; // 用于在整个会话中跟踪“基础”窗口大小
+
+		private string lastClipboardText = "";  // 用于防止重复翻译
+
+		private const int WM_DRAWCLIPBOARD = 776; // 定义消息常量
+		private bool isAppLoading = true; // 【新增】用于标记程序是否正在加载
+
+		private Timer clipboardDebounceTimer; // 【新增】用于剪贴板防抖的定时器
+
+		private bool isAutoCopying = false;     // 【新增】标志位，表示程序正在进行自动复制
+		private Timer autoCopyLockTimer;        // 【新增】用于自动复制后创建静默期的定时器
+
+
+
 // ====================================================================================================================
 		// **构造函数与窗体事件**
 		//
@@ -74,7 +87,7 @@ namespace TrOCR
 			baidu_flags = "";
 			esc = "";
 			voice_count = 0;
-			fmNote = new FmNote();
+			fmNote = new FmNote(this);
 			pubnote = new string[StaticValue.NoteCount];
 			for (var i = 0; i < StaticValue.NoteCount; i++)
 			{
@@ -100,6 +113,20 @@ namespace TrOCR
 			translationTimer.Interval = 800;
 			translationTimer.Tick += TranslationTimer_Tick;
 			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+
+			// ====================【新增代码开始】====================
+    		clipboardDebounceTimer = new Timer();
+    		clipboardDebounceTimer.Interval = 150; // 设置一个较短的延迟，150毫秒足够
+    		clipboardDebounceTimer.Tick += ClipboardDebounceTimer_Tick;
+			  autoCopyLockTimer = new Timer();
+    		autoCopyLockTimer.Interval = 500; // 500毫秒的静默期，足以忽略所有连锁反应
+    		autoCopyLockTimer.Tick += (sender, e) => 
+    		{
+    		    autoCopyLockTimer.Stop();
+    		    isAutoCopying = false; // 静默期结束，解锁
+    		    Debug.WriteLine("--- 自动复制锁已解除 ---");
+    		};
+    		// ====================【新增代码结束】====================
 
 			nextClipboardViewer = (IntPtr)HelpWin32.SetClipboardViewer((int)Handle);
 			InitMinimize();
@@ -182,6 +209,19 @@ namespace TrOCR
         /// <param name="m">包含Windows消息信息的Message结构体引用</param>
         protected override void WndProc(ref Message m)
 		{
+			// 在方法的开始部分添加这个 switch 结构
+    		switch (m.Msg)
+    		{
+    		    case WM_DRAWCLIPBOARD:
+    		        // 首先，必须将消息传递给链中的下一个查看器
+    		        HelpWin32.SendMessage(nextClipboardViewer, m.Msg, m.WParam, m.LParam);
+					Debug.WriteLine("发送了消息"+m.Msg);
+
+                    // 然后，执行我们自己的逻辑
+                    HandleClipboardChange();
+    		        return; // 直接返回，不再执行 base.WndProc
+    		}
+
 			if (m.Msg == 953)
 			{
 				speaking = false;
@@ -484,6 +524,33 @@ namespace TrOCR
 		    isSilentMode = true;
 		    MainOCRQuickScreenShots();
 		}
+		private void InitiateTranslationUI(string textToShow)
+		{
+		
+		    transtalate_fla = "关闭";
+		    RichBoxBody.Dock = DockStyle.Fill;
+		    RichBoxBody_T.Visible = false;
+		    RichBoxBody_T.Text = "";
+
+		    if (WindowState == FormWindowState.Maximized) WindowState = FormWindowState.Normal;
+		    this.Size = this.lastNormalSize;
+
+		    RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+		    RichBoxBody.Text = textToShow;
+		    RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+
+		    Show();
+		    Activate();
+		    Visible = true;
+		    WindowState = FormWindowState.Normal;
+		    TopMost = IniHelper.GetValue("工具栏", "顶置") == "True";
+
+		    if (!string.IsNullOrEmpty(textToShow))
+		    {
+		        TransClick();
+
+		    }
+		}
 
 		/// <summary>
 		/// 托盘菜单"输入翻译"选项点击事件处理函数
@@ -493,89 +560,92 @@ namespace TrOCR
 		/// <param name="e">事件参数</param>
 		private void trayInputTranslateClick(object sender, EventArgs e)
 		{
-		    isContentFromOcr = false; // 标记这不是OCR流程
+			// 标记这不是OCR流程 
+			isContentFromOcr = false;
+			isFromClipboardListener = false;
 
-		    // 1. 重置翻译界面，确保只显示主输入窗口
-		    transtalate_fla = "关闭";
-		    RichBoxBody.Dock = DockStyle.Fill;
-		    RichBoxBody_T.Visible = false;
-		    PictureBox1.Visible = false;
-		    RichBoxBody_T.Text = "";
+			// 1. 重置翻译界面，确保只显示主输入窗口
+			transtalate_fla = "关闭";
+			RichBoxBody.Dock = DockStyle.Fill;
+			RichBoxBody_T.Visible = false;
+			PictureBox1.Visible = false;
+			RichBoxBody_T.Text = "";
 
-		    // 2. 恢复原始窗口大小
-		    if (WindowState == FormWindowState.Maximized)
-		    {
-		        WindowState = FormWindowState.Normal;
-		    }
+			// 2. 恢复原始窗口大小
+			if (WindowState == FormWindowState.Maximized)
+			{
+				WindowState = FormWindowState.Normal;
+			}
 			// MinimumSize = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 			// Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 			this.Size = this.lastNormalSize;
 
-		    // 3. 准备文本内容
+			// 3. 准备文本内容
 			bool hasContentToTranslate = false;
-		    RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged; // 关键：在设置文本前，先断开事件处理，避免触发不必要的逻辑
-		    try
-		    {
-		        if (StaticValue.InputTranslateClipboard && Clipboard.ContainsText())
-		        {
-		            string clipboardText = Clipboard.GetText();
-		            string textToDisplay = clipboardText; // 默认显示原始剪贴板文本
+			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged; // 关键：在设置文本前，先断开事件处理，避免触发不必要的逻辑
+			try
+			{
+				if (StaticValue.InputTranslateClipboard && Clipboard.ContainsText())
+				{
+					string clipboardText = Clipboard.GetText();
+					string textToDisplay = clipboardText; // 默认显示原始剪贴板文本
 
-		            // --- 新增的核心逻辑：检查并执行自动合并 ---
-		            if (bool.Parse(IniHelper.GetValue("工具栏", "合并"))) // 检查是否开启了自动合并
-		            {
-		                if (!string.IsNullOrEmpty(textToDisplay))
-		                {
-    					    // 直接调用新的统一方法
-		                    string finalText = PerformIntelligentMerge(textToDisplay, StaticValue.IsMergeRemoveSpace);
-		                    textToDisplay = finalText;
+					// --- 新增的核心逻辑：检查并执行自动合并 ---
+					if (bool.Parse(IniHelper.GetValue("工具栏", "合并"))) // 检查是否开启了自动合并
+					{
+						if (!string.IsNullOrEmpty(textToDisplay))
+						{
+							// 直接调用新的统一方法
+							string finalText = PerformIntelligentMerge(textToDisplay, StaticValue.IsMergeRemoveSpace);
+							textToDisplay = finalText;
 
-    					    // 应用“合并后自动复制”设置
-		                    if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
-		                    {
-		                        try { Clipboard.SetDataObject(finalText, true, 5, 100); } catch { }
-		                    }
-		                }
-		            }
+							// 应用“合并后自动复制”设置
+							if (StaticValue.IsMergeAutoCopy && !string.IsNullOrEmpty(finalText))
+							{
+								SetClipboardWithLock(finalText);
+								Debug.WriteLine("合并后自动复制成功：" + finalText);								
+							}
+						}
+					}
 
-		            RichBoxBody.Text = textToDisplay; // 将最终处理好的文本设置到输入框
+					RichBoxBody.Text = textToDisplay; // 将最终处理好的文本设置到输入框
 
-		            if (!string.IsNullOrEmpty(clipboardText))
-		            {
-		                hasContentToTranslate = true;
-		            }
-		        }
-		        else
-		        {
-		            RichBoxBody.Text = "";
-		        }
-		    }
-		    finally
-		    {
-		        RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged; // 关键：重新订阅事件，以便后续的手动编辑和自动翻译功能正常工作
-		    }
+					if (!string.IsNullOrEmpty(clipboardText))
+					{
+						hasContentToTranslate = true;
+					}
+				}
+				else
+				{
+					RichBoxBody.Text = "";
+				}
+			}
+			finally
+			{
+				RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged; // 关键：重新订阅事件，以便后续的手动编辑和自动翻译功能正常工作
+			}
 
-		    // 4. 显示并激活窗口
-		    Show();
-		    Activate();
-		    Visible = true;
-		    WindowState = FormWindowState.Normal;
-		    TopMost = IniHelper.GetValue("工具栏", "顶置") == "True";
+			// 4. 显示并激活窗口
+			Show();
+			Activate();
+			Visible = true;
+			WindowState = FormWindowState.Normal;
+			TopMost = IniHelper.GetValue("工具栏", "顶置") == "True";
 
-		    // --- 【核心修正】采用更可靠的三步刷新逻辑 ---
-		    // 步骤 a: 显式地将焦点设置到文本框，确保它是活动控件
-		    RichBoxBody.Focus();
-		    // 步骤 b: 处理当前所有Windows消息，确保窗体已完全加载并获得焦点
-		    Application.DoEvents();
-		    // 步骤 c: 在窗体和控件完全就绪后，再强制刷新，确保渲染正确
-		    RichBoxBody.Refresh();
-		    // --- 刷新逻辑结束 ---
+			// --- 【核心修正】采用更可靠的三步刷新逻辑 ---
+			// 步骤 a: 显式地将焦点设置到文本框，确保它是活动控件
+			RichBoxBody.Focus();
+			// 步骤 b: 处理当前所有Windows消息，确保窗体已完全加载并获得焦点
+			Application.DoEvents();
+			// 步骤 c: 在窗体和控件完全就绪后，再强制刷新，确保渲染正确
+			RichBoxBody.Refresh();
+			// --- 刷新逻辑结束 ---
 
-		    // 5. 如果有内容且开启了自动翻译，则手动启动翻译流程
-		    if (hasContentToTranslate && StaticValue.InputTranslateAutoTranslate)
-		    {
-		        TransClick();
-		    }
+			// 5. 如果有内容且开启了自动翻译，则手动启动翻译流程
+			if (hasContentToTranslate && StaticValue.InputTranslateAutoTranslate)
+			{
+				TransClick();
+			}
 		}
 
 		/// <summary>
@@ -2412,13 +2482,75 @@ namespace TrOCR
 			// Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 			 // ==============【核心修改：恢复到记忆中的基础尺寸】==============
     		this.Size = this.lastNormalSize;
-    // =================================================================
+    		// =================================================================
 		}
+        /// <summary>
+        /// 使用“限时状态锁”安全地将数据对象设置到剪贴板，以防止无限循环。
+        /// </summary>
+        /// <param name="data">要复制到剪贴板的对象 (可以是 string, DataObject, Image 等)。</param>
+        public void SetClipboardWithLock(object data)
+        {
+            // 检查传入的对象是否为 null
+            if (data == null) return;
 
-		/// <summary>
-		/// 原始文本框内容改变事件，用于实现编辑后自动翻译
-		/// </summary>
-		private void RichBoxBody_TextChanged(object sender, EventArgs e)
+            // 如果传入的是字符串，额外检查它是否为空或仅包含空白字符
+            if (data is string textData && string.IsNullOrWhiteSpace(textData))
+            {
+                return;
+            }
+
+            try
+            {
+                // 1. 激活状态锁
+                isAutoCopying = true;
+                Debug.WriteLine("--- 剪贴板锁已激活 ---");
+
+                // 2. 执行复制操作
+                // 这个调用现在是通用的，可以处理 string、DataObject 等多种类型
+                Clipboard.SetDataObject(data, true, 5, 100);
+
+                // 3. 启动定时器，创建静默期
+                autoCopyLockTimer.Stop(); // 确保定时器被重置
+                autoCopyLockTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"带锁设置剪贴板失败: {ex.Message}");
+                // 如果复制失败，必须立即解除锁定
+                isAutoCopying = false;
+                autoCopyLockTimer.Stop();
+            }
+        }
+        /// <summary>
+        /// 使用“限时状态锁”安全地为特定格式设置剪贴板数据。
+        /// 主要用于处理“快速翻译”后的粘贴操作。
+        /// </summary>
+        /// <param name="format">剪贴板格式 (例如 DataFormats.UnicodeText)。</param>
+        /// <param name="data">要为该格式复制的数据。</param>
+        private void SetClipboardDataWithLock(string format, object data)
+        {
+            if (string.IsNullOrEmpty(format) || data == null) return;
+
+            try
+            {
+                isAutoCopying = true;
+                Debug.WriteLine("--- 剪贴板锁已激活 (Data) ---");
+                // 此调用处理 Clipboard.SetData 的情况
+                Clipboard.SetData(format, data);
+                autoCopyLockTimer.Stop();
+                autoCopyLockTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"带锁设置剪贴板数据失败: {ex.Message}");
+                isAutoCopying = false;
+                autoCopyLockTimer.Stop();
+            }
+        }
+        /// <summary>
+        /// 原始文本框内容改变事件，用于实现编辑后自动翻译
+        /// </summary>
+        private void RichBoxBody_TextChanged(object sender, EventArgs e)
 		
 		{
 			// --- 日志: 事件触发入口 ---
@@ -2435,16 +2567,14 @@ namespace TrOCR
 
 			// 使用安全的字符串比较方式，避免因 "发生错误" 或空值导致异常
 			bool autoTranslateInputEnabled = StaticValue.InputTranslateAutoTranslate;
+			// 定义纯手动输入状态：非OCR 也 非剪贴板
+        	bool isPureManualInput = !isContentFromOcr && !isFromClipboardListener;
 
-			// 场景1: “输入翻译”模式下，当用户开始输入时，自动打开翻译窗口。
-			// 逻辑1: 如果是输入翻译模式，并且翻译窗口还没打开，则直接打开它
-			// 在一个完整的“输入翻译”会话中，自动打开翻译窗口的这个动作只会发生一次。
-			if (!isContentFromOcr && autoTranslateInputEnabled && transtalate_fla == "关闭")
-			{
-				Debug.WriteLine("    |--> 满足 [场景1：输入翻译 & 窗口关闭]");
-
-				// 确保有实际内容再打开翻译窗口，避免空文本触发
-				if (!string.IsNullOrWhiteSpace(RichBoxBody.Text))
+			 // 场景1: 当翻译窗口关闭时 (只处理纯手动输入的情况)
+    		if (transtalate_fla == "关闭")
+    		{
+				Debug.WriteLine("    |--> 满足 [场景1：输入翻译 & 翻译窗口关闭]");
+        		if (isPureManualInput && autoTranslateInputEnabled && !string.IsNullOrWhiteSpace(RichBoxBody.Text))
 				{
 					Debug.WriteLine("        |--> 文本不为空，准备调用 TransClick() 来打开翻译窗口...");
 					translationTimer.Stop();
@@ -2452,28 +2582,27 @@ namespace TrOCR
 				}
 				Debug.WriteLine("    |<-- 场景1 结束,定时器已开始或重置。");
 				Debug.WriteLine("---> TextChanged 事件结束。");
-				return;
-			}
+    		    return;
+    		}
 
-			// 场景2: 翻译窗口已经打开，此时任何文本变化都应该触发延时翻译。
-			// 逻辑2: 如果翻译窗口已经打开（无论是OCR模式还是输入模式），则启动延时timer来重新翻译
-			// 这适用于“OCR后修改原文”和“输入翻译时继续编辑”两种情况。
-			if (transtalate_fla == "开启")
-			{
-				Debug.WriteLine("    |--> 满足 [场景2：翻译窗口已打开]");
-				// 只有当内容来自OCR（允许用户修改后重翻），或者开启了输入自动翻译时，才响应变化
-				// 只有当内容来自OCR，或者输入翻译功能开启时，才进行自动刷新
-				if (isContentFromOcr || autoTranslateInputEnabled)
-				{
+    		// 场景2: 当翻译窗口已经打开时
+    		if (transtalate_fla == "开启")
+    		{
+				// 允许重新翻译的条件是：
+				// 1. 内容来源于OCR（允许用户随时修改OCR结果并重翻）。
+				// 2. 或者，内容来源于剪贴板监听（无条件允许重翻）。
+				// 3. 或者，是纯手动输入状态 并且 开启了“输入时自动翻译”功能。   
+				//上面的不对,现在改成任意情况下,只要是双栏窗口,就可以进行编辑后自动重新翻译   
+        		// if (isContentFromOcr || (isPureManualInput && autoTranslateInputEnabled))
+				// {
 					Debug.WriteLine("        |--> 满足 [isContentFromOcr 或 autoTranslateInputEnabled]，准备启动/重置 定时器...");
-
-					translationTimer.Stop();
-					translationTimer.Start();
+        		    translationTimer.Stop();
+        		    translationTimer.Start();
 
 					Debug.WriteLine("        |--> 定时器已重置。");
 
-				}
-			}
+        		// }
+    		}
 			Debug.WriteLine("---> TextChanged 事件结束。");
 
 		}
@@ -2536,33 +2665,110 @@ namespace TrOCR
     		    // 检查“OCR翻译后复制”选项
     		    shouldCopy = StaticValue.AutoCopyOcrTranslation;
     		}
-    		else // 这才是真正的“输入翻译”
+    		else if (isFromClipboardListener)
     		{
-    		    // 检查“输入翻译后复制”选项
+    		    shouldCopy = StaticValue.AutoCopyListenClipboardTranslation;
+    		}
+    		else // 两个标志都为 false，则为手动输入,即输入翻译
+    		{
     		    shouldCopy = StaticValue.AutoCopyInputTranslation;
     		}
 
     		if (shouldCopy && !string.IsNullOrEmpty(RichBoxBody_T.Text))
     		{
-    		    try
-    		    {
-    		        Clipboard.SetDataObject(RichBoxBody_T.Text, true, 5, 100);
-    		    }
-    		    catch (Exception ex)
-    		    {
-    		        System.Diagnostics.Debug.WriteLine($"自动复制翻译结果失败: {ex.Message}");
-    		    }
-    		}
+				SetClipboardWithLock(RichBoxBody_T.Text);
+				Debug.WriteLine("翻译后复制成功");
+
+            }
 
 			// 只有在完成一次OCR翻译流程后，才考虑重置标记。如果不清，连续手动翻译OCR结果也能持续享受自动复制。
 			// 如果希望每次OCR后只有第一次手动翻译能自动复制，可以在这里重置 isContentFromOcr = false;
 			// isContentFromOcr = false;
+		
+		 	// 在每次翻译流程结束后，必须重置监听剪贴板状态标志。否则程序会“卡”在上次的状态，导致后续所有操作逻辑错乱,比如无限翻译。
+    		// 只重置“一次性”的事件标志，保留“持续性”的状态标志
+    		// 剪贴板监听是一次性事件，必须重置。
+    		isFromClipboardListener = false;
 
-
-    		isOcrTranslation = false; // 重置“自动”翻译标记
+		 	
+			isOcrTranslation = false; // 重置“自动”翻译标记
 
 		}
+		private void HandleClipboardChange()
+		{
+			Debug.WriteLine("HandleClipboardChange执行了");
+			// ====================【关键修复开始】====================
+    		// 最优先检查：如果程序正处于自动复制后的静默期，则忽略所有剪贴板事件
+    		if (isAutoCopying)
+    		{
+    		    Debug.WriteLine("忽略剪贴板事件：自动复制锁激活中");
+    		    return;
+    		}
+    		// ====================【关键修复结束】====================
+			
+			// 【核心修正】在程序刚启动时，忽略第一次自动触发的剪贴板消息
+			if (isAppLoading)
+			{
+				isAppLoading = false; // 将标志位置为false，确保此逻辑只执行一次
+				if (Clipboard.ContainsText())
+				{
+					// 同步初始的剪贴板内容，以便下一次真正的复制可以被正确比较
+					lastClipboardText = Clipboard.GetText();
+				}
+				return; // 关键：直接退出，不执行任何后续的翻译操作
+			}
+			
+			//  检查功能是否开启
+			if (!StaticValue.ListenClipboardTranslation)
+			{
+				return;
+			}
 
+			// 【核心修改】不立即处理，而是重置防抖定时器
+			// 无论来多少次通知，都只是不断地重置计时器
+			clipboardDebounceTimer.Stop();
+			clipboardDebounceTimer.Start();
+			//定时器防抖解决监听剪贴板时多次翻译的问题,此问题原因是剪贴板软件获取多次系统消息导致:应注意剪贴板查看器链(不同剪贴板软件和系统的交互链路不同)
+			
+		}
+		private void ClipboardDebounceTimer_Tick(object sender, EventArgs e)
+		{
+		    // 1. 首先停止定时器，防止重复执行
+		    clipboardDebounceTimer.Stop();
+
+		    // 2. 在这里执行原来 HandleClipboardChange 中的所有逻辑
+		    if (Clipboard.ContainsText())
+		    {
+		        string clipboardText;
+		        try
+		        {
+		            // 增加try-catch以防止其他程序锁定剪贴板导致崩溃
+		            clipboardText = Clipboard.GetText();
+		        }
+		        catch (Exception ex)
+		        {
+		            Debug.WriteLine("获取剪贴板文本失败: " + ex.Message);
+		            return;
+		        }
+
+		        // 检查是否是新的、非空的文本
+		        if (!string.IsNullOrEmpty(clipboardText) && clipboardText != lastClipboardText)
+		        {
+		            // 更新最后一次的文本记录，防止重复触发
+		            lastClipboardText = clipboardText;
+
+		            // 显示提示
+		            CommonHelper.ShowHelpMsg("已捕获剪贴板，正在翻译...");
+
+		            // 设置正确的标志位
+		            isContentFromOcr = false;
+		            isFromClipboardListener = true;
+
+		            // 调用UI启动方法
+		            InitiateTranslationUI(clipboardText);
+		        }
+		    }
+		}
 		/// <summary>
 		/// 显示加载窗口并运行应用程序消息循环
 		/// </summary>
@@ -3751,7 +3957,8 @@ namespace TrOCR
 
 				if (success)
 				{
-					try { Clipboard.SetDataObject(typeset_txt, true, 5, 100); } catch { }
+					SetClipboardWithLock(typeset_txt);
+					Debug.WriteLine("静默[OCR] 识别成功，已复制到剪贴板");
 					CommonHelper.ShowHelpMsg("已复制到剪贴板");
 				}
 				else
@@ -3766,7 +3973,9 @@ namespace TrOCR
 				return; // 结束方法，不显示主窗口
 			}
 			// --- 步骤 1: 数据处理和准备 ---
-			isContentFromOcr = true; // 关键新增：标记当前内容来源于OCR
+			// 关键新增：标记当前内容来源于OCR
+			isContentFromOcr = true;
+    		isFromClipboardListener = false;
 			image_screen.Dispose();
 			StaticValue.IsCapture = false;
 			var text = typeset_txt;
@@ -3882,14 +4091,18 @@ namespace TrOCR
 
 			if (shouldPerformCopy)
 			{
-				try { Clipboard.SetDataObject(textToCopy, true, 5, 100); } catch { }
+				SetClipboardWithLock(textToCopy);
+				Debug.WriteLine("拆分后自动复制成功");
+				
 			}
 			else
 			{
 				//// 处理识别后自动复制功能 (只有同时开启了 ① 识别后自动复制 和 ② 自动翻译 和 ③ 翻译后自动复制，才不复制识别结果)
 				if (autoCopyOcr && (!autoTranslate || !autoCopyTranslate))
 				{
-					try { Clipboard.SetDataObject(RichBoxBody.Text, true, 5, 100); } catch { }
+					SetClipboardWithLock(RichBoxBody.Text);
+						Debug.WriteLine("识别后自动复制成功");
+				
 				}
 			}
 
@@ -3924,7 +4137,9 @@ namespace TrOCR
 				Visible = false;
 				if (RichBoxBody.Text != "***该区域未发现文本***" && !string.IsNullOrWhiteSpace(RichBoxBody.Text))
 				{
-					Clipboard.SetDataObject(RichBoxBody.Text);
+					SetClipboardWithLock(RichBoxBody.Text);
+					
+					Debug.WriteLine("无弹窗模式复制识别结果成功");
 					CommonHelper.ShowHelpMsg("已识别并复制");
 				}
 				else
@@ -5797,14 +6012,16 @@ namespace TrOCR
 							break;
 					}
 					// 将翻译结果复制到剪贴板并粘贴到当前焦点位置
-					Clipboard.SetData(DataFormats.UnicodeText, data);
+					SetClipboardDataWithLock(DataFormats.UnicodeText, data);        
+					Debug.WriteLine("快速翻译译文复制到剪贴板");
 					SendKeys.SendWait("^v");
 					return;
 				}
 				catch
 				{
-					// 出现异常时也尝试粘贴当前结果
-					Clipboard.SetData(DataFormats.UnicodeText, data);
+                    // 出现异常时也尝试粘贴当前结果
+                    SetClipboardDataWithLock(DataFormats.UnicodeText, data);
+					Debug.WriteLine("出现异常快速翻译译文也复制到剪贴板");
 					SendKeys.SendWait("^v");
 					return;
 				}
@@ -6790,14 +7007,16 @@ namespace TrOCR
 						var dataObject = new DataObject();
 						dataObject.SetData(DataFormats.Html, CreateHtmlClipboardData(htmlTable));
 						dataObject.SetData(DataFormats.UnicodeText, typeset_txt);
-						Clipboard.SetDataObject(dataObject, true, 5, 100);
+						SetClipboardWithLock(dataObject);
+						Debug.WriteLine("识别表格结果复制到剪贴板-html格式");
 					}
 					else
 					{
 						// 如果没有HTML表格，使用普通文本
 						var dataObject = new DataObject();
 						dataObject.SetData(DataFormats.UnicodeText, typeset_txt);
-						Clipboard.SetDataObject(typeset_txt, true, 5, 100);
+						SetClipboardWithLock(dataObject);
+						Debug.WriteLine("识别表格结果复制到剪贴板-普通文本格式");
 					}
 
 				}
@@ -6833,14 +7052,16 @@ namespace TrOCR
 						var dataObject = new DataObject();
 						dataObject.SetData(DataFormats.Html, CreateHtmlClipboardData(htmlTable));
 						dataObject.SetData(DataFormats.UnicodeText, typeset_txt);
-						Clipboard.SetDataObject(dataObject, true, 5, 100);
+						SetClipboardWithLock(dataObject);
+						Debug.WriteLine("腾讯识别表格结果复制到剪贴板-html格式");
 					}
 					else
 					{
 						// 如果没有HTML表格，使用普通文本
 						var dataObject = new DataObject();
 						dataObject.SetData(DataFormats.UnicodeText, typeset_txt);
-						Clipboard.SetDataObject(typeset_txt, true, 5, 100);
+						SetClipboardWithLock(dataObject);
+						Debug.WriteLine("腾讯识别表格结果复制到剪贴板-普通文本格式");
 					}
 				}
 				else
@@ -6873,7 +7094,8 @@ namespace TrOCR
 					HelpWin32.SetForegroundWindow(ailibaba.Handle);
 					return;
 				}
-				Clipboard.SetDataObject(typeset_txt);
+				SetClipboardWithLock(typeset_txt);
+				Debug.WriteLine("阿里表格结果剪切板写入成功");
 				CopyHtmlToClipBoard(typeset_txt);
 			}
 			
@@ -7075,7 +7297,8 @@ namespace TrOCR
 			dataObject.SetData(DataFormats.Html, new MemoryStream(utf.GetBytes(s2)));
 			var data = new HtmlToText().Convert(html);
 			dataObject.SetData(DataFormats.Text, data);
-			Clipboard.SetDataObject(dataObject);
+			SetClipboardWithLock(dataObject);
+			Debug.WriteLine("识别表格结果写入剪贴板");
 		}
 
 		/// <summary>
@@ -7504,7 +7727,12 @@ namespace TrOCR
 		/// 标识是ocr的翻译还是输入翻译
 		private bool isOcrTranslation = false;
 
+		/// OCR 翻译: isContentFromOcr 为 true，isFromClipboardListener 为 false。
+		/// 监听剪贴板翻译: isContentFromOcr 为 false，isFromClipboardListener 为 true。
+		/// 手动输入翻译: isContentFromOcr 为 false，isFromClipboardListener 为 false。
 		private bool isContentFromOcr = false;
+		private bool isFromClipboardListener = false;
+		
 		private Timer translationTimer;
 #endregion
 

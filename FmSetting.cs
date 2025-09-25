@@ -296,6 +296,28 @@ namespace TrOCR
 			pictureBox_记录界面.Image = txtBox_记录界面.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
 			pictureBox_识别界面.Image = txtBox_识别界面.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
 
+			// 【新增】加载“监听剪贴板”设置
+			var value_listenClipboard = IniHelper.GetValue("配置", "ListenClipboard");
+			try
+			{
+			    cbBox_ListenClipboard.Checked = Convert.ToBoolean(value_listenClipboard);
+			}
+			catch
+			{
+			    cbBox_ListenClipboard.Checked = false;
+			}
+			
+			// 【新增】加载“监听后自动复制”设置
+			var value_autoCopyListenClipboard = IniHelper.GetValue("配置", "AutoCopyListenClipboardTranslation");
+			try
+			{
+			    cbBox_AutoCopyListenClipboardTranslation.Checked = Convert.ToBoolean(value_autoCopyListenClipboard);
+			}
+			catch
+			{
+			    cbBox_AutoCopyListenClipboardTranslation.Checked = false;
+			}
+
 			var value_input_translate = IniHelper.GetValue("快捷键", "输入翻译");
 			txtBox_输入翻译.Text = value_input_translate;
 			if (value_input_translate == "发生错误")
@@ -1756,6 +1778,10 @@ namespace TrOCR
 			IniHelper.SetValue("快捷键", "识别界面", txtBox_识别界面.Text);
 			IniHelper.SetValue("快捷键", "输入翻译", txtBox_输入翻译.Text);
 			IniHelper.SetValue("快捷键", "静默识别", txtBox_静默识别.Text);
+
+			// 【新增】保存剪贴板相关的设置
+			IniHelper.SetValue("配置", "ListenClipboard", cbBox_ListenClipboard.Checked.ToString());
+			IniHelper.SetValue("配置", "AutoCopyListenClipboardTranslation", cbBox_AutoCopyListenClipboardTranslation.Checked.ToString());
 			
 			// 保存百度OCR密钥和语言设置
 			IniHelper.SetValue("密钥_百度", "secret_id", text_baiduaccount.Text);

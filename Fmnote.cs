@@ -9,10 +9,12 @@ namespace TrOCR
 
 	public partial class FmNote
     {
+		private FmMain mainForm; // 【新增】用于持有主窗口的引用
 
-		public FmNote()
+		public FmNote(FmMain owner)
 		{
 			InitializeComponent();
+			this.mainForm = owner; // 【新增】将传入的实例保存起来
 			Focus();
 			TopMost = true;
 			ShowInTaskbar = false;
@@ -99,7 +101,12 @@ namespace TrOCR
 					text = text + dataGridView1.Rows[array2[k] - 1].Cells[0].Value.ToString().Remove(0, 3) + "\r\n";
 				}
 			}
-			Clipboard.SetDataObject(text);
+			// 【核心修改】在写入剪贴板前加锁
+    		if (this.mainForm != null)
+    		{
+    		    this.mainForm.SetClipboardWithLock(text);
+    		}
+			
 		}
 
 
@@ -156,7 +163,11 @@ namespace TrOCR
 			var flag8 = flag7;
 			if (flag8)
 			{
-				Clipboard.SetDataObject(dataGridView1.SelectedCells[0].Value.ToString().Remove(0, 3));
+				// 【核心修改】在写入剪贴板前加锁
+    			if (this.mainForm != null)
+    			{
+    			    this.mainForm.SetClipboardWithLock(dataGridView1.SelectedCells[0].Value.ToString().Remove(0, 3));
+    			}
 				CommonHelper.ShowHelpMsg("已复制");
 			}
 		}
