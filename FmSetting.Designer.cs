@@ -210,6 +210,8 @@ namespace TrOCR
             this.label23 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.inPage_百度手写 = new System.Windows.Forms.TabPage();
+            this.label32 = new System.Windows.Forms.Label();
             this.tabPage_腾讯OCR = new System.Windows.Forms.TabPage();
             this.tabControl_TXApiType = new System.Windows.Forms.TabControl();
             this.inPage_腾讯接口 = new System.Windows.Forms.TabPage();
@@ -350,6 +352,12 @@ namespace TrOCR
             this.checkBox_AutoCopyOcrTranslation = new System.Windows.Forms.CheckBox();
             this.checkBox_AutoCopyInputTranslation = new System.Windows.Forms.CheckBox();
             this.tab_标签 = new System.Windows.Forms.TabControl();
+            this.Page_常规2 = new System.Windows.Forms.TabPage();
+            this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.cbBox_AutoCopyListenClipboardTranslation = new System.Windows.Forms.CheckBox();
+            this.cbBox_ListenClipboard = new System.Windows.Forms.CheckBox();
+            this.label34 = new System.Windows.Forms.Label();
             this.Page_工具栏 = new System.Windows.Forms.TabPage();
             this.groupBox_拆分文本 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel_拆分文本 = new System.Windows.Forms.TableLayoutPanel();
@@ -377,11 +385,6 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
-            this.Page_常规2 = new System.Windows.Forms.TabPage();
-            this.groupBox9 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.cbBox_ListenClipboard = new System.Windows.Forms.CheckBox();
-            this.cbBox_AutoCopyListenClipboardTranslation = new System.Windows.Forms.CheckBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -443,6 +446,7 @@ namespace TrOCR
             this.inPage_百度接口.SuspendLayout();
             this.inPage_百度高精度接口.SuspendLayout();
             this.inPage_百度表格.SuspendLayout();
+            this.inPage_百度手写.SuspendLayout();
             this.tabPage_腾讯OCR.SuspendLayout();
             this.tabControl_TXApiType.SuspendLayout();
             this.inPage_腾讯接口.SuspendLayout();
@@ -469,6 +473,9 @@ namespace TrOCR
             this.groupBox_OcrWorkflow.SuspendLayout();
             this.groupBox_TranslateWorkflow.SuspendLayout();
             this.tab_标签.SuspendLayout();
+            this.Page_常规2.SuspendLayout();
+            this.groupBox9.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.Page_工具栏.SuspendLayout();
             this.groupBox_拆分文本.SuspendLayout();
             this.tableLayoutPanel_拆分文本.SuspendLayout();
@@ -479,9 +486,6 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
-            this.Page_常规2.SuspendLayout();
-            this.groupBox9.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -2425,6 +2429,7 @@ namespace TrOCR
             this.tabControl_BaiduApiType.Controls.Add(this.inPage_百度接口);
             this.tabControl_BaiduApiType.Controls.Add(this.inPage_百度高精度接口);
             this.tabControl_BaiduApiType.Controls.Add(this.inPage_百度表格);
+            this.tabControl_BaiduApiType.Controls.Add(this.inPage_百度手写);
             this.tabControl_BaiduApiType.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl_BaiduApiType.Location = new System.Drawing.Point(3, 3);
             this.tabControl_BaiduApiType.Name = "tabControl_BaiduApiType";
@@ -2648,6 +2653,26 @@ namespace TrOCR
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(367, 25);
             this.textBox1.TabIndex = 4;
+            // 
+            // inPage_百度手写
+            // 
+            this.inPage_百度手写.Controls.Add(this.label32);
+            this.inPage_百度手写.Location = new System.Drawing.Point(4, 25);
+            this.inPage_百度手写.Name = "inPage_百度手写";
+            this.inPage_百度手写.Padding = new System.Windows.Forms.Padding(3);
+            this.inPage_百度手写.Size = new System.Drawing.Size(482, 136);
+            this.inPage_百度手写.TabIndex = 3;
+            this.inPage_百度手写.Text = "手写";
+            this.inPage_百度手写.UseVisualStyleBackColor = true;
+            // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.Location = new System.Drawing.Point(6, 13);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(472, 45);
+            this.label32.TabIndex = 0;
+            this.label32.Text = "百度手写识别接口暂未添加，请使用腾讯高精度接口（支持手写识别）\r\n\r\n或离线ocr接口使用支持手写识别的离线模型";
             // 
             // tabPage_腾讯OCR
             // 
@@ -4173,6 +4198,76 @@ namespace TrOCR
             this.tab_标签.TabIndex = 0;
             this.tab_标签.SelectedIndexChanged += new System.EventHandler(this.tab_标签_SelectedIndexChanged);
             // 
+            // Page_常规2
+            // 
+            this.Page_常规2.Controls.Add(this.groupBox9);
+            this.Page_常规2.Location = new System.Drawing.Point(4, 25);
+            this.Page_常规2.Name = "Page_常规2";
+            this.Page_常规2.Padding = new System.Windows.Forms.Padding(3);
+            this.Page_常规2.Size = new System.Drawing.Size(523, 515);
+            this.Page_常规2.TabIndex = 13;
+            this.Page_常规2.Text = "常规2";
+            this.Page_常规2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.Controls.Add(this.tableLayoutPanel1);
+            this.groupBox9.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox9.Location = new System.Drawing.Point(3, 3);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(517, 100);
+            this.groupBox9.TabIndex = 0;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "剪贴板";
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 207F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 304F));
+            this.tableLayoutPanel1.Controls.Add(this.cbBox_AutoCopyListenClipboardTranslation, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.cbBox_ListenClipboard, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label34, 0, 1);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 21);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(511, 76);
+            this.tableLayoutPanel1.TabIndex = 0;
+            // 
+            // cbBox_AutoCopyListenClipboardTranslation
+            // 
+            this.cbBox_AutoCopyListenClipboardTranslation.AutoSize = true;
+            this.cbBox_AutoCopyListenClipboardTranslation.Location = new System.Drawing.Point(210, 3);
+            this.cbBox_AutoCopyListenClipboardTranslation.Name = "cbBox_AutoCopyListenClipboardTranslation";
+            this.cbBox_AutoCopyListenClipboardTranslation.Size = new System.Drawing.Size(239, 19);
+            this.cbBox_AutoCopyListenClipboardTranslation.TabIndex = 1;
+            this.cbBox_AutoCopyListenClipboardTranslation.Text = "监听剪贴板自动翻译后自动复制";
+            this.cbBox_AutoCopyListenClipboardTranslation.UseVisualStyleBackColor = true;
+            // 
+            // cbBox_ListenClipboard
+            // 
+            this.cbBox_ListenClipboard.AutoSize = true;
+            this.cbBox_ListenClipboard.Location = new System.Drawing.Point(3, 3);
+            this.cbBox_ListenClipboard.Name = "cbBox_ListenClipboard";
+            this.cbBox_ListenClipboard.Size = new System.Drawing.Size(179, 19);
+            this.cbBox_ListenClipboard.TabIndex = 0;
+            this.cbBox_ListenClipboard.Text = "监听剪贴板并自动翻译";
+            this.cbBox_ListenClipboard.UseVisualStyleBackColor = true;
+            // 
+            // label34
+            // 
+            this.label34.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.label34, 2);
+            this.label34.Location = new System.Drawing.Point(3, 38);
+            this.label34.Name = "label34";
+            this.label34.Size = new System.Drawing.Size(307, 15);
+            this.label34.TabIndex = 2;
+            this.label34.Text = "说明：可托盘菜单快速开启和关闭剪贴板监听";
+            // 
             // Page_工具栏
             // 
             this.Page_工具栏.Controls.Add(this.groupBox_拆分文本);
@@ -4487,64 +4582,6 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
-            // Page_常规2
-            // 
-            this.Page_常规2.Controls.Add(this.groupBox9);
-            this.Page_常规2.Location = new System.Drawing.Point(4, 25);
-            this.Page_常规2.Name = "Page_常规2";
-            this.Page_常规2.Padding = new System.Windows.Forms.Padding(3);
-            this.Page_常规2.Size = new System.Drawing.Size(523, 515);
-            this.Page_常规2.TabIndex = 13;
-            this.Page_常规2.Text = "常规2";
-            this.Page_常规2.UseVisualStyleBackColor = true;
-            // 
-            // groupBox9
-            // 
-            this.groupBox9.Controls.Add(this.tableLayoutPanel1);
-            this.groupBox9.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox9.Location = new System.Drawing.Point(3, 3);
-            this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(517, 100);
-            this.groupBox9.TabIndex = 0;
-            this.groupBox9.TabStop = false;
-            this.groupBox9.Text = "剪贴板";
-            // 
-            // tableLayoutPanel1
-            // 
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 207F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 44F));
-            this.tableLayoutPanel1.Controls.Add(this.cbBox_AutoCopyListenClipboardTranslation, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.cbBox_ListenClipboard, 0, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 21);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(511, 76);
-            this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // cbBox_ListenClipboard
-            // 
-            this.cbBox_ListenClipboard.AutoSize = true;
-            this.cbBox_ListenClipboard.Location = new System.Drawing.Point(3, 3);
-            this.cbBox_ListenClipboard.Name = "cbBox_ListenClipboard";
-            this.cbBox_ListenClipboard.Size = new System.Drawing.Size(179, 19);
-            this.cbBox_ListenClipboard.TabIndex = 0;
-            this.cbBox_ListenClipboard.Text = "监听剪贴板并自动翻译";
-            this.cbBox_ListenClipboard.UseVisualStyleBackColor = true;
-            // 
-            // cbBox_AutoCopyListenClipboardTranslation
-            // 
-            this.cbBox_AutoCopyListenClipboardTranslation.AutoSize = true;
-            this.cbBox_AutoCopyListenClipboardTranslation.Location = new System.Drawing.Point(210, 3);
-            this.cbBox_AutoCopyListenClipboardTranslation.Name = "cbBox_AutoCopyListenClipboardTranslation";
-            this.cbBox_AutoCopyListenClipboardTranslation.Size = new System.Drawing.Size(239, 19);
-            this.cbBox_AutoCopyListenClipboardTranslation.TabIndex = 1;
-            this.cbBox_AutoCopyListenClipboardTranslation.Text = "监听剪贴板自动翻译后自动复制";
-            this.cbBox_AutoCopyListenClipboardTranslation.UseVisualStyleBackColor = true;
-            // 
             // FmSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -4663,6 +4700,8 @@ namespace TrOCR
             this.inPage_百度高精度接口.PerformLayout();
             this.inPage_百度表格.ResumeLayout(false);
             this.inPage_百度表格.PerformLayout();
+            this.inPage_百度手写.ResumeLayout(false);
+            this.inPage_百度手写.PerformLayout();
             this.tabPage_腾讯OCR.ResumeLayout(false);
             this.tabControl_TXApiType.ResumeLayout(false);
             this.inPage_腾讯接口.ResumeLayout(false);
@@ -4703,6 +4742,10 @@ namespace TrOCR
             this.groupBox_TranslateWorkflow.ResumeLayout(false);
             this.groupBox_TranslateWorkflow.PerformLayout();
             this.tab_标签.ResumeLayout(false);
+            this.Page_常规2.ResumeLayout(false);
+            this.groupBox9.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.Page_工具栏.ResumeLayout(false);
             this.groupBox_拆分文本.ResumeLayout(false);
             this.tableLayoutPanel_拆分文本.ResumeLayout(false);
@@ -4717,10 +4760,6 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
-            this.Page_常规2.ResumeLayout(false);
-            this.groupBox9.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -5097,5 +5136,8 @@ namespace TrOCR
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.CheckBox cbBox_ListenClipboard;
         private System.Windows.Forms.CheckBox cbBox_AutoCopyListenClipboardTranslation;
+        private System.Windows.Forms.TabPage inPage_百度手写;
+        private System.Windows.Forms.Label label32;
+        private System.Windows.Forms.Label label34;
     }
 }

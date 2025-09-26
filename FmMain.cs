@@ -106,6 +106,7 @@ namespace TrOCR
 
 			// 初始化组件和系统设置
 			InitializeComponent();
+			StaticValue.LoadConfig();//这个代码加不加都行，fmsetting.cs和program.cs里使用就足够了,加上更健壮
 			// ====================【新增代码开始】====================
 			// 加载并应用记忆的窗口大小
 			LoadWindowState();
@@ -511,6 +512,7 @@ namespace TrOCR
 				{
 					new MenuItem("静默识别", traySilentOcrClick),
 					new MenuItem("输入翻译", trayInputTranslateClick),
+					new MenuItem("监听翻译", trayClipListenTranslateClick),
 					new MenuItem("显示", trayShowClick),
 					new MenuItem("设置", tray_Set_Click),
 					new MenuItem("更新", tray_update_Click),
@@ -736,6 +738,30 @@ namespace TrOCR
 			if (hasContentToTranslate && StaticValue.InputTranslateAutoTranslate)
 			{
 				TransClick();
+			}
+		}
+		/// <summary>
+		/// 托盘菜单"监听翻译"选项点击事件处理函数
+		/// 用于开启或关闭监听剪贴板进行翻译的功能
+		/// </summary>
+		/// <param name="sender">事件发送者</param>
+		/// <param name="e">事件参数</param>
+		private void trayClipListenTranslateClick(object sender, EventArgs e)
+		{
+			// 1. 切换核心功能状态 (将 StaticValue 中的布尔值取反)
+			StaticValue.ListenClipboardTranslation = !StaticValue.ListenClipboardTranslation;
+
+			// 2. 持久化设置：将新的状态保存到 config.ini 文件
+			IniHelper.SetValue("配置", "ListenClipboard", StaticValue.ListenClipboardTranslation.ToString());
+
+			// 3. 给用户一个明确的反馈提示
+			if (StaticValue.ListenClipboardTranslation)
+			{
+				CommonHelper.ShowHelpMsg("监听剪贴板翻译已开启");
+			}
+			else
+			{
+				CommonHelper.ShowHelpMsg("监听剪贴板翻译已关闭");
 			}
 		}
 

@@ -334,6 +334,7 @@ namespace TrOCR
 			}
 			pictureBox_静默识别.Image = txtBox_静默识别.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
 
+
 			// 读取百度OCR密钥信息
 			var value12 = IniHelper.GetValue("密钥_百度", "secret_id");
 			text_baiduaccount.Text = value12;
