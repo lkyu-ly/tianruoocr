@@ -536,31 +536,37 @@ namespace TrOCR
 		    this.SuspendLayout();
 		    Size oldLastNormalSize = lastNormalSize;
 		    Debug.WriteLine($"现在的size：{Size}");
-		    if (isOriginalTextHidden) // 如果当前原文是隐藏的，那么点击后就要【显示】它
+			if (isOriginalTextHidden) // 如果当前原文是隐藏的，那么点击后就要【显示】它
 		    {
+				Debug.WriteLine($"原文是隐藏的，恢复它，lastNormalSize为{lastNormalSize}");
+		        // 步骤 1：暂停UI布局，防止闪烁
+				this.SuspendLayout();
 
-		    	Debug.WriteLine($"原文是隐藏的，恢复它，lastNormalSize为{lastNormalSize}");
+		        // 步骤 2：在窗口扩展之前，先将译文窗口“预先”放置到它最终该在的右侧位置
+		        //         此时它的坐标会暂时超出单栏窗口的边界，但因为布局已暂停，用户看不到这个中间状态
+		        RichBoxBody_T.Left = this.Width; 
 
-		                // 1. 先将主窗口的宽度恢复为双栏大小
-		                this.Size = new Size(this.lastNormalSize.Width * 2, this.lastNormalSize.Height);
+		        // 步骤 3：现在才将窗口宽度扩展为双倍
+		        this.Size = new Size(this.lastNormalSize.Width * 2, this.lastNormalSize.Height);
 				Debug.WriteLine($"原文是隐藏的，恢复它，改变size为{Size}，改变后lastNormalSize为{lastNormalSize}");
 
-		        // 2. 显示原文窗口
+		        // 步骤 4：在左侧“新生”出的空白区域，显示原文窗口和分隔条
 		        RichBoxBody.Visible = true;
-				panelSeparator.Visible = true; // 别忘了显示分隔条
+		        panelSeparator.Visible = true;
 
-		        // 3. 恢复双栏布局
-				RichBoxBody.Width = this.ClientRectangle.Width / 2;
-		        RichBoxBody_T.Left = RichBoxBody.Width;
-		        RichBoxBody_T.Width = RichBoxBody.Width;
-
-                // 4. 更新按钮文本和状态
-                //btnToggleOriginalText.Left = RichBoxBody.Right - btnToggleOriginalText.Width;
+		        // 步骤 5：调用一次Resize事件处理函数，让左右两个窗口的宽度自动调整为各占一半
+		        //         这一步会自动处理好所有控件的位置和尺寸，比手动计算更可靠
+		        Form_Resize(null, EventArgs.Empty);
+		        
+		        // 步骤 6：更新按钮状态
+				//btnToggleOriginalText.Left = RichBoxBody.Right - btnToggleOriginalText.Width;
 				btnToggleOriginalText.Left= panelSeparator.Left - btnToggleOriginalText.Width - 10;
-                btnToggleOriginalText.Text = "◀";
+		        btnToggleOriginalText.Text = "◀";
 		        isOriginalTextHidden = false;
 				lastNormalSize = oldLastNormalSize;
 
+		        // 步骤 7：恢复UI布局，让所有更改一次性生效
+		        this.ResumeLayout(true);
 		    }
 		    else // 如果当前原文是显示的，那么点击后就要【隐藏】它
 		    {
@@ -640,7 +646,10 @@ namespace TrOCR
 
 		    if (!string.IsNullOrEmpty(textToShow))
 		    {
-		        TransClick();
+		        // 判断是否是需要默认隐藏原文的特殊场景
+				bool shouldHideOriginal = isFromClipboardListener && StaticValue.ListenClipboardTranslationHideOriginal;
+				// 将判断结果作为参数传递给 TransClick
+		        TransClick(shouldHideOriginal);
 
 		    }
 		}
@@ -2272,23 +2281,28 @@ namespace TrOCR
 		{
 			return Regex.IsMatch(str, "[\\u4e00-\\u9fa5]");
 		}
-#endregion
+        #endregion
 
-// ====================================================================================================================
-		// **翻译功能**
-		//
-		// 实现了文本翻译的核心逻辑和界面交互。
-		// - TransClick(): 启动翻译模式的入口，调整窗口布局以显示原文和译文两个文本框。
-		// - Form_Resize(): 处理窗口大小变化事件，确保翻译界面布局正确。
-		// - Trans_copy_Click(), Trans_paste_Click(), Trans_SelectAll_Click(): 翻译文本框的右键菜单功能。
-		// - trans_Calculate(): 异步执行翻译的核心方法，根据当前选择的翻译服务和语言设置调用相应的翻译API。
-		// - Trans_close_Click(): 关闭翻译模式，恢复原始窗口布局。
-		// ====================================================================================================================
-#region 翻译功能
-		/// <summary>
-		/// 启动翻译功能，调整窗体和控件布局以显示翻译界面
-		/// </summary>
+        // ====================================================================================================================
+        // **翻译功能**
+        //
+        // 实现了文本翻译的核心逻辑和界面交互。
+        // - TransClick(): 启动翻译模式的入口，调整窗口布局以显示原文和译文两个文本框。
+        // - Form_Resize(): 处理窗口大小变化事件，确保翻译界面布局正确。
+        // - Trans_copy_Click(), Trans_paste_Click(), Trans_SelectAll_Click(): 翻译文本框的右键菜单功能。
+        // - trans_Calculate(): 异步执行翻译的核心方法，根据当前选择的翻译服务和语言设置调用相应的翻译API。
+        // - Trans_close_Click(): 关闭翻译模式，恢复原始窗口布局。
+        // ====================================================================================================================
+        #region 翻译功能
+        /// <summary>
+        /// 启动翻译功能，调整窗体和控件布局以显示翻译界面
+        /// </summary>
 		public void TransClick()
+        {
+            // 调用下面的新方法，并传递默认值 false
+            TransClick(false);
+        }
+        public void TransClick(bool hideOriginalDefault =false)
         {
             LogState("TransClick Start"); // <--- 添加这一行
             typeset_txt = RichBoxBody.Text;
@@ -2347,8 +2361,29 @@ namespace TrOCR
 		    btnToggleOriginalText.Left =  panelSeparator.Left - btnToggleOriginalText.Width - 10;
 		    btnToggleOriginalText.Top = 5;
 
-		    // 4. 恢复窗体布局，并强制应用所有更改。此时按钮会和文本框一起被正确绘制出来。
-		    this.ResumeLayout(true);
+			// ====================【新增的核心逻辑】====================
+			// 如果参数要求默认隐藏原文，则在显示窗口前，提前模拟一次“隐藏”操作
+			if (hideOriginalDefault)
+			{
+				// 更新状态
+				isOriginalTextHidden = true;
+				btnToggleOriginalText.Text = "▶";
+
+				// 隐藏原文相关的控件
+				RichBoxBody.Visible = false;
+				panelSeparator.Visible = false;
+
+				// 提前将窗口设置为最终的单栏尺寸
+				this.Size = this.lastNormalSize;
+				
+				// 提前将译文窗口移动到左侧并填满
+				RichBoxBody_T.Left = 0;
+				RichBoxBody_T.Width = this.ClientRectangle.Width;
+				btnToggleOriginalText.Left = RichBoxBody_T.Right - btnToggleOriginalText.Width;
+			}
+			// =========================================================
+			// 4. 恢复窗体布局，并强制应用所有更改。此时按钮会和文本框一起被正确绘制出来。
+			this.ResumeLayout(true);
 
 			// ========================================================
 			// MinimumSize = new Size((int)font_base.Width * 23 * 2, (int)font_base.Height * 24);
@@ -2705,13 +2740,13 @@ namespace TrOCR
 		public void Trans_close_Click(object sender, EventArgs e)
 		{
             LogState("Trans_close_Click Start"); // <--- 添加这一行
-			// 【核心优化】在执行任何关闭操作前，先检查原文是否被隐藏
-    		if (isOriginalTextHidden)
-    		{
-    		    // 如果原文是隐藏的，则弹出提示，并阻止后续的关闭操作
-    		    MessageBox.Show("请先点击 ▶ 按钮恢复原文，再关闭翻译窗口。", "操作提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-    		    return; // 直接返回，不执行关闭
-    		}
+			// 【核心优化】在执行任何关闭操作前，先检查原文是否被隐藏。ps：这里加上好像会导致识别前提示 MessageBox.Show("请先点击 ▶ 按钮恢复原文，再关闭翻译窗口)，不知道什么原因，先注释掉
+    		// if (isOriginalTextHidden)
+    		// {
+    		//     // 如果原文是隐藏的，则弹出提示，并阻止后续的关闭操作
+    		//     MessageBox.Show("请先点击 ▶ 按钮恢复原文，再关闭翻译窗口。", "操作提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    		//     return; // 直接返回，不执行关闭
+    		// }
              // 重置隐藏/显示按钮和相关状态
             btnToggleOriginalText.Visible = false;
     		isOriginalTextHidden = false;
@@ -3017,17 +3052,7 @@ namespace TrOCR
 
 					// 调用UI启动方法
 					InitiateTranslationUI(clipboardText);
-					// ====================【新增的核心逻辑】====================
-    				// 在翻译窗口已经弹出并完成布局后，检查是否需要自动隐藏原文
-    				if (StaticValue.ListenClipboardTranslationHideOriginal)
-    				{
-    				    // 确保当前原文是显示的，避免重复执行隐藏操作
-    				    if (!isOriginalTextHidden)
-    				    {
-    				        // 直接调用隐藏/显示按钮的点击事件，复用现有逻辑
-    				        btnToggleOriginalText_Click(null, null);
-    				    }
-    				}
+			
 		        }
 		    }
 		}
