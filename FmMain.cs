@@ -2292,7 +2292,7 @@ namespace TrOCR
         {
             LogState("TransClick Start"); // <--- 添加这一行
             typeset_txt = RichBoxBody.Text;
-			RichBoxBody_T.Visible = true;
+			// RichBoxBody_T.Visible = true;
 			WindowState = FormWindowState.Normal;
 			transtalate_fla = "开启";
 			RichBoxBody.Dock = DockStyle.None;
@@ -2317,15 +2317,15 @@ namespace TrOCR
     		panelSeparator.Dock = DockStyle.Left; // 临时停靠以调整高度
     		panelSeparator.Dock = DockStyle.None; // 恢复手动布局
     		// ===============================================
-			PictureBox1.Visible = true;
-			PictureBox1.BringToFront();
-			// ====================【新增代码：动态居中PictureBox1】====================
-			// 计算X坐标，使其水平居中：(窗口宽度 - 图片框宽度) / 2
-			int centerX = (this.ClientSize.Width - PictureBox1.Width) / 2;
-			// 计算Y坐标，使其垂直居中：(窗口高度 - 图片框高度) / 2
-			int centerY = (this.ClientSize.Height - PictureBox1.Height) / 2;
-			// 应用新的坐标
-			PictureBox1.Location = new Point(Math.Max(0, centerX), Math.Max(0, centerY));
+			// PictureBox1.Visible = true;
+			// PictureBox1.BringToFront();
+			// // ====================【新增代码：动态居中PictureBox1】====================
+			// // 计算X坐标，使其水平居中：(窗口宽度 - 图片框宽度) / 2
+			// int centerX = (this.ClientSize.Width - PictureBox1.Width) / 2;
+			// // 计算Y坐标，使其垂直居中：(窗口高度 - 图片框高度) / 2
+			// int centerY = (this.ClientSize.Height - PictureBox1.Height) / 2;
+			// // 应用新的坐标
+			// PictureBox1.Location = new Point(Math.Max(0, centerX), Math.Max(0, centerY));
 		 // ====================【核心修正区域】====================
 
 			// 1. 暂停窗体布局，防止在调整多个控件时发生闪烁
@@ -2350,14 +2350,43 @@ namespace TrOCR
 		    // 4. 恢复窗体布局，并强制应用所有更改。此时按钮会和文本框一起被正确绘制出来。
 		    this.ResumeLayout(true);
 
-		    // ========================================================
+			// ========================================================
 			// MinimumSize = new Size((int)font_base.Width * 23 * 2, (int)font_base.Height * 24);
 			// this.Size = new Size(this.lastNormalSize.Width * 2, this.lastNormalSize.Height);
+			// ====================【核心优化点】====================
+			// 在所有布局都完成后，再调用我们的新方法来定位和显示加载图标
+			PositionLoadingIcon();
+			// ====================================================
+
 			CheckForIllegalCrossThreadCalls = false;
 			trans_Calculate();
             LogState("TransClick End");
         }
 
+		/// <summary>
+		/// 动态计算加载图标(PictureBox1)的位置，使其在翻译文本框(RichBoxBody_T)中居中显示。
+		/// </summary>
+		private void PositionLoadingIcon()
+		{
+			// 确保翻译框是可见的，否则无法定位
+			if (!RichBoxBody_T.Visible)
+			{
+				RichBoxBody_T.Visible = true;
+			}
+		
+			// 1. 计算图标应该在的X, Y坐标
+			//    公式: 容器的起始位置 + (容器宽度 - 图标宽度) / 2
+			int centerX = RichBoxBody_T.Left + (RichBoxBody_T.Width - PictureBox1.Width) / 2;
+			int centerY = RichBoxBody_T.Top + (RichBoxBody_T.Height - PictureBox1.Height) / 2;
+		
+			// 2. 应用新的坐标
+			//    使用 Math.Max 确保图标不会因窗口过小而跑到负坐标
+			PictureBox1.Location = new Point(Math.Max(0, centerX), Math.Max(0, centerY));
+		
+			// 3. 确保图标可见并位于最顶层
+			PictureBox1.Visible = true;
+			PictureBox1.BringToFront();
+		}
 		/// <summary>
 		/// 处理窗体大小调整事件，当翻译功能开启时调整文本框大小和位置
 		/// </summary>
@@ -2365,78 +2394,78 @@ namespace TrOCR
 		/// <param name="e">事件参数</param>
 		private void Form_Resize(object sender, EventArgs e)
 		{
-            LogState("Form_Resize Start");
-            // --- 步骤 1: 更新窗口尺寸记忆（状态管理，保持在最前） ---
-            // 仅当窗口处于“正常”状态时，才考虑更新尺寸记忆
-            if (WindowState == FormWindowState.Normal)
-            {
-                if (transtalate_fla == "开启")
-                {
-                    // 双栏模式：记录一半的宽度为基础尺寸
-                    if (!isOriginalTextHidden)
-                    {
-                        this.lastNormalSize = new Size(this.Size.Width / 2, this.Size.Height);
-                    }
-                }
-                else // 单栏模式 (transtalate_fla == "关闭")
-                {
-                    // 【核心防御逻辑】
-                    // 检查这是否是一次可疑的Resize：即在单栏模式下，窗口宽度突然变得接近之前基础宽度的两倍。
-                    // 我们用1.8倍作为阈值，以允许一些误差。
-                    if (this.lastNormalSize.Width > 0 && this.Size.Width > this.lastNormalSize.Width * 1.8)
-                    {
-                        // 如果是，则判定为“幽灵事件”，拒绝更新lastNormalSize，并强制将窗口尺寸改回正确的值。
-                        System.Diagnostics.Debug.WriteLine($"  REJECTED suspicious resize. Forcing size back to {this.lastNormalSize}");
-                        this.Size = this.lastNormalSize;
-                    }
-                    else
-                    {
-                        // 如果不是可疑的Resize（例如用户正常拖动边框），则正常更新尺寸记忆
-                        this.lastNormalSize = this.Size;
-                    }
-                }
-            }
-
-            // --- 步骤 2: 布局主容器（文本框和分隔条）---
-            // 当RichBoxBody未设置停靠样式时调整大小
-            if (RichBoxBody.Dock != DockStyle.Fill)
-			{
-				
-				// --- 替换为带分隔条的布局逻辑 ---
-        		// 1. 计算每个文本框的理想宽度
-        		int panelWidth = (this.ClientRectangle.Width - panelSeparator.Width) / 2;
-
-        		// 2. 设置左侧文本框的位置和大小
-        		RichBoxBody.Location = new Point(0, 0);
-        		RichBoxBody.Size = new Size(panelWidth, this.ClientRectangle.Height);
-
-        		// 3. 设置分隔条的位置和高度
-        		panelSeparator.Location = new Point(RichBoxBody.Right, 0);
-        		panelSeparator.Height = this.ClientRectangle.Height;
-
-        		// 4. 设置右侧文本框的位置和大小
-        		RichBoxBody_T.Location = new Point(panelSeparator.Right, 0);
-        		RichBoxBody_T.Size = new Size(this.ClientRectangle.Width - panelSeparator.Right, this.ClientRectangle.Height);
-                // ====================【核心修改结束】====================
-            }
-            if ((WindowState == FormWindowState.Normal )||( WindowState==FormWindowState.Maximized))
+			LogState("Form_Resize Start");
+			// --- 步骤 1: 更新窗口尺寸记忆（状态管理，保持在最前） ---
+			// 仅当窗口处于“正常”状态时，才考虑更新尺寸记忆
+			if (WindowState == FormWindowState.Normal)
 			{
 				if (transtalate_fla == "开启")
 				{
-					
-                    btnToggleOriginalText.Left = panelSeparator.Left - btnToggleOriginalText.Width - 10;
-                    
+					// 双栏模式：记录一半的宽度为基础尺寸
+					if (!isOriginalTextHidden)
+					{
+						this.lastNormalSize = new Size(this.Size.Width / 2, this.Size.Height);
+					}
+				}
+				else // 单栏模式 (transtalate_fla == "关闭")
+				{
+					// 【核心防御逻辑】
+					// 检查这是否是一次可疑的Resize：即在单栏模式下，窗口宽度突然变得接近之前基础宽度的两倍。
+					// 我们用1.8倍作为阈值，以允许一些误差。
+					if (this.lastNormalSize.Width > 0 && this.Size.Width > this.lastNormalSize.Width * 1.8)
+					{
+						// 如果是，则判定为“幽灵事件”，拒绝更新lastNormalSize，并强制将窗口尺寸改回正确的值。
+						System.Diagnostics.Debug.WriteLine($"  REJECTED suspicious resize. Forcing size back to {this.lastNormalSize}");
+						this.Size = this.lastNormalSize;
+					}
+					else
+					{
+						// 如果不是可疑的Resize（例如用户正常拖动边框），则正常更新尺寸记忆
+						this.lastNormalSize = this.Size;
+					}
+				}
+			}
+
+			// --- 步骤 2: 布局主容器（文本框和分隔条）---
+			// 当RichBoxBody未设置停靠样式时调整大小
+			if (RichBoxBody.Dock != DockStyle.Fill)
+			{
+
+				// --- 替换为带分隔条的布局逻辑 ---
+				// 1. 计算每个文本框的理想宽度
+				int panelWidth = (this.ClientRectangle.Width - panelSeparator.Width) / 2;
+
+				// 2. 设置左侧文本框的位置和大小
+				RichBoxBody.Location = new Point(0, 0);
+				RichBoxBody.Size = new Size(panelWidth, this.ClientRectangle.Height);
+
+				// 3. 设置分隔条的位置和高度
+				panelSeparator.Location = new Point(RichBoxBody.Right, 0);
+				panelSeparator.Height = this.ClientRectangle.Height;
+
+				// 4. 设置右侧文本框的位置和大小
+				RichBoxBody_T.Location = new Point(panelSeparator.Right, 0);
+				RichBoxBody_T.Size = new Size(this.ClientRectangle.Width - panelSeparator.Right, this.ClientRectangle.Height);
+				// ====================【核心修改结束】====================
+			}
+			if ((WindowState == FormWindowState.Normal) || (WindowState == FormWindowState.Maximized))
+			{
+				if (transtalate_fla == "开启")
+				{
+
+					btnToggleOriginalText.Left = panelSeparator.Left - btnToggleOriginalText.Width - 10;
+
 				}
 				else
 				{
-                  
-                    btnToggleOriginalText.Left = RichBoxBody_T.Right - btnToggleOriginalText.Width;
-                    
-                }
+
+					btnToggleOriginalText.Left = RichBoxBody_T.Right - btnToggleOriginalText.Width;
+
+				}
 			}
 
-                LogState("Form_Resize End"); // <--- 添加这一行
-        }
+			LogState("Form_Resize End"); // <--- 添加这一行
+		}
 
 		/// <summary>
 		/// 处理翻译文本框复制操作的事件
@@ -2476,6 +2505,7 @@ namespace TrOCR
 		/// </summary>
 		public async void trans_Calculate()
 		{
+			PositionLoadingIcon();
 			if (pinyin_flag)
 			{
 				// 如果设置了拼音标志，则将文本转换为拼音
