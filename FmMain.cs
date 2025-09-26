@@ -3002,21 +3002,32 @@ namespace TrOCR
 		            return;
 		        }
 
-		        // 检查是否是新的、非空的文本
-		        if (!string.IsNullOrEmpty(clipboardText) && clipboardText != lastClipboardText)
-		        {
-		            // 更新最后一次的文本记录，防止重复触发
-		            lastClipboardText = clipboardText;
+				// 检查是否是新的、非空的文本
+				if (!string.IsNullOrEmpty(clipboardText) && clipboardText != lastClipboardText)
+				{
+					// 更新最后一次的文本记录，防止重复触发
+					lastClipboardText = clipboardText;
 
-		            // 显示提示
-		            CommonHelper.ShowHelpMsg("已捕获剪贴板，正在翻译...");
+					// 显示提示
+					CommonHelper.ShowHelpMsg("已捕获剪贴板，正在翻译...");
 
-		            // 设置正确的标志位
-		            isContentFromOcr = false;
-		            isFromClipboardListener = true;
+					// 设置正确的标志位
+					isContentFromOcr = false;
+					isFromClipboardListener = true;
 
-		            // 调用UI启动方法
-		            InitiateTranslationUI(clipboardText);
+					// 调用UI启动方法
+					InitiateTranslationUI(clipboardText);
+					// ====================【新增的核心逻辑】====================
+    				// 在翻译窗口已经弹出并完成布局后，检查是否需要自动隐藏原文
+    				if (StaticValue.ListenClipboardTranslationHideOriginal)
+    				{
+    				    // 确保当前原文是显示的，避免重复执行隐藏操作
+    				    if (!isOriginalTextHidden)
+    				    {
+    				        // 直接调用隐藏/显示按钮的点击事件，复用现有逻辑
+    				        btnToggleOriginalText_Click(null, null);
+    				    }
+    				}
 		        }
 		    }
 		}

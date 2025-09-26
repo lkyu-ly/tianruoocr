@@ -385,6 +385,8 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.cbBox_ListenHideOriginal = new System.Windows.Forms.CheckBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -4215,19 +4217,22 @@ namespace TrOCR
             this.groupBox9.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox9.Location = new System.Drawing.Point(3, 3);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(517, 100);
+            this.groupBox9.Size = new System.Drawing.Size(517, 104);
             this.groupBox9.TabIndex = 0;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "剪贴板";
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 207F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 304F));
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 248F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 263F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Controls.Add(this.cbBox_ListenHideOriginal, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.checkBox1, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbBox_AutoCopyListenClipboardTranslation, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.cbBox_ListenClipboard, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label34, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label34, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 21);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -4235,13 +4240,13 @@ namespace TrOCR
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(511, 76);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(511, 80);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // cbBox_AutoCopyListenClipboardTranslation
             // 
             this.cbBox_AutoCopyListenClipboardTranslation.AutoSize = true;
-            this.cbBox_AutoCopyListenClipboardTranslation.Location = new System.Drawing.Point(210, 3);
+            this.cbBox_AutoCopyListenClipboardTranslation.Location = new System.Drawing.Point(251, 3);
             this.cbBox_AutoCopyListenClipboardTranslation.Name = "cbBox_AutoCopyListenClipboardTranslation";
             this.cbBox_AutoCopyListenClipboardTranslation.Size = new System.Drawing.Size(239, 19);
             this.cbBox_AutoCopyListenClipboardTranslation.TabIndex = 1;
@@ -4260,13 +4265,14 @@ namespace TrOCR
             // 
             // label34
             // 
+            this.label34.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label34.AutoSize = true;
             this.tableLayoutPanel1.SetColumnSpan(this.label34, 2);
-            this.label34.Location = new System.Drawing.Point(3, 38);
+            this.label34.Location = new System.Drawing.Point(273, 45);
             this.label34.Name = "label34";
-            this.label34.Size = new System.Drawing.Size(307, 15);
+            this.label34.Size = new System.Drawing.Size(232, 30);
             this.label34.TabIndex = 2;
-            this.label34.Text = "说明：可托盘菜单快速开启和关闭剪贴板监听";
+            this.label34.Text = "说明：可托盘菜单快速开启和关闭\r\n剪贴板监听";
             // 
             // Page_工具栏
             // 
@@ -4581,6 +4587,26 @@ namespace TrOCR
             this.txt_更新说明.Name = "txt_更新说明";
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(514, 3);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(14, 19);
+            this.checkBox1.TabIndex = 3;
+            this.checkBox1.Text = "监听剪贴板并自动翻译";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // cbBox_ListenHideOriginal
+            // 
+            this.cbBox_ListenHideOriginal.AutoSize = true;
+            this.cbBox_ListenHideOriginal.Location = new System.Drawing.Point(3, 43);
+            this.cbBox_ListenHideOriginal.Name = "cbBox_ListenHideOriginal";
+            this.cbBox_ListenHideOriginal.Size = new System.Drawing.Size(239, 19);
+            this.cbBox_ListenHideOriginal.TabIndex = 4;
+            this.cbBox_ListenHideOriginal.Text = "监听剪贴板翻译后默认隐藏原文";
+            this.cbBox_ListenHideOriginal.UseVisualStyleBackColor = true;
             // 
             // FmSetting
             // 
@@ -5139,5 +5165,7 @@ namespace TrOCR
         private System.Windows.Forms.TabPage inPage_百度手写;
         private System.Windows.Forms.Label label32;
         private System.Windows.Forms.Label label34;
+        private System.Windows.Forms.CheckBox cbBox_ListenHideOriginal;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }

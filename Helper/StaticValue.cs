@@ -141,6 +141,7 @@ namespace TrOCR.Helper
         //监听剪贴板翻译配置
         public static bool ListenClipboardTranslation { get; set; }
         public static bool AutoCopyListenClipboardTranslation { get; set; }
+        public static bool ListenClipboardTranslationHideOriginal { get; set; }
 
         /// <summary>
         /// 从config.ini加载配置到静态变量
@@ -159,14 +160,16 @@ namespace TrOCR.Helper
             // AutoTranslateOcrResult = Convert.ToBoolean(GetValue("工具栏", "翻译", "False"));
             AutoCopyOcrTranslation = Convert.ToBoolean(GetValue("翻译后操作", "AutoCopyOcrTranslation", "False"));
             AutoCopyInputTranslation = Convert.ToBoolean(GetValue("翻译后操作", "AutoCopyInputTranslation", "False"));
-            
+
             ListenClipboardTranslation = Convert.ToBoolean(GetValue("配置", "ListenClipboard", "False"));
             AutoCopyListenClipboardTranslation = Convert.ToBoolean(GetValue("配置", "AutoCopyListenClipboardTranslation", "False"));
+            ListenClipboardTranslationHideOriginal = Convert.ToBoolean(GetValue("配置", "ListenClipboardTranslationHideOriginal", "False"));
 
             // --- 新增: 加载工具栏设置 ---
             IsMergeRemoveSpace = Convert.ToBoolean(GetValue("工具栏", "IsMergeRemoveSpace", "False"));
             IsMergeAutoCopy = Convert.ToBoolean(GetValue("工具栏", "IsMergeAutoCopy", "False"));
             IsSplitAutoCopy = Convert.ToBoolean(GetValue("工具栏", "IsSplitAutoCopy", "False"));
+            
 
             // --- 新增: 加载百度表格识别密钥 ---
             // BD_TABLE_API_ID = GetValue("密钥_百度表格", "secret_id", "");
