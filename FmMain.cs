@@ -383,7 +383,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			}
 			if (m.Msg == 786 && m.WParam.ToInt32() == 511)
 			{
-				//这里的代码和Trans_close_Click一模一样，可以直接调用Trans_close_Click
+				//这里的代码和Trans_close_Click基本上一模一样，可以直接调用Trans_close_Click
 				// 【核心优化】在执行任何关闭操作前，先检查原文是否被隐藏
     			if (isOriginalTextHidden)
     			{
@@ -2744,45 +2744,51 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			pinyin_flag = false;
 		}
 
+		public void Trans_close_Click(object sender, EventArgs e)
+		{
+		    // 【修改2】调用新方法，并明确传递 isUserAction: true
+		    Trans_close_Click(sender, e, true);
+		}
 		/// <summary>
 		/// 关闭翻译功能的事件处理函数
 		/// 当用户点击关闭翻译功能时，此函数将恢复主窗口到原始状态并隐藏翻译相关控件
 		/// </summary>
 		/// <param name="sender">触发事件的对象</param>
 		/// <param name="e">事件参数</param>
-		public void Trans_close_Click(object sender, EventArgs e)
+		public void Trans_close_Click(object sender, EventArgs e, bool isUserAction = false)
 		{
-            LogState("Trans_close_Click Start"); // <--- 添加这一行
-			// 【核心优化】在执行任何关闭操作前，先检查原文是否被隐藏。ps：这里加上好像会导致识别前提示 MessageBox.Show("请先点击 ▶ 按钮恢复原文，再关闭翻译窗口)，不知道什么原因，先注释掉
-    		// if (isOriginalTextHidden)
-    		// {
-    		//     // 如果原文是隐藏的，则弹出提示，并阻止后续的关闭操作
-    		//     MessageBox.Show("请先点击 ▶ 按钮恢复原文，再关闭翻译窗口。", "操作提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-    		//     return; // 直接返回，不执行关闭
-    		// }
-             // 重置隐藏/显示按钮和相关状态
-            btnToggleOriginalText.Visible = false;
-    		isOriginalTextHidden = false;
+			Debug.WriteLine($"Trans_close_Click-----{sender}------{e}");
+			LogState("Trans_close_Click Start"); // <--- 添加这一行
+												 // 只有当这是用户主动点击关闭时 (isUserAction 为 true)，才执行检查
+			if (isUserAction && isOriginalTextHidden)
+			{
+				// 如果原文是隐藏的，则弹出提示，并阻止后续的关闭操作
+				MessageBox.Show("请先点击 ▶ 按钮恢复原文，再关闭翻译窗口。", "操作提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return; // 直接返回，不执行关闭
+			}
+			// 重置隐藏/显示按钮和相关状态
+			btnToggleOriginalText.Visible = false;
+			isOriginalTextHidden = false;
 			//RichBoxBody.Visible = true; // 确保原文窗口总是恢复可见，不加这一行也行，我注释了
-    		// --- 添加结束 ---
+			// --- 添加结束 ---
 			// MinimumSize = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);			
 			RichBoxBody_T.Visible = false;
-			 // ====================【新增代码】====================
-    		panelSeparator.Visible = false;
-    		// ===============================================
+			// ====================【新增代码】====================
+			panelSeparator.Visible = false;
+			// ===============================================
 			PictureBox1.Visible = false;
 			RichBoxBody_T.Text = "";
 			if (WindowState == FormWindowState.Maximized)
 			{
 				WindowState = FormWindowState.Normal;
 			}
-            transtalate_fla = "关闭";
-            // Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
-            this.Size = this.lastNormalSize;
-            RichBoxBody.Dock = DockStyle.Fill;
-            LogState("Trans_close_Click End"); 
-            // =================================================================
-        }
+			transtalate_fla = "关闭";
+			// Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
+			this.Size = this.lastNormalSize;
+			RichBoxBody.Dock = DockStyle.Fill;
+			LogState("Trans_close_Click End");
+			// =================================================================
+		}
         /// <summary>
         /// 使用“限时状态锁”安全地将数据对象设置到剪贴板，以防止无限循环。
         /// </summary>
@@ -3853,7 +3859,9 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				// 如果工具栏翻译功能关闭，则执行关闭翻译操作
 				if (IniHelper.GetValue("工具栏", "翻译") == "False")
 				{
-					Trans_close.PerformClick();
+					// Trans_close.PerformClick();
+					// 【修改3】直接调用新方法
+    				Trans_close_Click(null, EventArgs.Empty, false); 
 				}
 				
 				// 重置窗口大小和边框样式
