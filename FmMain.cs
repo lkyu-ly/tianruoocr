@@ -107,12 +107,12 @@ namespace TrOCR
 			// 初始化组件和系统设置
 			InitializeComponent();
 			StaticValue.LoadConfig();//这个代码加不加都行，fmsetting.cs和program.cs里使用就足够了,加上更健壮
-			// ====================【新增代码开始】====================
-			// 加载并应用记忆的窗口大小
+									 // ====================【新增代码开始】====================
+									 // 加载并应用记忆的窗口大小
 			LoadWindowState();
-            LogState("Constructor End (Initial State)"); // <--- 添加这一行
-                                                         // ====================【新增代码结束】====================
-            translationTimer = new Timer();
+			LogState("Constructor End (Initial State)"); // <--- 添加这一行
+														 // ====================【新增代码结束】====================
+			translationTimer = new Timer();
 			translationTimer.Interval = 800;
 			translationTimer.Tick += TranslationTimer_Tick;
 			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
@@ -146,6 +146,27 @@ namespace TrOCR
 
 			// 初始化OCR功能
 			OCR_foreach("");
+			//设置隐藏原文按钮样式
+			btnToggleOriginalText.FlatStyle = FlatStyle.Flat;
+			btnToggleOriginalText.FlatAppearance.BorderSize = 0; // 无边框
+			btnToggleOriginalText.FlatAppearance.MouseOverBackColor = Color.FromArgb(224, 224, 224); // 悬浮时为浅灰色
+			btnToggleOriginalText.FlatAppearance.MouseDownBackColor = Color.FromArgb(192, 192, 192); // 按下时为中灰色
+			// // 可以将默认背景设为透明或与父容器一致
+			// // btnToggleOriginalText.BackColor = Color.Transparent; 
+			//另一种样式
+			// btnToggleOriginalText.FlatStyle = FlatStyle.Flat;
+			// btnToggleOriginalText.FlatAppearance.BorderSize = 0; // 确保无边框
+			// btnToggleOriginalText.BackColor = Color.Transparent;
+			// btnToggleOriginalText.ForeColor = Color.DimGray;
+			// btnToggleOriginalText.FlatAppearance.MouseOverBackColor = Color.Gainsboro; // #E6E6E6
+			// btnToggleOriginalText.FlatAppearance.MouseDownBackColor = Color.Silver;    // #C0C0C0
+			//另一种样式
+			// btnToggleOriginalText.FlatStyle = FlatStyle.Flat;
+			// btnToggleOriginalText.FlatAppearance.BorderSize = 0;
+			// btnToggleOriginalText.BackColor = Color.WhiteSmoke; // #F5F5F5
+			// btnToggleOriginalText.ForeColor = Color.Black;
+			// btnToggleOriginalText.FlatAppearance.MouseOverBackColor = Color.LightGray; // #D3D3D3
+			// btnToggleOriginalText.FlatAppearance.MouseDownBackColor = Color.DarkGray;  // #A9A9A9
 		}
 
 		/// <summary>
@@ -2299,7 +2320,8 @@ namespace TrOCR
 			    btnToggleOriginalText.Text = "◀";
 			    // btnToggleOriginalText.Left = RichBoxBody.Right - btnToggleOriginalText.Width - 10;
 			    btnToggleOriginalText.Left = panelSeparator.Left - btnToggleOriginalText.Width - 10;
-			    btnToggleOriginalText.Top = 5;
+			    // btnToggleOriginalText.Top = 5;
+			    // btnToggleOriginalText.Top = 2;
 			}
 
 

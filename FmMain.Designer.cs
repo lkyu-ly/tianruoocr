@@ -25,7 +25,7 @@ namespace TrOCR
 			this.btnToggleOriginalText = new System.Windows.Forms.Button();
 			this.btnToggleOriginalText.Location = new System.Drawing.Point(250, 5); // 这是一个临时的初始位置，后续代码会控制它
 			this.btnToggleOriginalText.Name = "btnToggleOriginalText";
-			this.btnToggleOriginalText.Size = new System.Drawing.Size(28, 28);
+			this.btnToggleOriginalText.Size = new System.Drawing.Size(24, 24);
 			this.btnToggleOriginalText.TabIndex = 201; // 使用一个较高的TabIndex避免冲突
 			this.btnToggleOriginalText.Text = "◀";
 			this.btnToggleOriginalText.UseVisualStyleBackColor = true;
