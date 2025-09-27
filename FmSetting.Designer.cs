@@ -355,6 +355,8 @@ namespace TrOCR
             this.Page_常规2 = new System.Windows.Forms.TabPage();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.cbBox_ListenHideOriginal = new System.Windows.Forms.CheckBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.cbBox_AutoCopyListenClipboardTranslation = new System.Windows.Forms.CheckBox();
             this.cbBox_ListenClipboard = new System.Windows.Forms.CheckBox();
             this.label34 = new System.Windows.Forms.Label();
@@ -385,8 +387,8 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.cbBox_ListenHideOriginal = new System.Windows.Forms.CheckBox();
+            this.inPage_腾讯手写 = new System.Windows.Forms.TabPage();
+            this.label33 = new System.Windows.Forms.Label();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -488,6 +490,7 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
+            this.inPage_腾讯手写.SuspendLayout();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -2692,6 +2695,7 @@ namespace TrOCR
             this.tabControl_TXApiType.Controls.Add(this.inPage_腾讯接口);
             this.tabControl_TXApiType.Controls.Add(this.inPage_腾讯高精度接口);
             this.tabControl_TXApiType.Controls.Add(this.inPage_腾讯表格v3);
+            this.tabControl_TXApiType.Controls.Add(this.inPage_腾讯手写);
             this.tabControl_TXApiType.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl_TXApiType.Location = new System.Drawing.Point(3, 3);
             this.tabControl_TXApiType.Name = "tabControl_TXApiType";
@@ -4243,6 +4247,26 @@ namespace TrOCR
             this.tableLayoutPanel1.Size = new System.Drawing.Size(511, 80);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
+            // cbBox_ListenHideOriginal
+            // 
+            this.cbBox_ListenHideOriginal.AutoSize = true;
+            this.cbBox_ListenHideOriginal.Location = new System.Drawing.Point(3, 43);
+            this.cbBox_ListenHideOriginal.Name = "cbBox_ListenHideOriginal";
+            this.cbBox_ListenHideOriginal.Size = new System.Drawing.Size(239, 19);
+            this.cbBox_ListenHideOriginal.TabIndex = 4;
+            this.cbBox_ListenHideOriginal.Text = "监听剪贴板翻译后默认隐藏原文";
+            this.cbBox_ListenHideOriginal.UseVisualStyleBackColor = true;
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(514, 3);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(14, 19);
+            this.checkBox1.TabIndex = 3;
+            this.checkBox1.Text = "监听剪贴板并自动翻译";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
             // cbBox_AutoCopyListenClipboardTranslation
             // 
             this.cbBox_AutoCopyListenClipboardTranslation.AutoSize = true;
@@ -4588,25 +4612,25 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
-            // checkBox1
+            // inPage_腾讯手写
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(514, 3);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(14, 19);
-            this.checkBox1.TabIndex = 3;
-            this.checkBox1.Text = "监听剪贴板并自动翻译";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.inPage_腾讯手写.Controls.Add(this.label33);
+            this.inPage_腾讯手写.Location = new System.Drawing.Point(4, 25);
+            this.inPage_腾讯手写.Name = "inPage_腾讯手写";
+            this.inPage_腾讯手写.Padding = new System.Windows.Forms.Padding(3);
+            this.inPage_腾讯手写.Size = new System.Drawing.Size(482, 136);
+            this.inPage_腾讯手写.TabIndex = 3;
+            this.inPage_腾讯手写.Text = "手写";
+            this.inPage_腾讯手写.UseVisualStyleBackColor = true;
             // 
-            // cbBox_ListenHideOriginal
+            // label33
             // 
-            this.cbBox_ListenHideOriginal.AutoSize = true;
-            this.cbBox_ListenHideOriginal.Location = new System.Drawing.Point(3, 43);
-            this.cbBox_ListenHideOriginal.Name = "cbBox_ListenHideOriginal";
-            this.cbBox_ListenHideOriginal.Size = new System.Drawing.Size(239, 19);
-            this.cbBox_ListenHideOriginal.TabIndex = 4;
-            this.cbBox_ListenHideOriginal.Text = "监听剪贴板翻译后默认隐藏原文";
-            this.cbBox_ListenHideOriginal.UseVisualStyleBackColor = true;
+            this.label33.AutoSize = true;
+            this.label33.Location = new System.Drawing.Point(3, 16);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(457, 45);
+            this.label33.TabIndex = 1;
+            this.label33.Text = "腾讯手写识别已合并至高精度版，请使用腾讯高精度接口（支持手写\r\n识别）\r\n\r\n";
             // 
             // FmSetting
             // 
@@ -4786,6 +4810,8 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
+            this.inPage_腾讯手写.ResumeLayout(false);
+            this.inPage_腾讯手写.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -5167,5 +5193,7 @@ namespace TrOCR
         private System.Windows.Forms.Label label34;
         private System.Windows.Forms.CheckBox cbBox_ListenHideOriginal;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.TabPage inPage_腾讯手写;
+        private System.Windows.Forms.Label label33;
     }
 }

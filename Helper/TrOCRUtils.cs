@@ -26,16 +26,35 @@ namespace TrOCR.Helper
         private static extern bool SetProcessWorkingSetSize(IntPtr process,
             IntPtr minimumWorkingSetSize, IntPtr maximumWorkingSetSize);
 
-         public static void CleanMemory(){
-			//垃圾回收
-			GC.Collect();
+        public static void CleanMemory()
+        {
+            //垃圾回收
+            GC.Collect();
             GC.WaitForPendingFinalizers();
-			//释放工作集内存
+            //释放工作集内存
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle, (IntPtr)(-1), (IntPtr)(-1));
             }
-		}
+        }
+
+        /// <summary>
+        /// 从Ini文件中加载配置项，如果发生错误或找不到，则返回默认值。
+        /// </summary>
+        /// <param name="section">Ini文件中的节名</param>
+        /// <param name="key">Ini文件中的键名</param>
+        /// <param name="defaultValue">发生错误时返回的默认值</param>
+        /// <returns>配置值或默认值</returns>
+        public static string LoadSetting(string section, string key, string defaultValue)
+        {
+            string value = IniHelper.GetValue(section, key);
+            // 判断是否获取失败
+            if (value == "发生错误")
+            {
+                return defaultValue;
+            }
+            return value;
+        }
 
 
     }

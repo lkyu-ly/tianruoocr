@@ -1860,106 +1860,40 @@ namespace TrOCR
 			loadHotkey("快捷键", "识别界面", 235);
 			loadHotkey("快捷键", "输入翻译", 240);
 			loadHotkey("快捷键", "静默识别", 250);
-			
+
 			// --- 加载OCR密钥 ---
 			// 加载百度OCR密钥
-			StaticValue.BD_API_ID = IniHelper.GetValue("密钥_百度", "secret_id");
-			if (StaticValue.BD_API_ID == "发生错误")
-			{
-				StaticValue.BD_API_ID = "";
-			}
-			StaticValue.BD_API_KEY = IniHelper.GetValue("密钥_百度", "secret_key");
-			if (StaticValue.BD_API_KEY == "发生错误")
-			{
-				StaticValue.BD_API_KEY = "";
-			}
-			StaticValue.BD_LANGUAGE = IniHelper.GetValue("密钥_百度", "language_code");
-			if (StaticValue.BD_LANGUAGE == "发生错误")
-			{
-				StaticValue.BD_LANGUAGE = "CHN_ENG";
-			}
+			StaticValue.BD_API_ID = TrOCRUtils.LoadSetting("密钥_百度", "secret_id", "");
+			StaticValue.BD_API_KEY = TrOCRUtils.LoadSetting("密钥_百度", "secret_key","");
+			StaticValue.BD_LANGUAGE = TrOCRUtils.LoadSetting("密钥_百度", "language_code","CHN_ENG");
 
 			// 加载百度表格识别密钥
-			StaticValue.BD_TABLE_API_ID = IniHelper.GetValue("密钥_百度表格", "secret_id");
-			if (StaticValue.BD_TABLE_API_ID == "发生错误")
-			{
-				StaticValue.BD_TABLE_API_ID = "";
-			}
-			StaticValue.BD_TABLE_API_KEY = IniHelper.GetValue("密钥_百度表格", "secret_key");
-			if (StaticValue.BD_TABLE_API_KEY == "发生错误")
-			{
-				StaticValue.BD_TABLE_API_KEY = "";
-			}
+			StaticValue.BD_TABLE_API_ID = TrOCRUtils.LoadSetting("密钥_百度表格", "secret_id","");
+			StaticValue.BD_TABLE_API_KEY = TrOCRUtils.LoadSetting("密钥_百度表格", "secret_key","");
 
 			// 加载腾讯OCR密钥
-			StaticValue.TX_API_ID = IniHelper.GetValue("密钥_腾讯", "secret_id");
-			if (StaticValue.TX_API_ID == "发生错误")
-			{
-				StaticValue.TX_API_ID = "";
-			}
-			StaticValue.TX_API_KEY = IniHelper.GetValue("密钥_腾讯", "secret_key");
-			if (StaticValue.TX_API_KEY == "发生错误")
-			{
-				StaticValue.TX_API_KEY = "";
-			}
-			StaticValue.TX_LANGUAGE = IniHelper.GetValue("密钥_腾讯", "language_code");
-			if (StaticValue.TX_LANGUAGE == "发生错误")
-			{
-				StaticValue.TX_LANGUAGE = "zh";
-			}
+			StaticValue.TX_API_ID = TrOCRUtils.LoadSetting("密钥_腾讯", "secret_id","");		
+			StaticValue.TX_API_KEY = TrOCRUtils.LoadSetting("密钥_腾讯", "secret_key","");	
+			StaticValue.TX_LANGUAGE = TrOCRUtils.LoadSetting("密钥_腾讯", "language_code","zh");
 
 			// 加载腾讯高精度OCR密钥
-			StaticValue.TX_ACCURATE_API_ID = IniHelper.GetValue("密钥_腾讯高精度", "secret_id");
-			if (StaticValue.TX_ACCURATE_API_ID == "发生错误")
-			{
-				StaticValue.TX_ACCURATE_API_ID = "";
-			}
-			StaticValue.TX_ACCURATE_API_KEY = IniHelper.GetValue("密钥_腾讯高精度", "secret_key");
-			if (StaticValue.TX_ACCURATE_API_KEY == "发生错误")
-			{
-				StaticValue.TX_ACCURATE_API_KEY = "";
-			}
-			StaticValue.TX_ACCURATE_LANGUAGE = IniHelper.GetValue("密钥_腾讯高精度", "language");
-			if (StaticValue.TX_ACCURATE_LANGUAGE == "发生错误")
-			{
-				StaticValue.TX_ACCURATE_LANGUAGE = "auto";
-			}
-
+			StaticValue.TX_ACCURATE_API_ID = TrOCRUtils.LoadSetting("密钥_腾讯高精度", "secret_id","");		
+			StaticValue.TX_ACCURATE_API_KEY = TrOCRUtils.LoadSetting("密钥_腾讯高精度", "secret_key","");		
+			StaticValue.TX_ACCURATE_LANGUAGE = TrOCRUtils.LoadSetting("密钥_腾讯高精度", "language","auto");
+			
 			// 加载腾讯表格v3的OCR密钥
-			StaticValue.TX_TABLE_API_ID = IniHelper.GetValue("密钥_腾讯表格v3", "secret_id");
-			if (StaticValue.TX_TABLE_API_ID == "发生错误")
-			{
-				StaticValue.TX_TABLE_API_ID = "";
-			}
-			StaticValue.TX_TABLE_API_KEY = IniHelper.GetValue("密钥_腾讯表格v3", "secret_key");
-			if (StaticValue.TX_TABLE_API_KEY == "发生错误")
-			{
-				StaticValue.TX_TABLE_API_KEY = "";
-			}
+			StaticValue.TX_TABLE_API_ID = TrOCRUtils.LoadSetting("密钥_腾讯表格v3", "secret_id","");			
+			StaticValue.TX_TABLE_API_KEY = TrOCRUtils.LoadSetting("密钥_腾讯表格v3", "secret_key","");			
 
 			// 加载百度高精度OCR密钥
-			StaticValue.BD_ACCURATE_API_ID = IniHelper.GetValue("密钥_百度高精度", "secret_id");
-			if (StaticValue.BD_ACCURATE_API_ID == "发生错误")
-			 {
-			    StaticValue.BD_ACCURATE_API_ID = "";
-			 }
-			StaticValue.BD_ACCURATE_API_KEY = IniHelper.GetValue("密钥_百度高精度", "secret_key");
-			if (StaticValue.BD_ACCURATE_API_KEY == "发生错误")
-			{
-			    StaticValue.BD_ACCURATE_API_KEY = "";
-			}
-			StaticValue.BD_ACCURATE_LANGUAGE = IniHelper.GetValue("密钥_百度高精度", "language_code");
-			if (StaticValue.BD_ACCURATE_LANGUAGE == "发生错误")
-			{
-			    StaticValue.BD_ACCURATE_LANGUAGE = "CHN_ENG";
-			}
+			StaticValue.BD_ACCURATE_API_ID = TrOCRUtils.LoadSetting("密钥_百度高精度", "secret_id","");			
+			StaticValue.BD_ACCURATE_API_KEY = TrOCRUtils.LoadSetting("密钥_百度高精度", "secret_key","");			
+			StaticValue.BD_ACCURATE_LANGUAGE = TrOCRUtils.LoadSetting("密钥_百度高精度", "language_code","CHN_ENG");			
 	
 			// --- 加载白描OCR凭据 ---
-			StaticValue.BaimiaoUsername = IniHelper.GetValue("密钥_白描", "username");
-			if (StaticValue.BaimiaoUsername == "发生错误") StaticValue.BaimiaoUsername = "";
-
-			StaticValue.BaimiaoPassword = IniHelper.GetValue("密钥_白描", "password");
-			if (StaticValue.BaimiaoPassword == "发生错误") StaticValue.BaimiaoPassword = "";
+			StaticValue.BaimiaoUsername = TrOCRUtils.LoadSetting("密钥_白描", "username","");
+			StaticValue.BaimiaoPassword = TrOCRUtils.LoadSetting("密钥_白描", "password","");
+			
 
 			// 加载持久化的token信息
 			string savedToken = IniHelper.GetValue("密钥_白描", "token");
