@@ -356,6 +356,7 @@ namespace TrOCR
             this.tab_标签 = new System.Windows.Forms.TabControl();
             this.Page_常规2 = new System.Windows.Forms.TabPage();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.checkbox_NoWindowScreenshotTranslation = new System.Windows.Forms.CheckBox();
             this.checkbox_AutoCopyScreenshotTranslation = new System.Windows.Forms.CheckBox();
             this.cbBox_禁用隐藏原文按钮 = new System.Windows.Forms.CheckBox();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
@@ -392,7 +393,9 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
-            this.checkbox_NoWindowScreenshotTranslation = new System.Windows.Forms.CheckBox();
+            this.label35 = new System.Windows.Forms.Label();
+            this.txtBox_截图翻译 = new System.Windows.Forms.TextBox();
+            this.pictureBox_截图翻译 = new System.Windows.Forms.PictureBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -496,6 +499,7 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_截图翻译)).BeginInit();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -3541,7 +3545,7 @@ namespace TrOCR
             // 快捷键Button
             // 
             this.快捷键Button.BackColor = System.Drawing.Color.White;
-            this.快捷键Button.Location = new System.Drawing.Point(412, 285);
+            this.快捷键Button.Location = new System.Drawing.Point(412, 325);
             this.快捷键Button.Margin = new System.Windows.Forms.Padding(4);
             this.快捷键Button.Name = "快捷键Button";
             this.快捷键Button.Size = new System.Drawing.Size(100, 29);
@@ -3553,7 +3557,7 @@ namespace TrOCR
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(8, 289);
+            this.label8.Location = new System.Drawing.Point(8, 329);
             this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(274, 15);
@@ -3562,6 +3566,9 @@ namespace TrOCR
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.pictureBox_截图翻译);
+            this.groupBox3.Controls.Add(this.txtBox_截图翻译);
+            this.groupBox3.Controls.Add(this.label35);
             this.groupBox3.Controls.Add(this.pictureBox_静默识别);
             this.groupBox3.Controls.Add(this.txtBox_静默识别);
             this.groupBox3.Controls.Add(this.label_静默识别);
@@ -3584,7 +3591,7 @@ namespace TrOCR
             this.groupBox3.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox3.Size = new System.Drawing.Size(504, 272);
+            this.groupBox3.Size = new System.Drawing.Size(504, 312);
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "全局快捷键";
@@ -4253,6 +4260,17 @@ namespace TrOCR
             this.groupBox11.TabStop = false;
             this.groupBox11.Text = "其他";
             // 
+            // checkbox_NoWindowScreenshotTranslation
+            // 
+            this.checkbox_NoWindowScreenshotTranslation.AutoSize = true;
+            this.checkbox_NoWindowScreenshotTranslation.Enabled = false;
+            this.checkbox_NoWindowScreenshotTranslation.Location = new System.Drawing.Point(221, 62);
+            this.checkbox_NoWindowScreenshotTranslation.Name = "checkbox_NoWindowScreenshotTranslation";
+            this.checkbox_NoWindowScreenshotTranslation.Size = new System.Drawing.Size(225, 19);
+            this.checkbox_NoWindowScreenshotTranslation.TabIndex = 3;
+            this.checkbox_NoWindowScreenshotTranslation.Text = "截图翻译不显示窗口(仅复制)";
+            this.checkbox_NoWindowScreenshotTranslation.UseVisualStyleBackColor = true;
+            // 
             // checkbox_AutoCopyScreenshotTranslation
             // 
             this.checkbox_AutoCopyScreenshotTranslation.AutoSize = true;
@@ -4671,16 +4689,38 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
-            // checkbox_NoWindowScreenshotTranslation
+            // label35
             // 
-            this.checkbox_NoWindowScreenshotTranslation.AutoSize = true;
-            this.checkbox_NoWindowScreenshotTranslation.Enabled = false;
-            this.checkbox_NoWindowScreenshotTranslation.Location = new System.Drawing.Point(221, 62);
-            this.checkbox_NoWindowScreenshotTranslation.Name = "checkbox_NoWindowScreenshotTranslation";
-            this.checkbox_NoWindowScreenshotTranslation.Size = new System.Drawing.Size(225, 19);
-            this.checkbox_NoWindowScreenshotTranslation.TabIndex = 3;
-            this.checkbox_NoWindowScreenshotTranslation.Text = "截图翻译不显示窗口(仅复制)";
-            this.checkbox_NoWindowScreenshotTranslation.UseVisualStyleBackColor = true;
+            this.label35.AutoSize = true;
+            this.label35.Location = new System.Drawing.Point(9, 272);
+            this.label35.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(82, 15);
+            this.label35.TabIndex = 15;
+            this.label35.Text = "截图翻译：";
+            // 
+            // txtBox_截图翻译
+            // 
+            this.txtBox_截图翻译.Font = new System.Drawing.Font("微软雅黑", 9F);
+            this.txtBox_截图翻译.Location = new System.Drawing.Point(104, 266);
+            this.txtBox_截图翻译.Margin = new System.Windows.Forms.Padding(4);
+            this.txtBox_截图翻译.Name = "txtBox_截图翻译";
+            this.txtBox_截图翻译.Size = new System.Drawing.Size(345, 27);
+            this.txtBox_截图翻译.TabIndex = 16;
+            this.txtBox_截图翻译.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtBox_截图翻译.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBox_KeyDown);
+            this.txtBox_截图翻译.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtBox_KeyUp);
+            // 
+            // pictureBox_截图翻译
+            // 
+            this.pictureBox_截图翻译.Image = global::TrOCR.Properties.Resources.快捷键_1;
+            this.pictureBox_截图翻译.Location = new System.Drawing.Point(468, 267);
+            this.pictureBox_截图翻译.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox_截图翻译.Name = "pictureBox_截图翻译";
+            this.pictureBox_截图翻译.Size = new System.Drawing.Size(28, 26);
+            this.pictureBox_截图翻译.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox_截图翻译.TabIndex = 17;
+            this.pictureBox_截图翻译.TabStop = false;
             // 
             // FmSetting
             // 
@@ -4864,6 +4904,7 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_截图翻译)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -5251,5 +5292,8 @@ namespace TrOCR
         private System.Windows.Forms.CheckBox cbBox_禁用隐藏原文按钮;
         private System.Windows.Forms.CheckBox checkbox_AutoCopyScreenshotTranslation;
         private System.Windows.Forms.CheckBox checkbox_NoWindowScreenshotTranslation;
+        private System.Windows.Forms.PictureBox pictureBox_截图翻译;
+        private System.Windows.Forms.TextBox txtBox_截图翻译;
+        private System.Windows.Forms.Label label35;
     }
 }

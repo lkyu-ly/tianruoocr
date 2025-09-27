@@ -31,7 +31,9 @@ namespace TrOCR
 			{ "txtBox_记录界面", "记录界面" },
 			{ "txtBox_识别界面", "识别界面" },
 			{ "txtBox_输入翻译", "输入翻译" },
-			{ "txtBox_静默识别", "静默识别" }
+			{ "txtBox_静默识别", "静默识别" },
+			{ "txtBox_截图翻译", "截图翻译" },
+
 		};
 		private bool paddleOcrConfigChanged = false;
     	private bool paddleOcr2ConfigChanged = false;
@@ -47,7 +49,7 @@ namespace TrOCR
 		{
 		    // 联动逻辑：只有当“自动复制”被勾选时，“不显示窗口”选项才可用
 		    checkbox_NoWindowScreenshotTranslation.Enabled = checkbox_AutoCopyScreenshotTranslation.Checked;
-		
+
 		    // 如果“自动复制”被取消勾选，则“不显示窗口”也必须被取消勾选
 		    if (!checkbox_AutoCopyScreenshotTranslation.Checked)
 		    {
@@ -362,6 +364,9 @@ namespace TrOCR
 				txtBox_静默识别.Text = "请按下快捷键";
 			}
 			pictureBox_静默识别.Image = txtBox_静默识别.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
+
+			txtBox_截图翻译.Text=TrOCRUtils.LoadSetting("快捷键", "截图翻译", "请按下快捷键");
+			pictureBox_截图翻译.Image = txtBox_截图翻译.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
 
 
 			// 读取百度OCR密钥信息
@@ -1282,7 +1287,8 @@ namespace TrOCR
 		/// <returns>如果处理了命令键则返回true，否则返回false</returns>
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
 		{
-			return (keyData == Keys.Tab && txtBox_文字识别.Focused) || (keyData == Keys.Tab && txtBox_翻译文本.Focused) || (keyData == Keys.Tab && txtBox_记录界面.Focused) || (keyData == Keys.Tab && txtBox_识别界面.Focused) || (keyData == Keys.Tab && txtBox_输入翻译.Focused) || (keyData == Keys.Tab && txtBox_静默识别.Focused);
+			return (keyData == Keys.Tab && txtBox_文字识别.Focused) || (keyData == Keys.Tab && txtBox_翻译文本.Focused) || (keyData == Keys.Tab && txtBox_记录界面.Focused) || (keyData == Keys.Tab && txtBox_识别界面.Focused)
+			|| (keyData == Keys.Tab && txtBox_输入翻译.Focused) || (keyData == Keys.Tab && txtBox_静默识别.Focused) || (keyData == Keys.Tab && txtBox_截图翻译.Focused) ;
 		}
 
 		/// <summary>
@@ -1316,6 +1322,8 @@ namespace TrOCR
 			pictureBox_输入翻译.Image = Resources.快捷键_0;
 			txtBox_静默识别.Text = "请按下快捷键";
 			pictureBox_静默识别.Image = Resources.快捷键_0;
+			txtBox_截图翻译.Text = "请按下快捷键";
+			pictureBox_截图翻译.Image = Resources.快捷键_0;
 		}
 
 		/// <summary>
@@ -1808,6 +1816,7 @@ namespace TrOCR
 			IniHelper.SetValue("快捷键", "识别界面", txtBox_识别界面.Text);
 			IniHelper.SetValue("快捷键", "输入翻译", txtBox_输入翻译.Text);
 			IniHelper.SetValue("快捷键", "静默识别", txtBox_静默识别.Text);
+			IniHelper.SetValue("快捷键", "截图翻译", txtBox_截图翻译.Text);
 
 			// 【新增】保存剪贴板相关的设置
 			IniHelper.SetValue("配置", "ListenClipboard", cbBox_ListenClipboard.Checked.ToString());

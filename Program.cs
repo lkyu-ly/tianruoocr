@@ -518,6 +518,7 @@ namespace TrOCR
                 IniHelper.SetValue("快捷键", "识别界面", "请按下快捷键");
                 IniHelper.SetValue("快捷键", "静默识别", "请按下快捷键");
                 IniHelper.SetValue("快捷键", "输入翻译", "请按下快捷键");
+                IniHelper.SetValue("快捷键", "截图翻译", "请按下快捷键");
                 IniHelper.SetValue("密钥_百度", "secret_id", "YsZKG1wha34PlDOPYaIrIIKO");
                 IniHelper.SetValue("密钥_百度", "secret_key", "HPRZtdOHrdnnETVsZM2Nx7vbDkMfxrkD");
                 IniHelper.SetValue("代理", "代理类型", "系统代理");
@@ -640,6 +641,11 @@ namespace TrOCR
             {
                 IniHelper.SetValue("快捷键", "静默识别", "请按下快捷键");
             }
+            if (IniHelper.GetValue("快捷键", "截图翻译") == "发生错误")
+            {
+                IniHelper.SetValue("快捷键", "截图翻译", "请按下快捷键");
+            }
+
 
             if (IniHelper.GetValue("快捷键", "输入翻译") == "发生错误")
             {

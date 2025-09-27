@@ -521,6 +521,10 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				{
 					traySilentOcrClick(null, null);
 				}
+				if (m.Msg == 786 && m.WParam.ToInt32() == 260)
+				{
+					trayScreenshotTranslateClick(null, null);
+				}
 				base.WndProc(ref m);
 				return;
 			}
@@ -2095,6 +2099,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			loadHotkey("快捷键", "识别界面", 235);
 			loadHotkey("快捷键", "输入翻译", 240);
 			loadHotkey("快捷键", "静默识别", 250);
+			loadHotkey("快捷键", "截图翻译", 260);
 
 			// --- 加载OCR密钥 ---
 			// 加载百度OCR密钥
@@ -2189,6 +2194,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			HelpWin32.UnregisterHotKey(Handle, 235);
 			HelpWin32.UnregisterHotKey(Handle, 240);
 			HelpWin32.UnregisterHotKey(Handle, 250);
+			HelpWin32.UnregisterHotKey(Handle, 260);
 
 			WindowState = FormWindowState.Minimized;
 			var fmSetting = new FmSetting();
@@ -2251,6 +2257,11 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				{
 					var value5 = IniHelper.GetValue("快捷键", "静默识别");
 					SetHotkey("None", "", value5, 250);
+				}
+				if (IniHelper.GetValue("快捷键", "截图翻译") != "请按下快捷键")
+				{
+					var value5 = IniHelper.GetValue("快捷键", "截图翻译");
+					SetHotkey("None", "", value5, 260);
 				}
 				// --- 重新加载所有API密钥 ---
 				// --- 加载OCR密钥 ---
