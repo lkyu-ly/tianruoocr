@@ -148,6 +148,11 @@ namespace TrOCR.Helper
         public static string LastTempSourceLang { get; set; } = "en";
         public static string LastTempTargetLang { get; set; } = "zh";
 
+         // 【新增】专门用于“截图翻译”的自动复制选项
+        public static bool AutoCopyScreenshotTranslation { get; set; }
+        // 【新增】用于控制是否使用无窗口截图
+         public static bool NoWindowScreenshotTranslation { get; set; }
+
         /// <summary>
         /// 从config.ini加载配置到静态变量
         /// </summary>
@@ -170,6 +175,8 @@ namespace TrOCR.Helper
             AutoCopyListenClipboardTranslation = Convert.ToBoolean(GetValue("配置", "AutoCopyListenClipboardTranslation", "False"));
             ListenClipboardTranslationHideOriginal = Convert.ToBoolean(GetValue("配置", "ListenClipboardTranslationHideOriginal", "False"));
             DisableToggleOriginalButton = Convert.ToBoolean(GetValue("配置", "DisableToggleOriginalButton", "False"));
+            AutoCopyScreenshotTranslation = Convert.ToBoolean(GetValue("配置", "AutoCopyScreenshotTranslation", "False"));
+            NoWindowScreenshotTranslation = Convert.ToBoolean(GetValue("配置", "NoWindowScreenshotTranslation", "False"));
 
             // --- 新增: 加载工具栏设置 ---
             IsMergeRemoveSpace = Convert.ToBoolean(GetValue("工具栏", "IsMergeRemoveSpace", "False"));

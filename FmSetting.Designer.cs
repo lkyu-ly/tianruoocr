@@ -355,6 +355,9 @@ namespace TrOCR
             this.checkBox_AutoCopyInputTranslation = new System.Windows.Forms.CheckBox();
             this.tab_标签 = new System.Windows.Forms.TabControl();
             this.Page_常规2 = new System.Windows.Forms.TabPage();
+            this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.checkbox_AutoCopyScreenshotTranslation = new System.Windows.Forms.CheckBox();
+            this.cbBox_禁用隐藏原文按钮 = new System.Windows.Forms.CheckBox();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.cbBox_ListenHideOriginal = new System.Windows.Forms.CheckBox();
@@ -389,8 +392,7 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
-            this.groupBox11 = new System.Windows.Forms.GroupBox();
-            this.cbBox_禁用隐藏原文按钮 = new System.Windows.Forms.CheckBox();
+            this.checkbox_NoWindowScreenshotTranslation = new System.Windows.Forms.CheckBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -481,6 +483,7 @@ namespace TrOCR
             this.groupBox_TranslateWorkflow.SuspendLayout();
             this.tab_标签.SuspendLayout();
             this.Page_常规2.SuspendLayout();
+            this.groupBox11.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.Page_工具栏.SuspendLayout();
@@ -493,7 +496,6 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
-            this.groupBox11.SuspendLayout();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -4187,9 +4189,9 @@ namespace TrOCR
             this.checkBox_AutoCopyOcrTranslation.Location = new System.Drawing.Point(23, 31);
             this.checkBox_AutoCopyOcrTranslation.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_AutoCopyOcrTranslation.Name = "checkBox_AutoCopyOcrTranslation";
-            this.checkBox_AutoCopyOcrTranslation.Size = new System.Drawing.Size(233, 19);
+            this.checkBox_AutoCopyOcrTranslation.Size = new System.Drawing.Size(239, 19);
             this.checkBox_AutoCopyOcrTranslation.TabIndex = 0;
-            this.checkBox_AutoCopyOcrTranslation.Text = "OCR翻译后，自动复制翻译结果";
+            this.checkBox_AutoCopyOcrTranslation.Text = "识别翻译后，自动复制翻译结果";
             this.checkBox_AutoCopyOcrTranslation.UseVisualStyleBackColor = true;
             // 
             // checkBox_AutoCopyInputTranslation
@@ -4238,6 +4240,39 @@ namespace TrOCR
             this.Page_常规2.TabIndex = 13;
             this.Page_常规2.Text = "常规2";
             this.Page_常规2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox11
+            // 
+            this.groupBox11.Controls.Add(this.checkbox_NoWindowScreenshotTranslation);
+            this.groupBox11.Controls.Add(this.checkbox_AutoCopyScreenshotTranslation);
+            this.groupBox11.Controls.Add(this.cbBox_禁用隐藏原文按钮);
+            this.groupBox11.Location = new System.Drawing.Point(6, 113);
+            this.groupBox11.Name = "groupBox11";
+            this.groupBox11.Size = new System.Drawing.Size(511, 100);
+            this.groupBox11.TabIndex = 1;
+            this.groupBox11.TabStop = false;
+            this.groupBox11.Text = "其他";
+            // 
+            // checkbox_AutoCopyScreenshotTranslation
+            // 
+            this.checkbox_AutoCopyScreenshotTranslation.AutoSize = true;
+            this.checkbox_AutoCopyScreenshotTranslation.Location = new System.Drawing.Point(3, 62);
+            this.checkbox_AutoCopyScreenshotTranslation.Name = "checkbox_AutoCopyScreenshotTranslation";
+            this.checkbox_AutoCopyScreenshotTranslation.Size = new System.Drawing.Size(194, 19);
+            this.checkbox_AutoCopyScreenshotTranslation.TabIndex = 2;
+            this.checkbox_AutoCopyScreenshotTranslation.Text = "截图翻译后自动复制译文";
+            this.checkbox_AutoCopyScreenshotTranslation.UseVisualStyleBackColor = true;
+            this.checkbox_AutoCopyScreenshotTranslation.CheckedChanged += new System.EventHandler(this.checkbox_AutoCopyScreenshotTranslation_CheckedChanged);
+            // 
+            // cbBox_禁用隐藏原文按钮
+            // 
+            this.cbBox_禁用隐藏原文按钮.AutoSize = true;
+            this.cbBox_禁用隐藏原文按钮.Location = new System.Drawing.Point(3, 24);
+            this.cbBox_禁用隐藏原文按钮.Name = "cbBox_禁用隐藏原文按钮";
+            this.cbBox_禁用隐藏原文按钮.Size = new System.Drawing.Size(217, 19);
+            this.cbBox_禁用隐藏原文按钮.TabIndex = 1;
+            this.cbBox_禁用隐藏原文按钮.Text = "全局禁用显示/隐藏原文按钮";
+            this.cbBox_禁用隐藏原文按钮.UseVisualStyleBackColor = true;
             // 
             // groupBox9
             // 
@@ -4636,25 +4671,16 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
-            // groupBox11
+            // checkbox_NoWindowScreenshotTranslation
             // 
-            this.groupBox11.Controls.Add(this.cbBox_禁用隐藏原文按钮);
-            this.groupBox11.Location = new System.Drawing.Point(6, 113);
-            this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(511, 100);
-            this.groupBox11.TabIndex = 1;
-            this.groupBox11.TabStop = false;
-            this.groupBox11.Text = "其他";
-            // 
-            // cbBox_禁用隐藏原文按钮
-            // 
-            this.cbBox_禁用隐藏原文按钮.AutoSize = true;
-            this.cbBox_禁用隐藏原文按钮.Location = new System.Drawing.Point(3, 24);
-            this.cbBox_禁用隐藏原文按钮.Name = "cbBox_禁用隐藏原文按钮";
-            this.cbBox_禁用隐藏原文按钮.Size = new System.Drawing.Size(217, 19);
-            this.cbBox_禁用隐藏原文按钮.TabIndex = 1;
-            this.cbBox_禁用隐藏原文按钮.Text = "全局禁用显示/隐藏原文按钮";
-            this.cbBox_禁用隐藏原文按钮.UseVisualStyleBackColor = true;
+            this.checkbox_NoWindowScreenshotTranslation.AutoSize = true;
+            this.checkbox_NoWindowScreenshotTranslation.Enabled = false;
+            this.checkbox_NoWindowScreenshotTranslation.Location = new System.Drawing.Point(221, 62);
+            this.checkbox_NoWindowScreenshotTranslation.Name = "checkbox_NoWindowScreenshotTranslation";
+            this.checkbox_NoWindowScreenshotTranslation.Size = new System.Drawing.Size(225, 19);
+            this.checkbox_NoWindowScreenshotTranslation.TabIndex = 3;
+            this.checkbox_NoWindowScreenshotTranslation.Text = "截图翻译不显示窗口(仅复制)";
+            this.checkbox_NoWindowScreenshotTranslation.UseVisualStyleBackColor = true;
             // 
             // FmSetting
             // 
@@ -4819,6 +4845,8 @@ namespace TrOCR
             this.groupBox_TranslateWorkflow.PerformLayout();
             this.tab_标签.ResumeLayout(false);
             this.Page_常规2.ResumeLayout(false);
+            this.groupBox11.ResumeLayout(false);
+            this.groupBox11.PerformLayout();
             this.groupBox9.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
@@ -4836,8 +4864,6 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
-            this.groupBox11.ResumeLayout(false);
-            this.groupBox11.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -5223,5 +5249,7 @@ namespace TrOCR
         private System.Windows.Forms.Label label33;
         private System.Windows.Forms.GroupBox groupBox11;
         private System.Windows.Forms.CheckBox cbBox_禁用隐藏原文按钮;
+        private System.Windows.Forms.CheckBox checkbox_AutoCopyScreenshotTranslation;
+        private System.Windows.Forms.CheckBox checkbox_NoWindowScreenshotTranslation;
     }
 }

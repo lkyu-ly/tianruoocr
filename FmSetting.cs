@@ -43,6 +43,17 @@ namespace TrOCR
 			Font = new Font(Font.Name, 9f / StaticValue.DpiFactor, Font.Style, Font.Unit, Font.GdiCharSet, Font.GdiVerticalFont);
 			InitializeComponent();
 		}
+		private void checkbox_AutoCopyScreenshotTranslation_CheckedChanged(object sender, EventArgs e)
+		{
+		    // 联动逻辑：只有当“自动复制”被勾选时，“不显示窗口”选项才可用
+		    checkbox_NoWindowScreenshotTranslation.Enabled = checkbox_AutoCopyScreenshotTranslation.Checked;
+		
+		    // 如果“自动复制”被取消勾选，则“不显示窗口”也必须被取消勾选
+		    if (!checkbox_AutoCopyScreenshotTranslation.Checked)
+		    {
+		        checkbox_NoWindowScreenshotTranslation.Checked = false;
+		    }
+		}
 
 		// 从配置文件读取设置信息并初始化设置界面控件
 		public void readIniFile()
@@ -61,7 +72,7 @@ namespace TrOCR
 			{
 				cbBox_开机.Checked = true;
 			}
-			
+
 			var value2 = IniHelper.GetValue("配置", "快速翻译");
 			if (value2 == "发生错误")
 			{
@@ -75,7 +86,7 @@ namespace TrOCR
 			{
 				cbBox_翻译.Checked = true;
 			}
-			
+
 			var value3 = IniHelper.GetValue("配置", "识别弹窗");
 			if (value3 == "发生错误")
 			{
@@ -89,7 +100,7 @@ namespace TrOCR
 			{
 				cbBox_弹窗.Checked = true;
 			}
-			
+
 			var value_input_translate_clipboard = IniHelper.GetValue("配置", "InputTranslateClipboard");
 			if (value_input_translate_clipboard == "发生错误")
 			{
@@ -117,7 +128,7 @@ namespace TrOCR
 			{
 				cbBox_输入翻译自动翻译.Checked = false;
 			}
-			
+
 			var value_autoCopy = IniHelper.GetValue("识别后操作", "AutoCopyOcrResult");
 			if (value_autoCopy == "发生错误")
 			{
@@ -176,7 +187,7 @@ namespace TrOCR
 			var value_IsMergeRemoveSpace = IniHelper.GetValue("工具栏", "IsMergeRemoveSpace");
 			if (value_IsMergeRemoveSpace == "发生错误")
 			{
-			    checkBox_合并去除空格.Checked = false;
+				checkBox_合并去除空格.Checked = false;
 			}
 			try
 			{
@@ -189,7 +200,7 @@ namespace TrOCR
 			var value_IsMergeAutoCopy = IniHelper.GetValue("工具栏", "IsMergeAutoCopy");
 			if (value_IsMergeAutoCopy == "发生错误")
 			{
-			    checkBox_合并自动复制.Checked = false;
+				checkBox_合并自动复制.Checked = false;
 			}
 			try
 			{
@@ -202,18 +213,18 @@ namespace TrOCR
 			var value_IsSplitAutoCopy = IniHelper.GetValue("工具栏", "IsSplitAutoCopy");
 			if (value_IsSplitAutoCopy == "发生错误")
 			{
-			    checkBox_拆分后自动复制.Checked = false;
+				checkBox_拆分后自动复制.Checked = false;
 			}
 			try
 			{
-			    checkBox_拆分后自动复制.Checked = Convert.ToBoolean(value_IsSplitAutoCopy);
+				checkBox_拆分后自动复制.Checked = Convert.ToBoolean(value_IsSplitAutoCopy);
 			}
 			catch
 			{
-			    checkBox_拆分后自动复制.Checked = false;
+				checkBox_拆分后自动复制.Checked = false;
 			}
 
-			
+
 
 			var value4 = IniHelper.GetValue("配置", "窗体动画");
 			cobBox_动画.Text = value4;
@@ -221,14 +232,14 @@ namespace TrOCR
 			{
 				cobBox_动画.Text = "窗体";
 			}
-			
+
 			var value5 = IniHelper.GetValue("配置", "记录数目");
 			numbox_记录.Value = Convert.ToInt32(value5);
 			if (value5 == "发生错误")
 			{
 				numbox_记录.Value = 20m;
 			}
-			
+
 			var value6 = IniHelper.GetValue("配置", "自动保存");
 			if (value6 == "发生错误")
 			{
@@ -242,7 +253,7 @@ namespace TrOCR
 			{
 				cbBox_保存.Checked = false;
 			}
-			
+
 			if (cbBox_保存.Checked)
 			{
 				textBox_path.Enabled = true;
@@ -253,14 +264,14 @@ namespace TrOCR
 				textBox_path.Enabled = false;
 				btn_浏览.Enabled = false;
 			}
-			
+
 			var value7 = IniHelper.GetValue("配置", "截图位置");
 			textBox_path.Text = value7;
 			if (value7 == "发生错误")
 			{
 				textBox_path.Text = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 			}
-			
+
 			// 读取快捷键设置
 			var value8 = IniHelper.GetValue("快捷键", "文字识别");
 			txtBox_文字识别.Text = value8;
@@ -268,28 +279,28 @@ namespace TrOCR
 			{
 				txtBox_文字识别.Text = "F4";
 			}
-			
+
 			var value9 = IniHelper.GetValue("快捷键", "翻译文本");
 			txtBox_翻译文本.Text = value9;
 			if (value9 == "发生错误")
 			{
 				txtBox_翻译文本.Text = "F9";
 			}
-			
+
 			var value10 = IniHelper.GetValue("快捷键", "记录界面");
 			txtBox_记录界面.Text = value10;
 			if (value10 == "发生错误")
 			{
 				txtBox_记录界面.Text = "请按下快捷键";
 			}
-			
+
 			var value11 = IniHelper.GetValue("快捷键", "识别界面");
 			txtBox_识别界面.Text = value11;
 			if (value11 == "发生错误")
 			{
 				txtBox_识别界面.Text = "请按下快捷键";
 			}
-			
+
 			// 设置快捷键图标状态
 			pictureBox_文字识别.Image = txtBox_文字识别.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
 			pictureBox_翻译文本.Image = txtBox_翻译文本.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
@@ -300,35 +311,41 @@ namespace TrOCR
 			var value_listenClipboard = IniHelper.GetValue("配置", "ListenClipboard");
 			try
 			{
-			    cbBox_ListenClipboard.Checked = Convert.ToBoolean(value_listenClipboard);
+				cbBox_ListenClipboard.Checked = Convert.ToBoolean(value_listenClipboard);
 			}
 			catch
 			{
-			    cbBox_ListenClipboard.Checked = false;
+				cbBox_ListenClipboard.Checked = false;
 			}
-			
+
 			// 【新增】加载“监听后自动复制”设置
 			var value_autoCopyListenClipboard = IniHelper.GetValue("配置", "AutoCopyListenClipboardTranslation");
 			try
 			{
-			    cbBox_AutoCopyListenClipboardTranslation.Checked = Convert.ToBoolean(value_autoCopyListenClipboard);
+				cbBox_AutoCopyListenClipboardTranslation.Checked = Convert.ToBoolean(value_autoCopyListenClipboard);
 			}
 			catch
 			{
-			    cbBox_AutoCopyListenClipboardTranslation.Checked = false;
+				cbBox_AutoCopyListenClipboardTranslation.Checked = false;
 			}
 			// 【新增】加载“监听剪贴板翻译后默认隐藏原文”设置
 			var value_ListenClipboardHideOriginal = IniHelper.GetValue("配置", "ListenClipboardTranslationHideOriginal");
 			try
 			{
-			    cbBox_ListenHideOriginal.Checked = Convert.ToBoolean(value_ListenClipboardHideOriginal);
+				cbBox_ListenHideOriginal.Checked = Convert.ToBoolean(value_ListenClipboardHideOriginal);
 			}
 			catch
 			{
-			    cbBox_ListenHideOriginal.Checked = false;
+				cbBox_ListenHideOriginal.Checked = false;
 			}
-            //【新增】加载“全局禁用显示/隐藏原文按钮”设置
-            cbBox_禁用隐藏原文按钮.Checked = TrOCRUtils.LoadSetting("配置", "DisableToggleOriginalButton", false);
+			//【新增】加载“全局禁用显示/隐藏原文按钮”设置
+			cbBox_禁用隐藏原文按钮.Checked = TrOCRUtils.LoadSetting("配置", "DisableToggleOriginalButton", false);
+			//加载“截图翻译后自动复制译文”设置
+			checkbox_AutoCopyScreenshotTranslation.Checked = TrOCRUtils.LoadSetting("配置", "AutoCopyScreenshotTranslation", false);
+			// 加载“无窗口截图翻译”设置
+			checkbox_NoWindowScreenshotTranslation.Checked = TrOCRUtils.LoadSetting("配置", "NoWindowScreenshotTranslation", false);
+			// 【重要】在加载后，立即执行一次联动逻辑，以确保初始状态正确
+			checkbox_AutoCopyScreenshotTranslation_CheckedChanged(null, null);
 
 			var value_input_translate = IniHelper.GetValue("快捷键", "输入翻译");
 			txtBox_输入翻译.Text = value_input_translate;
@@ -338,11 +355,11 @@ namespace TrOCR
 			}
 			pictureBox_输入翻译.Image = txtBox_输入翻译.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
 
-			var value_silent_ocr = IniHelper.GetValue("快捷键", "静默识别");	
+			var value_silent_ocr = IniHelper.GetValue("快捷键", "静默识别");
 			txtBox_静默识别.Text = value_silent_ocr;
 			if (value_silent_ocr == "发生错误")
 			{
-			    txtBox_静默识别.Text = "请按下快捷键";
+				txtBox_静默识别.Text = "请按下快捷键";
 			}
 			pictureBox_静默识别.Image = txtBox_静默识别.Text == "请按下快捷键" ? Resources.快捷键_0 : Resources.快捷键_1;
 
@@ -354,14 +371,14 @@ namespace TrOCR
 			{
 				text_baiduaccount.Text = "YsZKG1wha34PlDOPYaIrIIKO";
 			}
-			
+
 			var value13 = IniHelper.GetValue("密钥_百度", "secret_key");
 			text_baidupassword.Text = value13;
 			if (value13 == "发生错误")
 			{
 				text_baidupassword.Text = "HPRZtdOHrdnnETVsZM2Nx7vbDkMfxrkD";
 			}
-			
+
 			// 读取百度OCR语言设置
 			var valueBaiduLanguage = IniHelper.GetValue("密钥_百度", "language_code");
 			BaiduOcrHelper.GetStandardLanguages().TryGetValue(valueBaiduLanguage, out string langName);
@@ -372,7 +389,7 @@ namespace TrOCR
 			text_baidu_accurate_apikey.Text = valueBaiduAccurateId == "发生错误" ? "" : valueBaiduAccurateId;
 			var valueBaiduAccurateKey = IniHelper.GetValue("密钥_百度高精度", "secret_key");
 			text_baidu_accurate_secretkey.Text = valueBaiduAccurateKey == "发生错误" ? "" : valueBaiduAccurateKey;
-			
+
 			// 读取百度高精度OCR语言设置
 			var valueBaiduAccurateLanguage = IniHelper.GetValue("密钥_百度高精度", "language_code");
 			BaiduOcrHelper.GetAccurateLanguages().TryGetValue(valueBaiduAccurateLanguage, out string accurateLangName);
@@ -383,7 +400,7 @@ namespace TrOCR
 			textBox2.Text = valueBaiduTableId == "发生错误" ? "" : valueBaiduTableId;
 			var valueBaiduTableKey = IniHelper.GetValue("密钥_百度表格", "secret_key");
 			textBox1.Text = valueBaiduTableKey == "发生错误" ? "" : valueBaiduTableKey;
-				       
+
 			// 读取腾讯OCR密钥信息
 			var valueTencentId = IniHelper.GetValue("密钥_腾讯", "secret_id");
 			BoxTencentId.Text = valueTencentId;
@@ -391,7 +408,7 @@ namespace TrOCR
 			{
 				BoxTencentId.Text = "";
 			}
-			
+
 			var valueTencentKey = IniHelper.GetValue("密钥_腾讯", "secret_key");
 			BoxTencentKey.Text = valueTencentKey;
 			if (valueTencentKey == "发生错误")
@@ -403,13 +420,13 @@ namespace TrOCR
 			var valueTencentLanguage = IniHelper.GetValue("密钥_腾讯", "language_code");
 			TencentOcrHelper.GetStandardLanguages().TryGetValue(valueTencentLanguage, out string tencentLangName);
 			comboBox_Tencent_Language.SelectedItem = string.IsNullOrEmpty(tencentLangName) ? "中英混合" : tencentLangName;
-	
+
 			// 读取腾讯高精度OCR密钥信息
 			var valueTencentAccurateId = IniHelper.GetValue("密钥_腾讯高精度", "secret_id");
 			text_tencent_accurate_secretid.Text = valueTencentAccurateId == "发生错误" ? "" : valueTencentAccurateId;
 			var valueTencentAccurateKey = IniHelper.GetValue("密钥_腾讯高精度", "secret_key");
 			text_tencent_accurate_secretkey.Text = valueTencentAccurateKey == "发生错误" ? "" : valueTencentAccurateKey;
-			
+
 			// 读取腾讯高精度OCR语言设置
 			var valueTencentAccurateLanguage = IniHelper.GetValue("密钥_腾讯高精度", "language_code");
 			TencentOcrHelper.GetAccurateLanguages().TryGetValue(valueTencentAccurateLanguage, out string tencentAccurateLangName);
@@ -428,7 +445,7 @@ namespace TrOCR
 			{
 				BoxBaimiaoUsername.Text = "";
 			}
-			
+
 			var valueBaimiaoPassword = IniHelper.GetValue("密钥_白描", "password");
 			BoxBaimiaoPassword.Text = valueBaimiaoPassword;
 			if (valueBaimiaoPassword == "发生错误")
@@ -443,7 +460,7 @@ namespace TrOCR
 			{
 				combox_代理.Text = "系统代理";
 			}
-			
+
 			if (combox_代理.Text == "不使用代理" || combox_代理.Text == "系统代理")
 			{
 				text_账号.Enabled = false;
@@ -452,33 +469,33 @@ namespace TrOCR
 				text_端口.Enabled = false;
 				text_服务器.Enabled = false;
 			}
-			
+
 			if (combox_代理.Text == "自定义代理")
 			{
 				text_端口.Enabled = true;
 				text_服务器.Enabled = true;
 			}
-			
+
 			var value15 = IniHelper.GetValue("代理", "服务器");
 			text_服务器.Text = value15;
 			if (value15 == "发生错误")
 			{
 				text_服务器.Text = "127.0.0.1";
 			}
-			
+
 			var value16 = IniHelper.GetValue("代理", "端口");
 			text_端口.Text = value16;
 			if (value16 == "发生错误")
 			{
 				text_端口.Text = "1080";
 			}
-			
+
 			var value17 = IniHelper.GetValue("代理", "需要密码");
 			if (value17 == "发生错误")
 			{
 				chbox_代理服务器.Checked = false;
 			}
-			
+
 			try
 			{
 				chbox_代理服务器.Checked = Convert.ToBoolean(value17);
@@ -487,40 +504,40 @@ namespace TrOCR
 			{
 				chbox_代理服务器.Checked = false;
 			}
-			
+
 			var value18 = IniHelper.GetValue("代理", "服务器账号");
 			text_账号.Text = value18;
 			if (value18 == "发生错误")
 			{
 				text_账号.Text = "";
 			}
-			
+
 			var value19 = IniHelper.GetValue("代理", "服务器密码");
 			text_密码.Text = value19;
 			if (value19 == "发生错误")
 			{
 				text_密码.Text = "";
 			}
-			
+
 			if (chbox_代理服务器.Checked)
 			{
 				text_账号.Enabled = true;
 				text_密码.Enabled = true;
 			}
-			
+
 			if (!chbox_代理服务器.Checked)
 			{
 				text_账号.Enabled = false;
 				text_密码.Enabled = false;
 			}
-			
+
 			// 读取更新设置
 			var value20 = IniHelper.GetValue("更新", "检测更新");
 			if (value20 == "发生错误")
 			{
 				check_检查更新.Checked = false;
 			}
-			
+
 			try
 			{
 				check_检查更新.Checked = Convert.ToBoolean(value20);
@@ -529,24 +546,24 @@ namespace TrOCR
 			{
 				check_检查更新.Checked = false;
 			}
-			
+
 			if (check_检查更新.Checked)
 			{
 				checkBox_更新间隔.Enabled = true;
 			}
-			
+
 			if (!check_检查更新.Checked)
 			{
 				checkBox_更新间隔.Enabled = false;
 				numbox_间隔时间.Enabled = false;
 			}
-			
+
 			var value21 = IniHelper.GetValue("更新", "更新间隔");
 			if (value21 == "发生错误")
 			{
 				checkBox_更新间隔.Checked = false;
 			}
-			
+
 			try
 			{
 				checkBox_更新间隔.Checked = Convert.ToBoolean(value21);
@@ -555,24 +572,24 @@ namespace TrOCR
 			{
 				checkBox_更新间隔.Checked = false;
 			}
-			
+
 			if (checkBox_更新间隔.Checked)
 			{
 				numbox_间隔时间.Enabled = true;
 			}
-			
+
 			if (!checkBox_更新间隔.Checked)
 			{
 				numbox_间隔时间.Enabled = false;
 			}
-			
+
 			var value22 = IniHelper.GetValue("更新", "间隔时间");
 			numbox_间隔时间.Value = Convert.ToInt32(value22);
 			if (value5 == "发生错误")
 			{
 				numbox_间隔时间.Value = 24m;
 			}
-			
+
 			var value_pre_release = IniHelper.GetValue("更新", "CheckPreRelease");
 			if (value_pre_release == "发生错误")
 			{
@@ -593,7 +610,7 @@ namespace TrOCR
 			{
 				chbox_copy.Checked = false;
 			}
-			
+
 			try
 			{
 				chbox_copy.Checked = Convert.ToBoolean(value23);
@@ -602,13 +619,13 @@ namespace TrOCR
 			{
 				chbox_copy.Checked = false;
 			}
-			
+
 			var value24 = IniHelper.GetValue("截图音效", "自动保存");
 			if (value24 == "发生错误")
 			{
 				chbox_save.Checked = true;
 			}
-			
+
 			try
 			{
 				chbox_save.Checked = Convert.ToBoolean(value24);
@@ -617,31 +634,31 @@ namespace TrOCR
 			{
 				chbox_save.Checked = true;
 			}
-			
+
 			var value25 = IniHelper.GetValue("截图音效", "音效路径");
 			text_音效path.Text = value25;
 			if (value25 == "发生错误")
 			{
 				text_音效path.Text = "Data\\screenshot.wav";
 			}
-			
+
 			// 读取取色器设置
 			var value26 = IniHelper.GetValue("取色器", "类型");
 			if (value26 == "发生错误")
 			{
 				chbox_取色.Checked = false;
 			}
-			
+
 			if (value26 == "RGB")
 			{
 				chbox_取色.Checked = false;
 			}
-			
+
 			if (value26 == "HEX")
 			{
 				chbox_取色.Checked = true;
 			}
-			
+
 			// 读取各翻译接口设置
 			var googleSource = IniHelper.GetValue("Translate_Google", "Source");
 			textBox_Google_Source.Text = (googleSource == "发生错误") ? "auto" : googleSource;
@@ -656,7 +673,7 @@ namespace TrOCR
 			textBox_Baidu_AK.Text = (baiduAK == "发生错误") ? "" : baiduAK;
 			var baiduSK = IniHelper.GetValue("Translate_Baidu", "APP_KEY");
 			textBox_Baidu_SK.Text = (baiduSK == "发生错误") ? "" : baiduSK;
-	
+
 			var tencentSource = IniHelper.GetValue("Translate_Tencent", "Source");
 			textBox_Tencent_Source.Text = (tencentSource == "发生错误") ? "auto" : tencentSource;
 			var tencentTarget = IniHelper.GetValue("Translate_Tencent", "Target");
@@ -670,12 +687,12 @@ namespace TrOCR
 			textBox_Bing_Source.Text = (bingSource == "发生错误") ? "auto" : bingSource;
 			var bingTarget = IniHelper.GetValue("Translate_Bing", "Target");
 			textBox_Bing_Target.Text = (bingTarget == "发生错误") ? "自动判断" : bingTarget;
-			
+
 			var bing2Source = IniHelper.GetValue("Translate_Bing2", "Source");
 			textBox_Bing2_Source.Text = (bing2Source == "发生错误") ? "auto" : bing2Source;
 			var bing2Target = IniHelper.GetValue("Translate_Bing2", "Target");
 			textBox_Bing2_Target.Text = (bing2Target == "发生错误") ? "自动判断" : bing2Target;
-			
+
 			var microsoftSource = IniHelper.GetValue("Translate_Microsoft", "Source");
 			textBox_Microsoft_Source.Text = (microsoftSource == "发生错误") ? "auto" : microsoftSource;
 			var microsoftTarget = IniHelper.GetValue("Translate_Microsoft", "Target");
@@ -685,19 +702,19 @@ namespace TrOCR
 			textBox_Yandex_Source.Text = (yandexSource == "发生错误") ? "auto" : yandexSource;
 			var yandexTarget = IniHelper.GetValue("Translate_Yandex", "Target");
 			textBox_Yandex_Target.Text = (yandexTarget == "发生错误") ? "自动判断" : yandexTarget;
-			         
+
 			// 腾讯交互翻译
 			var tencentInteractiveSource = IniHelper.GetValue("Translate_TencentInteractive", "Source");
 			textBox_TencentInteractive_Source.Text = (tencentInteractiveSource == "发生错误") ? "auto" : tencentInteractiveSource;
 			var tencentInteractiveTarget = IniHelper.GetValue("Translate_TencentInteractive", "Target");
 			textBox_TencentInteractive_Target.Text = (tencentInteractiveTarget == "发生错误") ? "自动判断" : tencentInteractiveTarget;
-			         
+
 			// 彩云小译
 			var caiyunSource = IniHelper.GetValue("Translate_Caiyun", "Source");
 			textBox_Caiyun_Source.Text = (caiyunSource == "发生错误") ? "auto" : caiyunSource;
 			var caiyunTarget = IniHelper.GetValue("Translate_Caiyun", "Target");
 			textBox_Caiyun_Target.Text = (caiyunTarget == "发生错误") ? "自动判断" : caiyunTarget;
-			         
+
 			// 火山翻译
 			var volcanoSource = IniHelper.GetValue("Translate_Volcano", "Source");
 			textBox_Volcano_Source.Text = (volcanoSource == "发生错误") ? "auto" : volcanoSource;
@@ -1798,6 +1815,9 @@ namespace TrOCR
 			IniHelper.SetValue("配置", "ListenClipboardTranslationHideOriginal", cbBox_ListenHideOriginal.Checked.ToString());
 			IniHelper.SetValue("配置", "DisableToggleOriginalButton", cbBox_禁用隐藏原文按钮.Checked.ToString());
 			
+			//保存截图翻译相关配置
+			IniHelper.SetValue("配置", "AutoCopyScreenshotTranslation", checkbox_AutoCopyScreenshotTranslation.Checked.ToString());
+			IniHelper.SetValue("配置", "NoWindowScreenshotTranslation", checkbox_NoWindowScreenshotTranslation.Checked.ToString());
 			// 保存百度OCR密钥和语言设置
 			IniHelper.SetValue("密钥_百度", "secret_id", text_baiduaccount.Text);
 			IniHelper.SetValue("密钥_百度", "secret_key", text_baidupassword.Text);

@@ -56,6 +56,9 @@ namespace TrOCR
 
  		private bool isOriginalTextHidden = false; // 新增：用于跟踪原文窗口的显隐状态
 
+		private bool isScreenshotTranslateMode = false; // 【新增】截图翻译模式标志
+
+
 
 		// ====================================================================================================================
 		// **构造函数与窗体事件**
@@ -555,6 +558,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				var menuItems = new[]
 				{
 					new MenuItem("静默识别", traySilentOcrClick),
+					new MenuItem("截图翻译", trayScreenshotTranslateClick),
 					new MenuItem("输入翻译", trayInputTranslateClick),
 					new MenuItem("监听翻译", trayClipListenTranslateClick),
 					new MenuItem("显示", trayShowClick),
@@ -697,7 +701,194 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 
 		    }
 		}
+		private void trayScreenshotTranslateClick(object sender, EventArgs e)
+		{
+		    // 1. 激活截图翻译模式标志
+		    isScreenshotTranslateMode = true;
 
+		    // 2. （可选但推荐）确保其他模式的标志是关闭的，避免冲突
+		    isSilentMode = false;
+
+		    // 3. 调用通用的截图方法，启动流程
+		    MainOCRQuickScreenShots();
+		}
+
+		private async Task<string> GetTranslationAsync(string textToTranslate, string overrideSource = null, string overrideTarget = null)
+		{
+		    // 获取当前使用的翻译服务
+			string transService = StaticValue.Translate_Current_API;
+			string sectionName;
+			// 根据翻译服务名称确定配置节名称
+			switch (transService)
+			{
+				case "谷歌":
+					sectionName = "Google";
+					break;
+				case "百度":
+					sectionName = "Baidu";
+					break;
+				case "腾讯":
+					sectionName = "Tencent";
+					break;
+				case "腾讯交互翻译":
+					sectionName = "TencentInteractive";
+					break;
+				case "彩云小译":
+					sectionName = "Caiyun";
+					break;
+				case "彩云小译2":
+					sectionName = "Caiyun2";
+					break;
+				case "火山翻译":
+					sectionName = "Volcano";
+					break;
+				default:
+					sectionName = transService;
+					break;
+			}
+
+			// 尝试获取翻译配置，如果不存在则使用默认配置
+			if (!StaticValue.Translate_Configs.TryGetValue(sectionName, out var config))
+			{
+				config = new StaticValue.TranslateConfig { Source = "auto", Target = "自动判断" };
+			}
+
+			string toLang;
+			// 【修改】如果临时源语言(overrideSource)不为空，则使用它，否则才用配置文件中的
+			string fromLang = overrideSource ?? config.Source; 
+			// 【修改】优先使用临时目标语言
+			if (!string.IsNullOrEmpty(overrideTarget))
+			{
+			    toLang = overrideTarget;
+			}
+			// 根据目标语言配置自动判断需要翻译成的语言
+			else if (config.Target == "自动判断")
+			{
+				toLang = "en"; // 默认翻译为英文
+				if (StaticValue.ZH2EN)
+				{
+					//中文和英文互译逻辑
+					// 中文转英文逻辑：比较中英文字符数量确定源语言
+					if (ch_count(typeset_txt.Trim()) > en_count(typeset_txt.Trim()) || (en_count(typeset_txt.Trim()) == 1 && ch_count(typeset_txt.Trim()) == 1))
+					{
+						toLang = "en";
+					}
+					else
+					{
+						toLang = "zh-CN";
+					}
+				}
+				else if (StaticValue.ZH2JP)
+				{
+					// 中文和日文互译逻辑
+					// 统计中文字符和日文字符数量来判断主要语言
+					string textToCheck = typeset_txt.Trim();
+					int chineseCount = ch_count(textToCheck);
+					// 对于日文，我们需要统计假名的数量，因为汉字在中日文都存在
+					int japaneseKanaCount = 0;
+					foreach (char c in textToCheck)
+					{
+						// 统计平假名 (U+3040-U+309F) 和片假名 (U+30A0-U+30FF)
+						if ((c >= '\u3040' && c <= '\u309F') || (c >= '\u30A0' && c <= '\u30FF'))
+						{
+							japaneseKanaCount++;
+						}
+					}
+
+					// 如果日文假名多于中文字符，说明是日文文本，翻译到中文
+					// 否则翻译到日文
+					if (japaneseKanaCount > 0 && japaneseKanaCount >= chineseCount / 2)
+					{
+						// 有相当数量的假名，判断为日文，翻译到中文
+						toLang = "zh-CN";
+					}
+					else
+					{
+						// 中文字符占主导，翻译到日文
+						toLang = "ja";
+					}
+				}
+				else if (StaticValue.ZH2KO)
+				{
+					// 中文和韩文互译逻辑
+					if (contain_kor(typeset_txt.Trim()))
+					{
+						toLang = "zh-CN";
+					}
+					else
+					{
+						toLang = "ko";
+					}
+				}
+			}
+			else
+			{
+				// 使用配置中指定的目标语言
+				toLang = config.Target;
+			}
+
+			// 百度和腾讯翻译服务需要特殊处理语言代码
+			if (transService == "百度")
+			{
+				if (fromLang == "zh-CN") fromLang = "zh";
+				if (toLang == "zh-CN") toLang = "zh";
+				if (fromLang == "ja") fromLang = "jp";
+				if (toLang == "ja") toLang = "jp";
+				if (fromLang == "ko") fromLang = "kor";
+				if (toLang == "ko") toLang = "kor";
+			}
+			if (transService == "腾讯")
+			{
+				if (fromLang == "zh-CN") fromLang = "zh";
+				if (toLang == "zh-CN") toLang = "zh";
+			}
+
+			// 根据翻译服务调用相应的翻译方法
+			switch (transService)
+			{
+				case "谷歌":
+					googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "google");
+					break;
+				case "Bing":
+					googleTranslate_txt = await BingTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
+					break;
+				case "Bing2":
+				case "BingNew":
+					googleTranslate_txt = await BingTranslator2.TranslateAsync(typeset_txt, fromLang, toLang);
+					break;
+				case "Microsoft":
+					googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "microsoft");
+					break;
+				case "Yandex":
+					googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "yandex");
+					break;
+				case "百度":
+					googleTranslate_txt = TranslateBaidu(typeset_txt, fromLang, toLang, config.AppId, config.ApiKey);
+					break;
+				case "腾讯":
+					googleTranslate_txt = Translate_Tencent(typeset_txt, fromLang, toLang, config.AppId, config.ApiKey);
+					break;
+				case "腾讯交互翻译":
+					googleTranslate_txt = await TencentTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
+					break;
+				case "彩云小译":
+					googleTranslate_txt = await CaiyunTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
+					break;
+				case "彩云小译2":
+					if (string.IsNullOrEmpty(config.ApiKey))
+						googleTranslate_txt = "[彩云小译2]：未配置Token";
+					else
+						googleTranslate_txt = await CaiyunTranslator2.TranslateAsync(typeset_txt, fromLang, toLang, config.ApiKey);
+					break;
+				case "火山翻译":
+					googleTranslate_txt = await VolcanoTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
+					break;
+				default:
+					googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "google");
+					break;
+			}
+		    return googleTranslate_txt; 
+		}
 		/// <summary>
 		/// 托盘菜单"输入翻译"选项点击事件处理函数
 		/// 重置翻译界面并显示主输入窗口，根据配置填充剪贴板内容
@@ -2541,178 +2732,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			}
 			else
 			{
-				// 获取当前使用的翻译服务
-				string transService = StaticValue.Translate_Current_API;
-				string sectionName;
-				// 根据翻译服务名称确定配置节名称
-				switch (transService)
-				{
-					case "谷歌":
-						sectionName = "Google";
-						break;
-					case "百度":
-						sectionName = "Baidu";
-						break;
-					case "腾讯":
-						sectionName = "Tencent";
-						break;
-					case "腾讯交互翻译":
-						sectionName = "TencentInteractive";
-						break;
-					case "彩云小译":
-						sectionName = "Caiyun";
-						break;
-					case "彩云小译2":
-						sectionName = "Caiyun2";
-						break;
-					case "火山翻译":
-						sectionName = "Volcano";
-						break;
-					default:
-						sectionName = transService;
-						break;
-				}
-
-				// 尝试获取翻译配置，如果不存在则使用默认配置
-				if (!StaticValue.Translate_Configs.TryGetValue(sectionName, out var config))
-				{
-					config = new StaticValue.TranslateConfig { Source = "auto", Target = "自动判断" };
-				}
-
-				string toLang;
-				// 【修改】如果临时源语言(overrideSource)不为空，则使用它，否则才用配置文件中的
-				string fromLang = overrideSource ?? config.Source; 
-				// 【修改】优先使用临时目标语言
-				if (!string.IsNullOrEmpty(overrideTarget))
-				{
-				    toLang = overrideTarget;
-				}
-				// 根据目标语言配置自动判断需要翻译成的语言
-				else if (config.Target == "自动判断")
-				{
-					toLang = "en"; // 默认翻译为英文
-					if (StaticValue.ZH2EN)
-					{
-						//中文和英文互译逻辑
-						// 中文转英文逻辑：比较中英文字符数量确定源语言
-						if (ch_count(typeset_txt.Trim()) > en_count(typeset_txt.Trim()) || (en_count(typeset_txt.Trim()) == 1 && ch_count(typeset_txt.Trim()) == 1))
-						{
-							toLang = "en";
-						}
-						else
-						{
-							toLang = "zh-CN";
-						}
-					}
-					else if (StaticValue.ZH2JP)
-					{
-						// 中文和日文互译逻辑
-						// 统计中文字符和日文字符数量来判断主要语言
-						string textToCheck = typeset_txt.Trim();
-						int chineseCount = ch_count(textToCheck);
-						// 对于日文，我们需要统计假名的数量，因为汉字在中日文都存在
-						int japaneseKanaCount = 0;
-						foreach (char c in textToCheck)
-						{
-							// 统计平假名 (U+3040-U+309F) 和片假名 (U+30A0-U+30FF)
-							if ((c >= '\u3040' && c <= '\u309F') || (c >= '\u30A0' && c <= '\u30FF'))
-							{
-								japaneseKanaCount++;
-							}
-						}
-
-						// 如果日文假名多于中文字符，说明是日文文本，翻译到中文
-						// 否则翻译到日文
-						if (japaneseKanaCount > 0 && japaneseKanaCount >= chineseCount / 2)
-						{
-							// 有相当数量的假名，判断为日文，翻译到中文
-							toLang = "zh-CN";
-						}
-						else
-						{
-							// 中文字符占主导，翻译到日文
-							toLang = "ja";
-						}
-					}
-					else if (StaticValue.ZH2KO)
-					{
-						// 中文和韩文互译逻辑
-						if (contain_kor(typeset_txt.Trim()))
-						{
-							toLang = "zh-CN";
-						}
-						else
-						{
-							toLang = "ko";
-						}
-					}
-				}
-				else
-				{
-					// 使用配置中指定的目标语言
-					toLang = config.Target;
-				}
-
-				// 百度和腾讯翻译服务需要特殊处理语言代码
-				if (transService == "百度")
-				{
-					if (fromLang == "zh-CN") fromLang = "zh";
-					if (toLang == "zh-CN") toLang = "zh";
-					if (fromLang == "ja") fromLang = "jp";
-					if (toLang == "ja") toLang = "jp";
-					if (fromLang == "ko") fromLang = "kor";
-					if (toLang == "ko") toLang = "kor";
-				}
-				if (transService == "腾讯")
-				{
-					if (fromLang == "zh-CN") fromLang = "zh";
-					if (toLang == "zh-CN") toLang = "zh";
-				}
-
-				// 根据翻译服务调用相应的翻译方法
-				switch (transService)
-				{
-					case "谷歌":
-						googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "google");
-						break;
-					case "Bing":
-						googleTranslate_txt = await BingTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
-						break;
-					case "Bing2":
-					case "BingNew":
-						googleTranslate_txt = await BingTranslator2.TranslateAsync(typeset_txt, fromLang, toLang);
-						break;
-					case "Microsoft":
-						googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "microsoft");
-						break;
-					case "Yandex":
-						googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "yandex");
-						break;
-					case "百度":
-						googleTranslate_txt = TranslateBaidu(typeset_txt, fromLang, toLang, config.AppId, config.ApiKey);
-						break;
-					case "腾讯":
-						googleTranslate_txt = Translate_Tencent(typeset_txt, fromLang, toLang, config.AppId, config.ApiKey);
-						break;
-					case "腾讯交互翻译":
-						googleTranslate_txt = await TencentTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
-						break;
-					case "彩云小译":
-						googleTranslate_txt = await CaiyunTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
-						break;
-					case "彩云小译2":
-						if (string.IsNullOrEmpty(config.ApiKey))
-							googleTranslate_txt = "[彩云小译2]：未配置Token";
-						else
-							googleTranslate_txt = await CaiyunTranslator2.TranslateAsync(typeset_txt, fromLang, toLang, config.ApiKey);
-						break;
-					case "火山翻译":
-						googleTranslate_txt = await VolcanoTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
-						break;
-					default:
-						googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "google");
-						break;
-				}
+				googleTranslate_txt = await GetTranslationAsync(typeset_txt, overrideSource, overrideTarget);
 			}
 
 			// 隐藏进度图片并将其置于底层
@@ -2937,21 +2957,25 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 
     		// 翻译完成后的统一自动复制逻辑
     		bool shouldCopy = false;
-    
+			//截图翻译模式是否自动复制译文
+			if (isScreenshotTranslateMode)
+			{
+				shouldCopy = StaticValue.AutoCopyScreenshotTranslation;
+			}
     		// isContentFromOcr 为 true 意味着当前是对OCR结果的翻译（无论是自动还是手动）
-    		if (isContentFromOcr) 
-    		{
-    		    // 检查“OCR翻译后复制”选项
-    		    shouldCopy = StaticValue.AutoCopyOcrTranslation;
-    		}
-    		else if (isFromClipboardListener)
-    		{
-    		    shouldCopy = StaticValue.AutoCopyListenClipboardTranslation;
-    		}
-    		else // 两个标志都为 false，则为手动输入,即输入翻译
-    		{
-    		    shouldCopy = StaticValue.AutoCopyInputTranslation;
-    		}
+			else if (isContentFromOcr)
+			{
+				// 检查“OCR翻译后复制”选项
+				shouldCopy = StaticValue.AutoCopyOcrTranslation;
+			}
+			else if (isFromClipboardListener)
+			{
+				shouldCopy = StaticValue.AutoCopyListenClipboardTranslation;
+			}
+			else // 两个标志都为 false，则为手动输入,即输入翻译
+			{
+				shouldCopy = StaticValue.AutoCopyInputTranslation;
+			}
 
     		if (shouldCopy && !string.IsNullOrEmpty(RichBoxBody_T.Text))
     		{
@@ -2960,14 +2984,16 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 
             }
 
-			// 只有在完成一次OCR翻译流程后，才考虑重置标记。如果不清，连续手动翻译OCR结果也能持续享受自动复制。
+			// 只有在完成一次OCR翻译流程后，才考虑重置标记。如果不清，连续手动翻译OCR结果和编辑后自动重新翻译也能持续享受自动复制。
 			// 如果希望每次OCR后只有第一次手动翻译能自动复制，可以在这里重置 isContentFromOcr = false;
 			// isContentFromOcr = false;
 		
 		 	// 在每次翻译流程结束后，必须重置监听剪贴板状态标志。否则程序会“卡”在上次的状态，导致后续所有操作逻辑错乱,比如无限翻译。
     		// 只重置“一次性”的事件标志，保留“持续性”的状态标志
+			 // 在每次翻译流程结束后，必须重置所有“一次性”的模式标志
     		// 剪贴板监听是一次性事件，必须重置。
     		isFromClipboardListener = false;
+			isScreenshotTranslateMode = false; // 【重要】确保截图翻译的标志也被重置
 
 		 	
 			isOcrTranslation = false; // 重置“自动”翻译标记
@@ -4223,7 +4249,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		/// <summary>
 		/// OCR识别完成后的处理函数，负责处理识别结果、格式化文本、更新界面和执行后续操作
 		/// </summary>
-		public void Main_OCR_Thread_last()
+		public async void Main_OCR_Thread_last()
         {
             LogState("Main_OCR_Thread_last Start"); 
              // --- 新增的静默模式处理逻辑 ---
@@ -4368,10 +4394,98 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 
     		// 3. 再次显示控件，强制进行一次完整的、干净的重绘
     		RichBoxBody.Visible = true;
+			// 检查是否为截图翻译模式(初版)
+    // if (isScreenshotTranslateMode)
+    // {
+    //     // 检查OCR是否成功获取到文本
+    //     bool success = !string.IsNullOrWhiteSpace(finalTextToShow) && 
+    //                    !finalTextToShow.Contains("***该区域未发现文本***");
+
+    //     if (success)
+    //     {
+    //         // OCR成功，执行核心操作：
+    //         // 1. 将OCR结果放入原文框
+    //         RichBoxBody.Text = finalTextToShow;
+            
+    //         // 2. 调用翻译方法，并传入 true 来默认隐藏原文
+    //         TransClick(true); 
+    //     }
+    //     else
+    //     {
+    //         // OCR失败，给用户一个提示，但不显示主窗口
+    //         string errorMessage = string.IsNullOrWhiteSpace(typeset_txt) ? "未识别到文本" : typeset_txt.Replace("***", "").Trim();
+    //         CommonHelper.ShowHelpMsg("截图翻译失败：" + errorMessage);
+    //     }
+
+    //     // 清理并退出，不再执行后续的常规显示逻辑
+    //     HelpWin32.UnregisterHotKey(Handle, 222); 
+    //     StaticValue.IsCapture = false; 
+    //     image_screen?.Dispose();
+    //     return; // 【关键】直接返回，中断后续的标准流程
+    // }
+			// 检查是否为截图翻译模式（包含了显示窗口和不显示窗口两种情况）
+			if (isScreenshotTranslateMode)
+			{
+			    bool success = !string.IsNullOrWhiteSpace(finalTextToShow) && 
+			                   !finalTextToShow.Contains("***该区域未发现文本***");
+
+			    if (success)
+			    {
+					// 根据“不显示窗口”的设置决定走哪个流程
+					if (StaticValue.NoWindowScreenshotTranslation)
+					{
+						// 【流程 A：不显示窗口，直接复制（真·静默翻译）】
+						this.Hide();
+						// 或者
+						// this.Visible = false;
+						
+						// 异步获取翻译结果
+						string translationResult = await GetTranslationAsync(finalTextToShow);
+
+						// 检查翻译是否成功，这行代码会等到翻译完成后才执行，此时 translationResult 是有值的
+						if (!string.IsNullOrEmpty(translationResult) && !translationResult.Contains("]："))
+						{
+							SetClipboardWithLock(translationResult);
+							CommonHelper.ShowHelpMsg("译文已复制");
+						}
+						else
+						{
+							// 如果翻译出错，也提示用户
+							CommonHelper.ShowHelpMsg("翻译失败：" + translationResult);
+						}
+						// 【关键修正】在此流程的末尾，手动重置标志位
+            			isScreenshotTranslateMode = false;
+        			}
+					else
+					{
+						// 【流程 B：显示窗口】
+
+						// 1. 将OCR结果放入原文框
+						RichBoxBody.Text = finalTextToShow;
+
+						// 2. 调用翻译方法，并传入 true 来默认隐藏原文
+						TransClick(true);
+					}
+    			}
+    			else
+    			{
+					// OCR失败，不会有翻译流程，所以在这里重置标志是安全的
+    			    isScreenshotTranslateMode = false;
+    			    // OCR失败的提示
+    			    string errorMessage = string.IsNullOrWhiteSpace(typeset_txt) ? "未识别到文本" : typeset_txt.Replace("***", "").Trim();
+    			    CommonHelper.ShowHelpMsg("截图翻译失败：" + errorMessage);
+    			}
+
+    			// 统一的清理工作
+    			HelpWin32.UnregisterHotKey(Handle, 222); 
+    			StaticValue.IsCapture = false; 
+    			image_screen?.Dispose();
+    			return; // 中断后续的标准流程
+			}
 
 			// ====================【核心修改结束】====================
-    
-    		// 原有的 RichBoxBody.Refresh() 不再需要，可以删除
+
+			// 原有的 RichBoxBody.Refresh() 不再需要，可以删除
 
 			// --- 步骤 3: 在UI完全稳定后，才执行所有可能阻塞的操作（如剪贴板） ---
 
@@ -4379,7 +4493,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			{
 				SetClipboardWithLock(textToCopy);
 				Debug.WriteLine("拆分后自动复制成功");
-				
+
 			}
 			else
 			{
@@ -4387,8 +4501,8 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				if (autoCopyOcr && (!autoTranslate || !autoCopyTranslate))
 				{
 					SetClipboardWithLock(RichBoxBody.Text);
-						Debug.WriteLine("识别后自动复制成功");
-				
+					Debug.WriteLine("识别后自动复制成功");
+
 				}
 			}
 
