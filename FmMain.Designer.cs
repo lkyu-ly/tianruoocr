@@ -361,6 +361,12 @@ namespace TrOCR
 			this.Upper_str.Click += new global::System.EventHandler(this.change_Upper_str_Click);
 			this.pinyin.Text = "汉语拼音";
 			this.pinyin.Click += new global::System.EventHandler(this.change_pinyin_Click);
+			// 【新增】初始化“盘古之白”菜单项
+			this.pangu_spacing = new global::System.Windows.Forms.ToolStripMenuItem();
+			this.pangu_spacing.Name = "pangu_spacing";
+			this.pangu_spacing.Text = "盘古之白";
+			this.pangu_spacing.Click += new global::System.EventHandler(this.pangu_spacing_Click);
+
 			this.change_button = this.Main_change;
 			this.change_button.DropDownItems.AddRange(new global::System.Windows.Forms.ToolStripItem[]
 			{
@@ -370,7 +376,8 @@ namespace TrOCR
 				this.tra_zh,
 				this.str_Upper,
 				this.Upper_str,
-				this.pinyin
+				this.pinyin,
+				this.pangu_spacing
 			});
 			this.interface_button = this.Main_jiekou;
 			this.interface_button.DropDownItems.AddRange(new global::System.Windows.Forms.ToolStripItem[]
@@ -638,6 +645,9 @@ namespace TrOCR
 		/// 转换 - 汉语拼音
 		/// </summary>
 		private global::System.Windows.Forms.ToolStripMenuItem pinyin;
+		//转换 - 盘古之白
+		private global::System.Windows.Forms.ToolStripMenuItem pangu_spacing; 
+
 		#endregion
 
 		#region 翻译文本框菜单 (menu_copy)
