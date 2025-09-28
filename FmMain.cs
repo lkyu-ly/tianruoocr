@@ -743,6 +743,9 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				case "彩云小译2":
 					sectionName = "Caiyun2";
 					break;
+				case "百度2":
+					sectionName = "Baidu2";
+					break;
 				case "火山翻译":
 					sectionName = "Volcano";
 					break;
@@ -886,6 +889,9 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 					break;
 				case "火山翻译":
 					googleTranslate_txt = await VolcanoTranslator.TranslateAsync(typeset_txt, fromLang, toLang);
+					break;
+				case "百度2":
+					googleTranslate_txt = await BaiduTranslator2Helper.TranslateAsync(typeset_txt, fromLang, toLang);
 					break;
 				default:
 					googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "google");
@@ -1971,7 +1977,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		private void LoadTranslateConfig()
 		{
 			StaticValue.Translate_Configs.Clear();
-			var services = new[] { "Google", "Baidu", "Tencent", "Bing", "Bing2", "Microsoft", "Yandex", "TencentInteractive", "Caiyun", "Caiyun2", "Volcano" };
+			var services = new[] { "Google", "Baidu", "Tencent", "Bing", "Bing2", "Microsoft", "Yandex", "TencentInteractive", "Caiyun", "Caiyun2", "Volcano","Baidu2" };
 			foreach (var service in services)
 			{
 				string section = "Translate_" + service;
@@ -6375,6 +6381,9 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 						case "彩云小译2":
 							sectionName = "Caiyun2";
 							break;
+						case "百度2":
+							sectionName = "Baidu2";
+							break;
 						case "火山翻译":
 							sectionName = "Volcano";
 							break;
@@ -6510,6 +6519,9 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 							break;
 						case "火山翻译":
 							data = await VolcanoTranslator.TranslateAsync(trans_hotkey, fromLang, toLang);
+							break;
+						case "百度2":
+							data = await BaiduTranslator2Helper.TranslateAsync(trans_hotkey, fromLang, toLang);
 							break;
 						default:
 							data = await GTranslateHelper.TranslateAsync(trans_hotkey, fromLang, toLang, "google");
@@ -7092,6 +7104,10 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		{
 			Trans_foreach("彩云小译2");
 		}
+		public void Trans_baidu2_Click(object sender, EventArgs e)
+		{
+			Trans_foreach("百度2");
+		}
 
 		/// <summary>
 		/// 翻译接口选择处理函数，更新界面显示并执行翻译
@@ -7111,6 +7127,8 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			trans_caiyun.Text = "彩云";
 			trans_volcano.Text = "火山";
 			trans_caiyun2.Text = "彩云2";
+			trans_baidu2.Text = "百度2";
+
 
 			// 根据选择的翻译接口设置对应按钮文本
 			if (name == "百度")
@@ -7156,6 +7174,10 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			if (name == "彩云小译2")
 			{
 				trans_caiyun2.Text = "彩云2√";
+			}
+			if (name == "百度2")
+			{
+				trans_baidu2.Text = "百度2√";
 			}
 			
 			// 保存翻译接口配置
@@ -7926,6 +7948,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			SetMenuItemVisibility(trans_caiyun, "翻译接口显示", "Caiyun");
 			SetMenuItemVisibility(trans_volcano, "翻译接口显示", "Volcano");
 			SetMenuItemVisibility(trans_caiyun2, "翻译接口显示", "Caiyun2");
+			SetMenuItemVisibility(trans_baidu2, "翻译接口显示", "Baidu2");
 		}
 
 		/// <summary>
@@ -7954,6 +7977,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 							case "TencentInteractive":
 							case "Caiyun":
 							case "Volcano":
+							case "Baidu2":
 								isVisible = false;
 								break;
 							default:

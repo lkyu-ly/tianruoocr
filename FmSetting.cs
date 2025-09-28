@@ -735,6 +735,9 @@ namespace TrOCR
 			var volcanoTarget = IniHelper.GetValue("Translate_Volcano", "Target");
 			textBox_Volcano_Target.Text = (volcanoTarget == "发生错误") ? "自动判断" : volcanoTarget;
 
+			//百度翻译2
+			TrOCRUtils.LoadSetting("Translate_Baidu2", "Source", "auto");
+			TrOCRUtils.LoadSetting("Translate_Baidu2", "Target", "自动判断");
 			// 彩云小译2
 			var caiyun2Source = IniHelper.GetValue("Translate_Caiyun2", "Source");
 			textBox_Caiyun2_Source.Text = (caiyun2Source == "发生错误") ? "auto" : caiyun2Source;
@@ -748,7 +751,7 @@ namespace TrOCR
 			{
 				string visibilityValue = IniHelper.GetValue("翻译接口显示", apiName);
 				bool isVisible;
-				if (apiName == "TencentInteractive" || apiName == "Caiyun" || apiName == "Volcano")
+				if (apiName == "TencentInteractive" || apiName == "Caiyun" || apiName == "Volcano" || apiName == "Baidu2")
 				{
 					isVisible = visibilityValue != "发生错误" && Convert.ToBoolean(visibilityValue);
 				}
@@ -774,6 +777,7 @@ namespace TrOCR
 			setTranVisibility("Caiyun", checkBox_ShowCaiyun, tabPage_Caiyun);
 			setTranVisibility("Volcano", checkBox_ShowVolcano, tabPage_Volcano);
 			setTranVisibility("Caiyun2", checkBox_ShowCaiyun2, tabPage_Caiyun2);
+			setTranVisibility("Baidu2", checkBox_ShowBaidu2, tabPage_Baidu2);
 
 			// 设置页的OCR接口可见性
 			Action<string, CheckBox, TabPage> setOcrVisibility = (apiName, checkBox, tabPage) =>
@@ -949,6 +953,7 @@ namespace TrOCR
 			checkBox_ShowCaiyun.CheckedChanged += ApiVisibility_CheckedChanged;
 			checkBox_ShowVolcano.CheckedChanged += ApiVisibility_CheckedChanged;
 			checkBox_ShowCaiyun2.CheckedChanged += ApiVisibility_CheckedChanged;
+			checkBox_ShowBaidu2.CheckedChanged += ApiVisibility_CheckedChanged;
 
 			// 为OCR模型配置按钮添加事件处理程序
 			// PaddleOCR事件
@@ -1961,6 +1966,10 @@ namespace TrOCR
 			IniHelper.SetValue("Translate_Volcano", "Source", textBox_Volcano_Source.Text);
 			IniHelper.SetValue("Translate_Volcano", "Target", textBox_Volcano_Target.Text);
 
+			//百度翻译2
+			IniHelper.SetValue("Translate_Baidu2", "Source", textBox_Baidu2_Source.Text);
+			IniHelper.SetValue("Translate_Baidu2", "Target", textBox_Baidu2_Target.Text);
+
 			// 彩云小译2
 			IniHelper.SetValue("Translate_Caiyun2", "Source", textBox_Caiyun2_Source.Text);
 			IniHelper.SetValue("Translate_Caiyun2", "Target", textBox_Caiyun2_Target.Text);
@@ -1978,6 +1987,7 @@ namespace TrOCR
 			IniHelper.SetValue("翻译接口显示", "Caiyun", checkBox_ShowCaiyun.Checked.ToString());
 			IniHelper.SetValue("翻译接口显示", "Volcano", checkBox_ShowVolcano.Checked.ToString());
 			IniHelper.SetValue("翻译接口显示", "Caiyun2", checkBox_ShowCaiyun2.Checked.ToString());
+			IniHelper.SetValue("翻译接口显示", "Baidu2", checkBox_ShowBaidu2.Checked.ToString());
 
 			// 保存OCR接口显示设置
 			IniHelper.SetValue("Ocr接口显示", "Baidu", checkBox_ShowOcrBaidu.Checked.ToString());
@@ -2355,6 +2365,7 @@ namespace TrOCR
 			else if (checkBox == checkBox_ShowCaiyun && currentTranslateApi == "彩云小译") isInUse = true;
 			else if (checkBox == checkBox_ShowVolcano && currentTranslateApi == "火山翻译") isInUse = true;
 			else if (checkBox == checkBox_ShowCaiyun2 && currentTranslateApi == "彩云小译2") isInUse = true;
+			else if (checkBox == checkBox_ShowBaidu2 && currentTranslateApi == "百度2") isInUse = true;
 		//如果接口正在使用，弹出提示
 		 if (isInUse)
 		 {

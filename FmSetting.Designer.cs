@@ -126,6 +126,15 @@ namespace TrOCR
             this.groupBox_Caiyun2_Source = new System.Windows.Forms.GroupBox();
             this.btn_Reset_Caiyun2_Source = new System.Windows.Forms.Button();
             this.textBox_Caiyun2_Source = new System.Windows.Forms.TextBox();
+            this.tabPage_Baidu2 = new System.Windows.Forms.TabPage();
+            this.groupBox_Baidu2_Key = new System.Windows.Forms.GroupBox();
+            this.label40 = new System.Windows.Forms.Label();
+            this.groupBox_Baidu2_Target = new System.Windows.Forms.GroupBox();
+            this.btn_Reset_Baidu2_Target = new System.Windows.Forms.Button();
+            this.textBox_Baidu2_Target = new System.Windows.Forms.TextBox();
+            this.groupBox_Baidu2_Source = new System.Windows.Forms.GroupBox();
+            this.btn_Reset_Baidu2_Source = new System.Windows.Forms.Button();
+            this.textBox_Baidu2_Source = new System.Windows.Forms.TextBox();
             this.tabPage_白描接口 = new System.Windows.Forms.TabPage();
             this.BoxBaimiaoPassword = new System.Windows.Forms.TextBox();
             this.BoxBaimiaoUsername = new System.Windows.Forms.TextBox();
@@ -183,6 +192,7 @@ namespace TrOCR
             this.label11 = new System.Windows.Forms.Label();
             this.Page_密钥 = new System.Windows.Forms.TabPage();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.label32 = new System.Windows.Forms.Label();
             this.label_OcrApiHelpText = new System.Windows.Forms.Label();
             this.百度_btn = new System.Windows.Forms.Button();
             this.密钥Button_apply = new System.Windows.Forms.Button();
@@ -211,7 +221,13 @@ namespace TrOCR
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.inPage_百度手写 = new System.Windows.Forms.TabPage();
-            this.label32 = new System.Windows.Forms.Label();
+            this.comboBox_Baidu_Handwriting_Language = new System.Windows.Forms.ComboBox();
+            this.label39 = new System.Windows.Forms.Label();
+            this.text_baidu_handwriting_secretkey = new System.Windows.Forms.TextBox();
+            this.text_baidu_handwriting_apikey = new System.Windows.Forms.TextBox();
+            this.label38 = new System.Windows.Forms.Label();
+            this.label37 = new System.Windows.Forms.Label();
+            this.label36 = new System.Windows.Forms.Label();
             this.tabPage_腾讯OCR = new System.Windows.Forms.TabPage();
             this.tabControl_TXApiType = new System.Windows.Forms.TabControl();
             this.inPage_腾讯接口 = new System.Windows.Forms.TabPage();
@@ -355,9 +371,14 @@ namespace TrOCR
             this.checkBox_AutoCopyOcrTranslation = new System.Windows.Forms.CheckBox();
             this.tab_标签 = new System.Windows.Forms.TabControl();
             this.Page_常规2 = new System.Windows.Forms.TabPage();
-            this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.groupBox13 = new System.Windows.Forms.GroupBox();
+            this.checkBox_AutoCopyInputTranslation = new System.Windows.Forms.CheckBox();
+            this.cbBox_输入翻译自动翻译 = new System.Windows.Forms.CheckBox();
+            this.cbBox_输入翻译剪贴板 = new System.Windows.Forms.CheckBox();
+            this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.checkbox_NoWindowScreenshotTranslation = new System.Windows.Forms.CheckBox();
             this.checkbox_AutoCopyScreenshotTranslation = new System.Windows.Forms.CheckBox();
+            this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.cbBox_禁用隐藏原文按钮 = new System.Windows.Forms.CheckBox();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -393,18 +414,7 @@ namespace TrOCR
             this.label_更新日期 = new System.Windows.Forms.Label();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.txt_更新说明 = new System.Windows.Forms.TextBox();
-            this.groupBox12 = new System.Windows.Forms.GroupBox();
-            this.groupBox13 = new System.Windows.Forms.GroupBox();
-            this.cbBox_输入翻译剪贴板 = new System.Windows.Forms.CheckBox();
-            this.cbBox_输入翻译自动翻译 = new System.Windows.Forms.CheckBox();
-            this.checkBox_AutoCopyInputTranslation = new System.Windows.Forms.CheckBox();
-            this.label36 = new System.Windows.Forms.Label();
-            this.label37 = new System.Windows.Forms.Label();
-            this.label38 = new System.Windows.Forms.Label();
-            this.text_baidu_handwriting_apikey = new System.Windows.Forms.TextBox();
-            this.text_baidu_handwriting_secretkey = new System.Windows.Forms.TextBox();
-            this.label39 = new System.Windows.Forms.Label();
-            this.comboBox_Baidu_Handwriting_Language = new System.Windows.Forms.ComboBox();
+            this.checkBox_ShowBaidu2 = new System.Windows.Forms.CheckBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -451,6 +461,10 @@ namespace TrOCR
             this.groupBox_Caiyun2_Key.SuspendLayout();
             this.groupBox_Caiyun2_Target.SuspendLayout();
             this.groupBox_Caiyun2_Source.SuspendLayout();
+            this.tabPage_Baidu2.SuspendLayout();
+            this.groupBox_Baidu2_Key.SuspendLayout();
+            this.groupBox_Baidu2_Target.SuspendLayout();
+            this.groupBox_Baidu2_Source.SuspendLayout();
             this.tabPage_白描接口.SuspendLayout();
             this.Page_显示的接口.SuspendLayout();
             this.groupBox_翻译接口.SuspendLayout();
@@ -496,6 +510,8 @@ namespace TrOCR
             this.groupBox_TranslateWorkflow.SuspendLayout();
             this.tab_标签.SuspendLayout();
             this.Page_常规2.SuspendLayout();
+            this.groupBox13.SuspendLayout();
+            this.groupBox12.SuspendLayout();
             this.groupBox11.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -509,8 +525,6 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
-            this.groupBox12.SuspendLayout();
-            this.groupBox13.SuspendLayout();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -537,6 +551,7 @@ namespace TrOCR
             this.tabControl_Trans.Controls.Add(this.tabPage_Caiyun);
             this.tabControl_Trans.Controls.Add(this.tabPage_Volcano);
             this.tabControl_Trans.Controls.Add(this.tabPage_Caiyun2);
+            this.tabControl_Trans.Controls.Add(this.tabPage_Baidu2);
             this.tabControl_Trans.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl_Trans.Location = new System.Drawing.Point(0, 0);
             this.tabControl_Trans.Margin = new System.Windows.Forms.Padding(4);
@@ -1707,6 +1722,105 @@ namespace TrOCR
             this.textBox_Caiyun2_Source.Size = new System.Drawing.Size(401, 25);
             this.textBox_Caiyun2_Source.TabIndex = 0;
             // 
+            // tabPage_Baidu2
+            // 
+            this.tabPage_Baidu2.Controls.Add(this.groupBox_Baidu2_Key);
+            this.tabPage_Baidu2.Controls.Add(this.groupBox_Baidu2_Target);
+            this.tabPage_Baidu2.Controls.Add(this.groupBox_Baidu2_Source);
+            this.tabPage_Baidu2.Location = new System.Drawing.Point(4, 25);
+            this.tabPage_Baidu2.Name = "tabPage_Baidu2";
+            this.tabPage_Baidu2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_Baidu2.Size = new System.Drawing.Size(515, 486);
+            this.tabPage_Baidu2.TabIndex = 11;
+            this.tabPage_Baidu2.Text = "Baidu2";
+            this.tabPage_Baidu2.UseVisualStyleBackColor = true;
+            // 
+            // groupBox_Baidu2_Key
+            // 
+            this.groupBox_Baidu2_Key.Controls.Add(this.label40);
+            this.groupBox_Baidu2_Key.Location = new System.Drawing.Point(8, 160);
+            this.groupBox_Baidu2_Key.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox_Baidu2_Key.Name = "groupBox_Baidu2_Key";
+            this.groupBox_Baidu2_Key.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox_Baidu2_Key.Size = new System.Drawing.Size(493, 69);
+            this.groupBox_Baidu2_Key.TabIndex = 3;
+            this.groupBox_Baidu2_Key.TabStop = false;
+            this.groupBox_Baidu2_Key.Text = "密钥";
+            // 
+            // label40
+            // 
+            this.label40.AutoSize = true;
+            this.label40.Location = new System.Drawing.Point(111, 32);
+            this.label40.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label40.Name = "label40";
+            this.label40.Size = new System.Drawing.Size(232, 15);
+            this.label40.TabIndex = 0;
+            this.label40.Text = "无需密钥，此接口已失效，勿使用";
+            // 
+            // groupBox_Baidu2_Target
+            // 
+            this.groupBox_Baidu2_Target.Controls.Add(this.btn_Reset_Baidu2_Target);
+            this.groupBox_Baidu2_Target.Controls.Add(this.textBox_Baidu2_Target);
+            this.groupBox_Baidu2_Target.Location = new System.Drawing.Point(8, 84);
+            this.groupBox_Baidu2_Target.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox_Baidu2_Target.Name = "groupBox_Baidu2_Target";
+            this.groupBox_Baidu2_Target.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox_Baidu2_Target.Size = new System.Drawing.Size(493, 69);
+            this.groupBox_Baidu2_Target.TabIndex = 2;
+            this.groupBox_Baidu2_Target.TabStop = false;
+            this.groupBox_Baidu2_Target.Text = "目标语言";
+            // 
+            // btn_Reset_Baidu2_Target
+            // 
+            this.btn_Reset_Baidu2_Target.Location = new System.Drawing.Point(419, 24);
+            this.btn_Reset_Baidu2_Target.Margin = new System.Windows.Forms.Padding(4);
+            this.btn_Reset_Baidu2_Target.Name = "btn_Reset_Baidu2_Target";
+            this.btn_Reset_Baidu2_Target.Size = new System.Drawing.Size(67, 29);
+            this.btn_Reset_Baidu2_Target.TabIndex = 1;
+            this.btn_Reset_Baidu2_Target.Text = "重置";
+            this.btn_Reset_Baidu2_Target.UseVisualStyleBackColor = true;
+            this.btn_Reset_Baidu2_Target.Click += new System.EventHandler(this.btn_Reset_Target_Click);
+            // 
+            // textBox_Baidu2_Target
+            // 
+            this.textBox_Baidu2_Target.Location = new System.Drawing.Point(8, 25);
+            this.textBox_Baidu2_Target.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox_Baidu2_Target.Name = "textBox_Baidu2_Target";
+            this.textBox_Baidu2_Target.Size = new System.Drawing.Size(401, 25);
+            this.textBox_Baidu2_Target.TabIndex = 0;
+            // 
+            // groupBox_Baidu2_Source
+            // 
+            this.groupBox_Baidu2_Source.Controls.Add(this.btn_Reset_Baidu2_Source);
+            this.groupBox_Baidu2_Source.Controls.Add(this.textBox_Baidu2_Source);
+            this.groupBox_Baidu2_Source.Location = new System.Drawing.Point(8, 8);
+            this.groupBox_Baidu2_Source.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox_Baidu2_Source.Name = "groupBox_Baidu2_Source";
+            this.groupBox_Baidu2_Source.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox_Baidu2_Source.Size = new System.Drawing.Size(493, 69);
+            this.groupBox_Baidu2_Source.TabIndex = 1;
+            this.groupBox_Baidu2_Source.TabStop = false;
+            this.groupBox_Baidu2_Source.Text = "源语言";
+            // 
+            // btn_Reset_Baidu2_Source
+            // 
+            this.btn_Reset_Baidu2_Source.Location = new System.Drawing.Point(419, 24);
+            this.btn_Reset_Baidu2_Source.Margin = new System.Windows.Forms.Padding(4);
+            this.btn_Reset_Baidu2_Source.Name = "btn_Reset_Baidu2_Source";
+            this.btn_Reset_Baidu2_Source.Size = new System.Drawing.Size(67, 29);
+            this.btn_Reset_Baidu2_Source.TabIndex = 1;
+            this.btn_Reset_Baidu2_Source.Text = "重置";
+            this.btn_Reset_Baidu2_Source.UseVisualStyleBackColor = true;
+            this.btn_Reset_Baidu2_Source.Click += new System.EventHandler(this.btn_Reset_Source_Click);
+            // 
+            // textBox_Baidu2_Source
+            // 
+            this.textBox_Baidu2_Source.Location = new System.Drawing.Point(8, 25);
+            this.textBox_Baidu2_Source.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox_Baidu2_Source.Name = "textBox_Baidu2_Source";
+            this.textBox_Baidu2_Source.Size = new System.Drawing.Size(401, 25);
+            this.textBox_Baidu2_Source.TabIndex = 0;
+            // 
             // tabPage_白描接口
             // 
             this.tabPage_白描接口.BackColor = System.Drawing.Color.White;
@@ -1776,6 +1890,7 @@ namespace TrOCR
             // 
             // groupBox_翻译接口
             // 
+            this.groupBox_翻译接口.Controls.Add(this.checkBox_ShowBaidu2);
             this.groupBox_翻译接口.Controls.Add(this.checkBox_ShowGoogle);
             this.groupBox_翻译接口.Controls.Add(this.checkBox_ShowBaidu);
             this.groupBox_翻译接口.Controls.Add(this.checkBox_ShowTencent);
@@ -2377,6 +2492,15 @@ namespace TrOCR
             this.groupBox7.Text = "说明";
             this.groupBox7.Visible = false;
             // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.Location = new System.Drawing.Point(6, 75);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(472, 45);
+            this.label32.TabIndex = 0;
+            this.label32.Text = "百度手写识别接口暂未添加，请使用腾讯高精度接口（支持手写识别）\r\n\r\n或离线ocr接口使用支持手写识别的离线模型";
+            // 
             // label_OcrApiHelpText
             // 
             this.label_OcrApiHelpText.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -2697,14 +2821,73 @@ namespace TrOCR
             this.inPage_百度手写.Text = "手写";
             this.inPage_百度手写.UseVisualStyleBackColor = true;
             // 
-            // label32
+            // comboBox_Baidu_Handwriting_Language
             // 
-            this.label32.AutoSize = true;
-            this.label32.Location = new System.Drawing.Point(6, 75);
-            this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(472, 45);
-            this.label32.TabIndex = 0;
-            this.label32.Text = "百度手写识别接口暂未添加，请使用腾讯高精度接口（支持手写识别）\r\n\r\n或离线ocr接口使用支持手写识别的离线模型";
+            this.comboBox_Baidu_Handwriting_Language.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_Baidu_Handwriting_Language.FormattingEnabled = true;
+            this.comboBox_Baidu_Handwriting_Language.Location = new System.Drawing.Point(104, 83);
+            this.comboBox_Baidu_Handwriting_Language.Margin = new System.Windows.Forms.Padding(4);
+            this.comboBox_Baidu_Handwriting_Language.Name = "comboBox_Baidu_Handwriting_Language";
+            this.comboBox_Baidu_Handwriting_Language.Size = new System.Drawing.Size(160, 23);
+            this.comboBox_Baidu_Handwriting_Language.TabIndex = 15;
+            // 
+            // label39
+            // 
+            this.label39.AutoSize = true;
+            this.label39.Location = new System.Drawing.Point(4, 86);
+            this.label39.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label39.Name = "label39";
+            this.label39.Size = new System.Drawing.Size(82, 15);
+            this.label39.TabIndex = 14;
+            this.label39.Text = "识别语言：";
+            // 
+            // text_baidu_handwriting_secretkey
+            // 
+            this.text_baidu_handwriting_secretkey.BackColor = System.Drawing.Color.White;
+            this.text_baidu_handwriting_secretkey.Location = new System.Drawing.Point(104, 47);
+            this.text_baidu_handwriting_secretkey.Margin = new System.Windows.Forms.Padding(4);
+            this.text_baidu_handwriting_secretkey.Name = "text_baidu_handwriting_secretkey";
+            this.text_baidu_handwriting_secretkey.Size = new System.Drawing.Size(367, 25);
+            this.text_baidu_handwriting_secretkey.TabIndex = 13;
+            // 
+            // text_baidu_handwriting_apikey
+            // 
+            this.text_baidu_handwriting_apikey.BackColor = System.Drawing.Color.White;
+            this.text_baidu_handwriting_apikey.Location = new System.Drawing.Point(104, 14);
+            this.text_baidu_handwriting_apikey.Margin = new System.Windows.Forms.Padding(4);
+            this.text_baidu_handwriting_apikey.Name = "text_baidu_handwriting_apikey";
+            this.text_baidu_handwriting_apikey.Size = new System.Drawing.Size(367, 25);
+            this.text_baidu_handwriting_apikey.TabIndex = 12;
+            // 
+            // label38
+            // 
+            this.label38.AutoSize = true;
+            this.label38.Location = new System.Drawing.Point(4, 118);
+            this.label38.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label38.Name = "label38";
+            this.label38.Size = new System.Drawing.Size(247, 15);
+            this.label38.TabIndex = 11;
+            this.label38.Text = "说明：留空则默认使用标准版的密钥";
+            // 
+            // label37
+            // 
+            this.label37.AutoSize = true;
+            this.label37.Location = new System.Drawing.Point(4, 54);
+            this.label37.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label37.Name = "label37";
+            this.label37.Size = new System.Drawing.Size(95, 15);
+            this.label37.TabIndex = 10;
+            this.label37.Text = "Secret Key:";
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.Location = new System.Drawing.Point(4, 17);
+            this.label36.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(71, 15);
+            this.label36.TabIndex = 9;
+            this.label36.Text = "API Key:";
             // 
             // tabPage_腾讯OCR
             // 
@@ -4266,15 +4449,62 @@ namespace TrOCR
             this.Page_常规2.Text = "常规2";
             this.Page_常规2.UseVisualStyleBackColor = true;
             // 
-            // groupBox11
+            // groupBox13
             // 
-            this.groupBox11.Controls.Add(this.cbBox_禁用隐藏原文按钮);
-            this.groupBox11.Location = new System.Drawing.Point(9, 277);
-            this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(511, 100);
-            this.groupBox11.TabIndex = 1;
-            this.groupBox11.TabStop = false;
-            this.groupBox11.Text = "其他";
+            this.groupBox13.Controls.Add(this.checkBox_AutoCopyInputTranslation);
+            this.groupBox13.Controls.Add(this.cbBox_输入翻译自动翻译);
+            this.groupBox13.Controls.Add(this.cbBox_输入翻译剪贴板);
+            this.groupBox13.Dock = System.Windows.Forms.DockStyle.Top;
+            this.groupBox13.Location = new System.Drawing.Point(3, 3);
+            this.groupBox13.Name = "groupBox13";
+            this.groupBox13.Size = new System.Drawing.Size(517, 91);
+            this.groupBox13.TabIndex = 3;
+            this.groupBox13.TabStop = false;
+            this.groupBox13.Text = "输入翻译";
+            // 
+            // checkBox_AutoCopyInputTranslation
+            // 
+            this.checkBox_AutoCopyInputTranslation.AutoSize = true;
+            this.checkBox_AutoCopyInputTranslation.Location = new System.Drawing.Point(4, 52);
+            this.checkBox_AutoCopyInputTranslation.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_AutoCopyInputTranslation.Name = "checkBox_AutoCopyInputTranslation";
+            this.checkBox_AutoCopyInputTranslation.Size = new System.Drawing.Size(239, 19);
+            this.checkBox_AutoCopyInputTranslation.TabIndex = 10;
+            this.checkBox_AutoCopyInputTranslation.Text = "输入翻译后，自动复制翻译结果";
+            this.checkBox_AutoCopyInputTranslation.UseVisualStyleBackColor = true;
+            // 
+            // cbBox_输入翻译自动翻译
+            // 
+            this.cbBox_输入翻译自动翻译.AutoSize = true;
+            this.cbBox_输入翻译自动翻译.Location = new System.Drawing.Point(254, 25);
+            this.cbBox_输入翻译自动翻译.Margin = new System.Windows.Forms.Padding(4);
+            this.cbBox_输入翻译自动翻译.Name = "cbBox_输入翻译自动翻译";
+            this.cbBox_输入翻译自动翻译.Size = new System.Drawing.Size(194, 19);
+            this.cbBox_输入翻译自动翻译.TabIndex = 9;
+            this.cbBox_输入翻译自动翻译.Text = "输入翻译输入后自动翻译";
+            this.cbBox_输入翻译自动翻译.UseVisualStyleBackColor = true;
+            // 
+            // cbBox_输入翻译剪贴板
+            // 
+            this.cbBox_输入翻译剪贴板.AutoSize = true;
+            this.cbBox_输入翻译剪贴板.Location = new System.Drawing.Point(4, 25);
+            this.cbBox_输入翻译剪贴板.Margin = new System.Windows.Forms.Padding(4);
+            this.cbBox_输入翻译剪贴板.Name = "cbBox_输入翻译剪贴板";
+            this.cbBox_输入翻译剪贴板.Size = new System.Drawing.Size(224, 19);
+            this.cbBox_输入翻译剪贴板.TabIndex = 8;
+            this.cbBox_输入翻译剪贴板.Text = "输入翻译默认使用剪贴板文本";
+            this.cbBox_输入翻译剪贴板.UseVisualStyleBackColor = true;
+            // 
+            // groupBox12
+            // 
+            this.groupBox12.Controls.Add(this.checkbox_NoWindowScreenshotTranslation);
+            this.groupBox12.Controls.Add(this.checkbox_AutoCopyScreenshotTranslation);
+            this.groupBox12.Location = new System.Drawing.Point(7, 210);
+            this.groupBox12.Name = "groupBox12";
+            this.groupBox12.Size = new System.Drawing.Size(513, 61);
+            this.groupBox12.TabIndex = 2;
+            this.groupBox12.TabStop = false;
+            this.groupBox12.Text = "截图翻译";
             // 
             // checkbox_NoWindowScreenshotTranslation
             // 
@@ -4297,6 +4527,16 @@ namespace TrOCR
             this.checkbox_AutoCopyScreenshotTranslation.Text = "截图翻译后自动复制译文";
             this.checkbox_AutoCopyScreenshotTranslation.UseVisualStyleBackColor = true;
             this.checkbox_AutoCopyScreenshotTranslation.CheckedChanged += new System.EventHandler(this.checkbox_AutoCopyScreenshotTranslation_CheckedChanged);
+            // 
+            // groupBox11
+            // 
+            this.groupBox11.Controls.Add(this.cbBox_禁用隐藏原文按钮);
+            this.groupBox11.Location = new System.Drawing.Point(9, 277);
+            this.groupBox11.Name = "groupBox11";
+            this.groupBox11.Size = new System.Drawing.Size(511, 100);
+            this.groupBox11.TabIndex = 1;
+            this.groupBox11.TabStop = false;
+            this.groupBox11.Text = "其他";
             // 
             // cbBox_禁用隐藏原文按钮
             // 
@@ -4704,130 +4944,16 @@ namespace TrOCR
             this.txt_更新说明.Size = new System.Drawing.Size(366, 155);
             this.txt_更新说明.TabIndex = 4;
             // 
-            // groupBox12
+            // checkBox_ShowBaidu2
             // 
-            this.groupBox12.Controls.Add(this.checkbox_NoWindowScreenshotTranslation);
-            this.groupBox12.Controls.Add(this.checkbox_AutoCopyScreenshotTranslation);
-            this.groupBox12.Location = new System.Drawing.Point(7, 210);
-            this.groupBox12.Name = "groupBox12";
-            this.groupBox12.Size = new System.Drawing.Size(513, 61);
-            this.groupBox12.TabIndex = 2;
-            this.groupBox12.TabStop = false;
-            this.groupBox12.Text = "截图翻译";
-            // 
-            // groupBox13
-            // 
-            this.groupBox13.Controls.Add(this.checkBox_AutoCopyInputTranslation);
-            this.groupBox13.Controls.Add(this.cbBox_输入翻译自动翻译);
-            this.groupBox13.Controls.Add(this.cbBox_输入翻译剪贴板);
-            this.groupBox13.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox13.Location = new System.Drawing.Point(3, 3);
-            this.groupBox13.Name = "groupBox13";
-            this.groupBox13.Size = new System.Drawing.Size(517, 91);
-            this.groupBox13.TabIndex = 3;
-            this.groupBox13.TabStop = false;
-            this.groupBox13.Text = "输入翻译";
-            // 
-            // cbBox_输入翻译剪贴板
-            // 
-            this.cbBox_输入翻译剪贴板.AutoSize = true;
-            this.cbBox_输入翻译剪贴板.Location = new System.Drawing.Point(4, 25);
-            this.cbBox_输入翻译剪贴板.Margin = new System.Windows.Forms.Padding(4);
-            this.cbBox_输入翻译剪贴板.Name = "cbBox_输入翻译剪贴板";
-            this.cbBox_输入翻译剪贴板.Size = new System.Drawing.Size(224, 19);
-            this.cbBox_输入翻译剪贴板.TabIndex = 8;
-            this.cbBox_输入翻译剪贴板.Text = "输入翻译默认使用剪贴板文本";
-            this.cbBox_输入翻译剪贴板.UseVisualStyleBackColor = true;
-            // 
-            // cbBox_输入翻译自动翻译
-            // 
-            this.cbBox_输入翻译自动翻译.AutoSize = true;
-            this.cbBox_输入翻译自动翻译.Location = new System.Drawing.Point(254, 25);
-            this.cbBox_输入翻译自动翻译.Margin = new System.Windows.Forms.Padding(4);
-            this.cbBox_输入翻译自动翻译.Name = "cbBox_输入翻译自动翻译";
-            this.cbBox_输入翻译自动翻译.Size = new System.Drawing.Size(194, 19);
-            this.cbBox_输入翻译自动翻译.TabIndex = 9;
-            this.cbBox_输入翻译自动翻译.Text = "输入翻译输入后自动翻译";
-            this.cbBox_输入翻译自动翻译.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_AutoCopyInputTranslation
-            // 
-            this.checkBox_AutoCopyInputTranslation.AutoSize = true;
-            this.checkBox_AutoCopyInputTranslation.Location = new System.Drawing.Point(4, 52);
-            this.checkBox_AutoCopyInputTranslation.Margin = new System.Windows.Forms.Padding(4);
-            this.checkBox_AutoCopyInputTranslation.Name = "checkBox_AutoCopyInputTranslation";
-            this.checkBox_AutoCopyInputTranslation.Size = new System.Drawing.Size(239, 19);
-            this.checkBox_AutoCopyInputTranslation.TabIndex = 10;
-            this.checkBox_AutoCopyInputTranslation.Text = "输入翻译后，自动复制翻译结果";
-            this.checkBox_AutoCopyInputTranslation.UseVisualStyleBackColor = true;
-            // 
-            // label36
-            // 
-            this.label36.AutoSize = true;
-            this.label36.Location = new System.Drawing.Point(4, 17);
-            this.label36.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label36.Name = "label36";
-            this.label36.Size = new System.Drawing.Size(71, 15);
-            this.label36.TabIndex = 9;
-            this.label36.Text = "API Key:";
-            // 
-            // label37
-            // 
-            this.label37.AutoSize = true;
-            this.label37.Location = new System.Drawing.Point(4, 54);
-            this.label37.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label37.Name = "label37";
-            this.label37.Size = new System.Drawing.Size(95, 15);
-            this.label37.TabIndex = 10;
-            this.label37.Text = "Secret Key:";
-            // 
-            // label38
-            // 
-            this.label38.AutoSize = true;
-            this.label38.Location = new System.Drawing.Point(4, 118);
-            this.label38.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label38.Name = "label38";
-            this.label38.Size = new System.Drawing.Size(247, 15);
-            this.label38.TabIndex = 11;
-            this.label38.Text = "说明：留空则默认使用标准版的密钥";
-            // 
-            // text_baidu_handwriting_apikey
-            // 
-            this.text_baidu_handwriting_apikey.BackColor = System.Drawing.Color.White;
-            this.text_baidu_handwriting_apikey.Location = new System.Drawing.Point(104, 14);
-            this.text_baidu_handwriting_apikey.Margin = new System.Windows.Forms.Padding(4);
-            this.text_baidu_handwriting_apikey.Name = "text_baidu_handwriting_apikey";
-            this.text_baidu_handwriting_apikey.Size = new System.Drawing.Size(367, 25);
-            this.text_baidu_handwriting_apikey.TabIndex = 12;
-            // 
-            // text_baidu_handwriting_secretkey
-            // 
-            this.text_baidu_handwriting_secretkey.BackColor = System.Drawing.Color.White;
-            this.text_baidu_handwriting_secretkey.Location = new System.Drawing.Point(104, 47);
-            this.text_baidu_handwriting_secretkey.Margin = new System.Windows.Forms.Padding(4);
-            this.text_baidu_handwriting_secretkey.Name = "text_baidu_handwriting_secretkey";
-            this.text_baidu_handwriting_secretkey.Size = new System.Drawing.Size(367, 25);
-            this.text_baidu_handwriting_secretkey.TabIndex = 13;
-            // 
-            // label39
-            // 
-            this.label39.AutoSize = true;
-            this.label39.Location = new System.Drawing.Point(4, 86);
-            this.label39.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label39.Name = "label39";
-            this.label39.Size = new System.Drawing.Size(82, 15);
-            this.label39.TabIndex = 14;
-            this.label39.Text = "识别语言：";
-            // 
-            // comboBox_Baidu_Handwriting_Language
-            // 
-            this.comboBox_Baidu_Handwriting_Language.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox_Baidu_Handwriting_Language.FormattingEnabled = true;
-            this.comboBox_Baidu_Handwriting_Language.Location = new System.Drawing.Point(104, 83);
-            this.comboBox_Baidu_Handwriting_Language.Margin = new System.Windows.Forms.Padding(4);
-            this.comboBox_Baidu_Handwriting_Language.Name = "comboBox_Baidu_Handwriting_Language";
-            this.comboBox_Baidu_Handwriting_Language.Size = new System.Drawing.Size(160, 23);
-            this.comboBox_Baidu_Handwriting_Language.TabIndex = 15;
+            this.checkBox_ShowBaidu2.AutoSize = true;
+            this.checkBox_ShowBaidu2.Location = new System.Drawing.Point(360, 106);
+            this.checkBox_ShowBaidu2.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_ShowBaidu2.Name = "checkBox_ShowBaidu2";
+            this.checkBox_ShowBaidu2.Size = new System.Drawing.Size(97, 19);
+            this.checkBox_ShowBaidu2.TabIndex = 11;
+            this.checkBox_ShowBaidu2.Text = "百度翻译2";
+            this.checkBox_ShowBaidu2.UseVisualStyleBackColor = true;
             // 
             // FmSetting
             // 
@@ -4924,6 +5050,13 @@ namespace TrOCR
             this.groupBox_Caiyun2_Target.PerformLayout();
             this.groupBox_Caiyun2_Source.ResumeLayout(false);
             this.groupBox_Caiyun2_Source.PerformLayout();
+            this.tabPage_Baidu2.ResumeLayout(false);
+            this.groupBox_Baidu2_Key.ResumeLayout(false);
+            this.groupBox_Baidu2_Key.PerformLayout();
+            this.groupBox_Baidu2_Target.ResumeLayout(false);
+            this.groupBox_Baidu2_Target.PerformLayout();
+            this.groupBox_Baidu2_Source.ResumeLayout(false);
+            this.groupBox_Baidu2_Source.PerformLayout();
             this.tabPage_白描接口.ResumeLayout(false);
             this.tabPage_白描接口.PerformLayout();
             this.Page_显示的接口.ResumeLayout(false);
@@ -4994,6 +5127,10 @@ namespace TrOCR
             this.groupBox_TranslateWorkflow.PerformLayout();
             this.tab_标签.ResumeLayout(false);
             this.Page_常规2.ResumeLayout(false);
+            this.groupBox13.ResumeLayout(false);
+            this.groupBox13.PerformLayout();
+            this.groupBox12.ResumeLayout(false);
+            this.groupBox12.PerformLayout();
             this.groupBox11.ResumeLayout(false);
             this.groupBox11.PerformLayout();
             this.groupBox9.ResumeLayout(false);
@@ -5013,10 +5150,6 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
-            this.groupBox12.ResumeLayout(false);
-            this.groupBox12.PerformLayout();
-            this.groupBox13.ResumeLayout(false);
-            this.groupBox13.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -5416,5 +5549,15 @@ namespace TrOCR
         private System.Windows.Forms.TextBox text_baidu_handwriting_apikey;
         private System.Windows.Forms.ComboBox comboBox_Baidu_Handwriting_Language;
         private System.Windows.Forms.Label label39;
+        private System.Windows.Forms.TabPage tabPage_Baidu2;
+        private System.Windows.Forms.GroupBox groupBox_Baidu2_Key;
+        private System.Windows.Forms.Label label40;
+        private System.Windows.Forms.GroupBox groupBox_Baidu2_Target;
+        private System.Windows.Forms.Button btn_Reset_Baidu2_Target;
+        private System.Windows.Forms.TextBox textBox_Baidu2_Target;
+        private System.Windows.Forms.GroupBox groupBox_Baidu2_Source;
+        private System.Windows.Forms.Button btn_Reset_Baidu2_Source;
+        private System.Windows.Forms.TextBox textBox_Baidu2_Source;
+        private System.Windows.Forms.CheckBox checkBox_ShowBaidu2;
     }
 }

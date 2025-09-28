@@ -298,6 +298,7 @@
     <Compile Include="FmTempTranslate.Designer.cs">
       <DependentUpon>FmTempTranslate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helper\BaiduTranslator2Helper.cs" />
     <Compile Include="Helper\CommonHelper.cs" />
     <Compile Include="Helper\HanzToPinyin.cs" />
     <Compile Include="Helper\HelpRepaint.cs" />

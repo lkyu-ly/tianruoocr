@@ -70,6 +70,8 @@ namespace TrOCR
 			this.trans_caiyun = new global::System.Windows.Forms.ToolStripMenuItem();       // 彩云小译
 			this.trans_volcano = new global::System.Windows.Forms.ToolStripMenuItem();      // 火山翻译
 			this.trans_caiyun2 = new global::System.Windows.Forms.ToolStripMenuItem();      // 彩云小译2
+			this.trans_baidu2 = new global::System.Windows.Forms.ToolStripMenuItem();      // 百度翻译2
+
 			
 			// 表格OCR菜单项
 			this.baidu_table = new global::System.Windows.Forms.ToolStripMenuItem();
@@ -216,6 +218,8 @@ namespace TrOCR
 			this.trans_volcano.Click += new global::System.EventHandler(this.Trans_volcano_Click);
 			this.trans_caiyun2.Text = "彩云2";
 			this.trans_caiyun2.Click += new global::System.EventHandler(this.Trans_caiyun2_Click);
+			this.trans_baidu2.Text = "彩云2";
+			this.trans_baidu2.Click += new global::System.EventHandler(this.Trans_baidu2_Click);
 			
 			// 翻译界面右键菜单设置
 			this.menu_copy.Items.AddRange(new global::System.Windows.Forms.ToolStripItem[]
@@ -241,7 +245,8 @@ namespace TrOCR
 				this.trans_tencentinteractive,
 				this.trans_caiyun,
 				this.trans_volcano,
-				this.trans_caiyun2
+				this.trans_caiyun2,
+				this.trans_baidu2
 			});
 			
 			// 翻译界面右键菜单字体设置
@@ -689,6 +694,8 @@ namespace TrOCR
 		private global::System.Windows.Forms.ToolStripMenuItem trans_caiyun;
 		private global::System.Windows.Forms.ToolStripMenuItem trans_volcano;
 		private global::System.Windows.Forms.ToolStripMenuItem trans_caiyun2;
+		private global::System.Windows.Forms.ToolStripMenuItem trans_baidu2;
+
 		#endregion
 
 		#region 其他子菜单
