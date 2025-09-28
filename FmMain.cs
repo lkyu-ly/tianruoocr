@@ -110,6 +110,7 @@ namespace TrOCR
 
 			// 初始化组件和系统设置
 			InitializeComponent();
+			this.lastNormalSize = this.Size;
 			StaticValue.LoadConfig();//这个代码加不加都行，fmsetting.cs和program.cs里使用就足够了,加上更健壮
 			// ====================【新增代码开始】====================
 			// 加载并应用记忆的窗口大小
