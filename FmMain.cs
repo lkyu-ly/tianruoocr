@@ -32,7 +32,6 @@ using TencentCloud.Common;
 using TencentCloud.Common.Profile;
 using TencentCloud.Tmt.V20180321;
 using TencentCloud.Tmt.V20180321.Models;
-// using PanguSpacing;
 // ReSharper disable StringLiteralTypo
 
 namespace TrOCR
@@ -6290,35 +6289,25 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		/// </summary>
 		private void pangu_spacing_Click(object sender, EventArgs e)
 		{
-            //Pangu.puncsp = ' ';
-            // //  // --- 【新增的测试代码】 ---
-            // string hardcodedText = "\"新世界(New World)\"";
-			// string formattedResult = Pangu.Spacing(hardcodedText); 
 
-			// MessageBox.Show($"输入: '{hardcodedText}'\n输出: '{formattedResult}'", "盘古之白功能测试");
 			// 判断当前哪个文本框是活动的
 			if (RichBoxBody.richTextBox1.Focused)
 			{
 				string originalText = RichBoxBody.Text;
-                // string finalText = Pangu.Spacing(originalText);
-                string finalText = PanguSpacingHelper.ApplyPanguSpacing(originalText);
-                RichBoxBody.Text = finalText;
-                //MessageBox.Show($"输入: '{originalText}'\n输出:'{finalText}'------ '{RichBoxBody.Text}'", "盘古之白功能测试");
-                Debug.WriteLine($"输入: '{originalText}'\n输出: '{finalText}'-------'{RichBoxBody.Text}'", "盘古之白功能测试");
+                RichBoxBody.Text = Pangu.Net.Pangu.SpacingText(originalText);
+                Debug.WriteLine($"输入: '{originalText}'\n输出: -------'{RichBoxBody.Text}'", "盘古之白功能测试");
             }
 			else if (RichBoxBody_T.richTextBox1.Focused)
 			{
 				string originalText = RichBoxBody_T.Text;
-				RichBoxBody_T.Text = PanguSpacingHelper.ApplyPanguSpacing(originalText);
-                //MessageBox.Show($"输入: '{originalText}'\n输出: '{RichBoxBody_T.Text}'", "盘古之白功能测试");
+				RichBoxBody_T.Text = Pangu.Net.Pangu.SpacingText(originalText);
                 Debug.WriteLine($"输入: '{originalText}'\n输出: '{RichBoxBody.Text}'", "盘古之白功能测试");
             }
 			else
 			{
 				// 如果两个文本框都没有焦点，可以默认处理原文框
 				string originalText = RichBoxBody.Text;
-				RichBoxBody.Text = PanguSpacingHelper.ApplyPanguSpacing(originalText);
-                //MessageBox.Show($"输入: '{originalText}'\n输出: '{RichBoxBody.Text}'", "盘古之白功能测试");
+				RichBoxBody.Text = Pangu.Net.Pangu.SpacingText(originalText);
                 Debug.WriteLine($"输入: '{originalText}'\n输出: '{RichBoxBody.Text}'", "盘古之白功能测试");
             }
 		}

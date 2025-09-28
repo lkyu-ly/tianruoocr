@@ -313,6 +313,7 @@
     <Compile Include="Helper\HttpHelper.cs" />
     <Compile Include="Helper\IniHelper.cs" />
     <Compile Include="Helper\OcrHelper.cs" />
+    <Compile Include="Helper\Pangu.cs" />
     <Compile Include="Helper\TranslateHelper.cs" />
     <Compile Include="Helper\BingTranslator.cs" />
     <Compile Include="Helper\BingTranslator2.cs" />
@@ -326,7 +327,6 @@
     <Compile Include="Helper\PaddleOCR2Helper.cs" />
     <Compile Include="Helper\RapidOCRHelper.cs" />
     <Compile Include="Helper\TrOCRUtils.cs" />
-    <Compile Include="Helper\PanguSpacingHelper.cs" />
     <Compile Include="Messageload.cs">
       <SubType>Form</SubType>
     </Compile>
