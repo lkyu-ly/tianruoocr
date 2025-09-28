@@ -2962,9 +2962,10 @@ namespace TrOCR
             this.label33.AutoSize = true;
             this.label33.Location = new System.Drawing.Point(3, 16);
             this.label33.Name = "label33";
-            this.label33.Size = new System.Drawing.Size(457, 45);
+            this.label33.Size = new System.Drawing.Size(457, 75);
             this.label33.TabIndex = 1;
-            this.label33.Text = "腾讯手写识别已合并至高精度版，请使用腾讯高精度接口（支持手写\r\n识别）\r\n\r\n";
+            this.label33.Text = "腾讯手写识别已合并至高精度版，请使用腾讯高精度接口（支持手写\r\n识别）\r\n\r\n目前支持手写的识别接口有百度手写，腾讯高精度，以及使用支持\r\n手写识别的模型的离线O" +
+    "CR接口\r\n";
             // 
             // inPage_PaddleOCR
             // 

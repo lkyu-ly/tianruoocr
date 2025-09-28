@@ -5129,6 +5129,15 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			OcrHelper.Dispose();
 			var filePath = AppDomain.CurrentDomain.BaseDirectory + "Data\\config.ini";
 
+			if (name == "腾讯手写")
+			{
+				
+				MessageBox.Show("请使用腾讯-高精度接口进行手写识别。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				return;
+
+			}
+			
+
 			// --- 【核心判断逻辑：检查是否在冲突引擎间切换】 ---
 			// 1. 定义哪些引擎是互相冲突的
 			var conflictingEngines = new[] { "PaddleOCR", "PaddleOCR2" };
@@ -5268,7 +5277,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
         			Refresh(); // 这个方法会重置所有√
         			write.Text = "手写√"; // 将"手写"按钮标记为选中
 					baidu_handwriting.Text = "百度手写√";
-        			break;	
+        			break;		
 				case "公式":
 					interface_flag = "公式";
 					Refresh();
@@ -5353,6 +5362,10 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		private void OCR_baidu_handwriting_Click (object sender, EventArgs e)
 		{
 			OCR_foreach("百度手写");
+		}
+		private void OCR_tencent_handwriting_Click (object sender, EventArgs e)
+		{
+			OCR_foreach("腾讯手写");
 		}
 
 		/// <summary>
