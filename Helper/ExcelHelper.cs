@@ -72,6 +72,8 @@ namespace TrOCR.Helper
                                         cell.Value = header;
                                         worksheet.Range(currentRow, 1, currentRow, columnCount).Merge();
                                         cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                        // ★★★ 新增：表头垂直居中 ★★★
+                                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                                         cell.Style.Font.Bold = true;
                                         currentRow++;
                                     }
@@ -88,10 +90,33 @@ namespace TrOCR.Helper
 
                                     var cell = worksheet.Cell(startRow, startCol);
                                     cell.Value = cellInfo.Text;
+  
 
                                     // ↓↓↓↓↓↓ 强制开启自动换行 ↓↓↓↓↓↓
                                     cell.Style.Alignment.WrapText = true;
                                     // ↑↑↑↑↑↑  ↑↑↑↑↑↑
+                                    //  cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center; // 水平居中
+                                    //  cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;   // 垂直居中
+                                    
+                                    // ↓↓↓↓↓↓ 应用推荐的对齐规范 ↓↓↓↓↓↓
+
+                                    // 1. 垂直方向上，所有单元格都居中
+                                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                                    // 2. 水平方向上，根据内容判断
+                                    decimal number;
+                                    // 尝试将单元格文本转换为数字
+                                    if (decimal.TryParse(cellInfo.Text, out number))
+                                    {
+                                        // 如果是纯数字，则靠右对齐
+                                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                                    }
+                                    else
+                                    {
+                                        // 否则，作为文本，靠左对齐
+                                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                                    }
+                                    // ↑↑↑↑↑↑ 对齐规范结束 ↑↑↑↑↑↑
 
                                     // 如果需要合并
                                     if (cellInfo.RowSpan > 1 || cellInfo.ColSpan > 1)
@@ -122,6 +147,20 @@ namespace TrOCR.Helper
                                             var cell = worksheet.Cell(currentRow, currentColumn);
                                             cell.Value = footerTexts[i];
                                             cell.Style.Font.Italic = true;
+                                            // ★★★ 新增：表尾垂直居中 ★★★
+                                            cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                                             // ↓↓↓↓↓↓ 新增：为表尾也应用智能水平对齐 ↓↓↓↓↓↓
+                                            // if (decimal.TryParse(footerTexts[i], out _))
+                                            // {
+                                            //     // 如果是纯数字，则靠右对齐
+                                            //     cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                                            // }
+                                            // else
+                                            // {
+                                            //     // 否则，作为文本，靠左对齐
+                                            //     cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                                            // }
+                                            // ↑↑↑↑↑↑ 新增结束 ↑↑↑↑↑↑
 
                                             // 计算当前单元格要合并的列数
                                             int currentColspan = colsPerFooter + (i < extraCols ? 1 : 0);
@@ -134,7 +173,12 @@ namespace TrOCR.Helper
 
                                             if (currentColspan > 1)
                                             {
-                                                worksheet.Range(currentRow, currentColumn, currentRow, currentColumn + currentColspan - 1).Merge();
+                                                // worksheet.Range(currentRow, currentColumn, currentRow, currentColumn + currentColspan - 1).Merge();
+                                                var rangeToMerge = worksheet.Range(currentRow, currentColumn, currentRow, currentColumn + currentColspan - 1);
+                                                rangeToMerge.Merge();
+                                                // 合并后，样式需要使用所合并的第一个单元格的样式
+                                                rangeToMerge.FirstCell().Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
                                             }
 
                                             currentColumn += currentColspan;
@@ -144,8 +188,27 @@ namespace TrOCR.Helper
                                     }
                                 }
 
+                                // 可选：↓↓↓↓↓↓ 新增代码：为整个表格区域添加边框 ↓↓↓↓↓↓
+                                int totalRows = (headerTexts?.Count ?? 0) + bodyRowCount + (footerTexts?.Any() == true ? 1 : 0);
+                                int totalColumns = cells.Any() ? cells.Max(c => c.Col + c.ColSpan) : 1;
 
-                                worksheet.Columns().AdjustToContents();
+                                if (totalRows > 0 && totalColumns > 0)
+                                {
+                                    // 从 A1 单元格开始，选中整个我们操作过的区域
+                                    var tableRange = worksheet.Range(1, 1, totalRows, totalColumns);
+                                    // 为这个区域的所有内外边框都设置上细线条样式
+                                    tableRange.Style.Border.SetInsideBorder(XLBorderStyleValues.Thin);
+                                    tableRange.Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin);
+                                }
+                                // ↑↑↑↑↑↑ 新增代码结束 ↑↑↑↑↑↑
+
+                            
+                                worksheet.Columns().AdjustToContents();//自动调整列宽
+                                //或者
+                                // worksheet.Columns().Width = 15; // 将所有列的宽度统一设置为 15，也可以计算出最宽的单元格列宽，统一所有列列宽为最宽的
+                                //或者
+                                //worksheet.Columns().AdjustToContents(1, 20); // 自动调整，允许的最小宽度为1.0，最大宽度为20.0（字符宽度单位）
+
                                 workbook.SaveAs(sfd.FileName);
                             }
                         };

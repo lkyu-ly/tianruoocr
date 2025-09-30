@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Web;
 using Newtonsoft.Json;
@@ -18,61 +19,63 @@ namespace TrOCR.Helper
     /// </summary>
     public static class BaiduOcrHelper
     {
+        // ★★★ 新增：创建一个可供复用的静态HttpClient实例 ★★★
+        private static readonly HttpClient _httpClient = new HttpClient();
         /// <summary>
         /// 获取或刷新access_token（使用StaticValue作为一级缓存）
         /// </summary>
         private static string GetAccessToken(string apiKey, string secretKey, bool isHighAccuracy = false)
         {
-        	try
-        	{
-        		// 1. 选择正确的StaticValue缓存字段
-        		ref string tokenCache = ref (isHighAccuracy ? ref StaticValue.BaiduAccurateAccessToken : ref StaticValue.BaiduAccessToken);
-        		ref DateTime tokenExpiry = ref (isHighAccuracy ? ref StaticValue.BaiduAccurateAccessTokenExpiry : ref StaticValue.BaiduAccessTokenExpiry);
-      
-        		// 2. 检查内存缓存是否有效
-        		// 注意：这里不再检查API Key是否匹配，FmMain中设置API Key时应负责清除旧Token
-        		if (!string.IsNullOrEmpty(tokenCache) && tokenCache != "发生错误" && DateTime.Now < tokenExpiry)
-        		{
-        			return tokenCache;
-        		}
-      
-        		// 3. 获取新的access_token
-        		string url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={apiKey}&client_secret={secretKey}";
-        		string response = CommonHelper.GetHtmlContent(url);
-        		
-        		if (string.IsNullOrEmpty(response))
-        		{
-        			return null;
-        		}
-      
-        		JObject json = JObject.Parse(response);
-        		if (json["access_token"] != null)
-        		{
-        			string newToken = json["access_token"].ToString();
-        			int expiresIn = json["expires_in"]?.ToObject<int>() ?? 2592000; // 默认30天
-        			
-        			// 设置过期时间为29天（留1天缓冲）
-        			DateTime newExpiry = DateTime.Now.AddSeconds(expiresIn - 86400);
-        			
-        			// 4. 更新StaticValue缓存
-        			tokenCache = newToken;
-        			tokenExpiry = newExpiry;
-      
-        			// 5. 持久化到配置文件
-        			string configSection = isHighAccuracy ? "密钥_百度高精度" : "密钥_百度";
-        			IniHelper.SetValue(configSection, "access_token", newToken);
-        			IniHelper.SetValue(configSection, "token_expiry", newExpiry.ToString("yyyy-MM-dd HH:mm:ss"));
-        			
-        			return newToken;
-        		}
-      
-        		return null;
-        	}
-        	catch (Exception ex)
-        	{
-        		System.Diagnostics.Debug.WriteLine($"获取百度access_token失败: {ex.Message}");
-        		return null;
-        	}
+            try
+            {
+                // 1. 选择正确的StaticValue缓存字段
+                ref string tokenCache = ref (isHighAccuracy ? ref StaticValue.BaiduAccurateAccessToken : ref StaticValue.BaiduAccessToken);
+                ref DateTime tokenExpiry = ref (isHighAccuracy ? ref StaticValue.BaiduAccurateAccessTokenExpiry : ref StaticValue.BaiduAccessTokenExpiry);
+
+                // 2. 检查内存缓存是否有效
+                // 注意：这里不再检查API Key是否匹配，FmMain中设置API Key时应负责清除旧Token
+                if (!string.IsNullOrEmpty(tokenCache) && tokenCache != "发生错误" && DateTime.Now < tokenExpiry)
+                {
+                    return tokenCache;
+                }
+
+                // 3. 获取新的access_token
+                string url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={apiKey}&client_secret={secretKey}";
+                string response = CommonHelper.GetHtmlContent(url);
+
+                if (string.IsNullOrEmpty(response))
+                {
+                    return null;
+                }
+
+                JObject json = JObject.Parse(response);
+                if (json["access_token"] != null)
+                {
+                    string newToken = json["access_token"].ToString();
+                    int expiresIn = json["expires_in"]?.ToObject<int>() ?? 2592000; // 默认30天
+
+                    // 设置过期时间为29天（留1天缓冲）
+                    DateTime newExpiry = DateTime.Now.AddSeconds(expiresIn - 86400);
+
+                    // 4. 更新StaticValue缓存
+                    tokenCache = newToken;
+                    tokenExpiry = newExpiry;
+
+                    // 5. 持久化到配置文件
+                    string configSection = isHighAccuracy ? "密钥_百度高精度" : "密钥_百度";
+                    IniHelper.SetValue(configSection, "access_token", newToken);
+                    IniHelper.SetValue(configSection, "token_expiry", newExpiry.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    return newToken;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"获取百度access_token失败: {ex.Message}");
+                return null;
+            }
         }
 
         /// <summary>
@@ -767,7 +770,7 @@ namespace TrOCR.Helper
             try
             {
                 string url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={apiKey}&client_secret={secretKey}";
-                string response = CommonHelper.GetHtmlContent(url);
+                string response = _httpClient.GetStringAsync(url).GetAwaiter().GetResult();
 
                 if (string.IsNullOrEmpty(response))
                 {
