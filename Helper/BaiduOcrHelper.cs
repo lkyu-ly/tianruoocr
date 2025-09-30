@@ -20,8 +20,8 @@ namespace TrOCR.Helper
     /// </summary>
     public static class BaiduOcrHelper
     {
-        // ★★★ 新增：创建一个可供复用的静态HttpClient实例 ★★★
-        private static readonly HttpClient _httpClient = new HttpClient();
+         // 【新增】创建一个可供复用的静态 HttpHelper 实例
+        private static readonly HttpHelper _httpHelper = new HttpHelper();
         /// <summary>
         /// 获取或刷新access_token（使用StaticValue作为一级缓存）
         /// </summary>
@@ -41,9 +41,21 @@ namespace TrOCR.Helper
                 }
 
                 // 3. 【修改】获取新的access_token（由GET改为POST）
-                string url = "https://aip.baidubce.com/oauth/2.0/token";
-                string postData = $"grant_type=client_credentials&client_id={apiKey}&client_secret={secretKey}";
-                string response = CommonHelper.PostStrData(url, postData);
+                var httpItem = new HttpItem
+                {
+                    // 按照官方示例，将参数放在 URL 中
+                    Url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={apiKey}&client_secret={secretKey}",
+                    Method = "POST",
+                    // 设置官网示例中明确指定的两个 Header
+                    ContentType = "application/json",
+                    Accept = "application/json",
+                    // 请求体为空，所以 PostData 保持默认或为空
+
+                };
+
+                // 直接调用 HttpHelper 发送请求
+                string response = _httpHelper.GetHtml(httpItem).Html;
+
 
                 if (string.IsNullOrEmpty(response))
                 {
@@ -775,15 +787,16 @@ namespace TrOCR.Helper
             try
             {
                 // 【修改】由GET请求改为POST请求
-                string url = "https://aip.baidubce.com/oauth/2.0/token";
-                var postData = new FormUrlEncodedContent(new[]
+                var httpItem = new HttpItem
                 {
-                    new KeyValuePair<string, string>("grant_type", "client_credentials"),
-                    new KeyValuePair<string, string>("client_id", apiKey),
-                    new KeyValuePair<string, string>("client_secret", secretKey)
-                });
-                var responseMessage = _httpClient.PostAsync(url, postData).GetAwaiter().GetResult();
-                string response = responseMessage.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    Url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={apiKey}&client_secret={secretKey}",
+                    Method = "POST",
+                    ContentType = "application/json",
+                    Accept = "application/json",
+
+                };
+
+                string response = _httpHelper.GetHtml(httpItem).Html;
 
                 if (string.IsNullOrEmpty(response))
                 {
@@ -1026,8 +1039,8 @@ namespace TrOCR.Helper
                             // ↓↓↓ 核心修正：在这里判断内容是否为空 ↓↓↓
                             if (string.IsNullOrEmpty(encodedContent))
                             {
-                                // 如果内容为空字符串，则强制使用 &nbsp;
-                                encodedContent = "&nbsp;";
+                                
+                                encodedContent = "";
                             }
                             else
                             {
@@ -1162,8 +1175,8 @@ namespace TrOCR.Helper
                             // ↓↓↓ 核心修正：在这里判断内容是否为空 ↓↓↓
                             if (string.IsNullOrEmpty(encodedContent))
                             {
-                                // 如果内容为空字符串，则强制使用 &nbsp;
-                                encodedContent = "&nbsp;";
+                                
+                                encodedContent = "";
                             }
                             else
                             {

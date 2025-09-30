@@ -651,7 +651,7 @@ namespace TrOCR.Helper
                                     string encodedContent = System.Web.HttpUtility.HtmlEncode(cellText);
                                     if (string.IsNullOrEmpty(encodedContent))
                                     {
-                                        encodedContent = "&nbsp;";
+                                        encodedContent = "";
                                     }
                                     else
                                     {
