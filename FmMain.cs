@@ -7405,11 +7405,11 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		    // Helper.ExcelHelper.ExportToExcel(this.lastRecognizedTable,this.lastRecognizedHeader, this.lastRecognizedFooter);
 			if (this.lastOcrProvider == "Baidu")
 		    {
-		        Helper.ExcelHelper.ExportToExcel(this.lastBaiduCells, this.lastRecognizedHeader, this.lastRecognizedFooter);
+		        Helper.ExcelHelper.ExportToExcel(this.lastBaiduCells, this.lastRecognizedHeader, this.lastRecognizedFooter,this);
 		    }
 		    else if (this.lastOcrProvider == "Tencent")
 		    {
-		        Helper.ExcelHelper.ExportToExcel(this.lastTencentCells, this.lastRecognizedHeader, this.lastRecognizedFooter);
+		        Helper.ExcelHelper.ExportToExcel(this.lastTencentCells, this.lastRecognizedHeader, this.lastRecognizedFooter,this);
 		    }
 		    else
 		    {

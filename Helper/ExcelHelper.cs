@@ -13,7 +13,7 @@ namespace TrOCR.Helper
     public static class ExcelHelper
     {
         // 重载方法，用于处理百度的 CellInfo
-        public static void ExportToExcel(List<CellInfo> bodyCells, List<string> headerTexts, List<string> footerTexts)
+        public static void ExportToExcel(List<CellInfo> bodyCells, List<string> headerTexts, List<string> footerTexts,Form owner)
         {
             // 将百度的 CellInfo 转换为通用的 TableCell
             var genericCells = bodyCells.Select(c => new TableCell
@@ -26,17 +26,17 @@ namespace TrOCR.Helper
                 ColSpan = c.ColEnd - c.ColStart
             }).ToList();
 
-            GenerateExcelFile(genericCells, headerTexts, footerTexts);
+            GenerateExcelFile(genericCells, headerTexts, footerTexts,owner);
         }
 
         // 重载方法，用于处理腾讯的 TableCell
-        public static void ExportToExcel(List<TableCell> bodyCells, List<string> headerTexts, List<string> footerTexts)
+        public static void ExportToExcel(List<TableCell> bodyCells, List<string> headerTexts, List<string> footerTexts,Form owner)
         {
-            GenerateExcelFile(bodyCells, headerTexts, footerTexts);
+            GenerateExcelFile(bodyCells, headerTexts, footerTexts,owner);
         }
 
         // 核心的 Excel 文件生成逻辑
-        private static void GenerateExcelFile(List<TableCell> cells, List<string> headerTexts, List<string> footerTexts)
+        private static void GenerateExcelFile(List<TableCell> cells, List<string> headerTexts, List<string> footerTexts,Form owner)
         {
             if (cells == null || !cells.Any())
             {
@@ -50,101 +50,122 @@ namespace TrOCR.Helper
                 sfd.ValidateNames = true;
                 sfd.FileName = $"TrOCR_表格_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
-                if (sfd.ShowDialog() == DialogResult.OK)
+                if (sfd.ShowDialog(owner) == DialogResult.OK)
                 {
                     try
                     {
-                        using (var workbook = new XLWorkbook())
+                        // 1. 定义一个“任务” (Action)，这个任务就是所有耗时的Excel操作
+                        Action work = () =>
                         {
-                            var worksheet = workbook.Worksheets.Add("识别结果");
-                            int currentRow = 1;
-                            int columnCount = cells.Max(c => c.Col + c.ColSpan);
-
-                            // --- 写入表头 ---
-                            if (headerTexts != null && headerTexts.Any())
+                            using (var workbook = new XLWorkbook())
                             {
-                                foreach (var header in headerTexts)
+                                var worksheet = workbook.Worksheets.Add("识别结果");
+                                int currentRow = 1;
+                                int columnCount = cells.Any() ? cells.Max(c => c.Col + c.ColSpan) : 1;
+
+                                // --- 写入表头 ---
+                                if (headerTexts != null && headerTexts.Any())
                                 {
-                                    var cell = worksheet.Cell(currentRow, 1);
-                                    cell.Value = header;
-                                    worksheet.Range(currentRow, 1, currentRow, columnCount).Merge();
-                                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                                    cell.Style.Font.Bold = true;
-                                    currentRow++;
-                                }
-                                // 在表头和表格主体之间留一个空行
-                                // currentRow++;
-                            }
-
-                            // --- ★★★ 手动写入和合并单元格 ★★★ ---
-                            foreach (var cellInfo in cells)
-                            {
-                                // ClosedXML 的单元格坐标从 1 开始
-                                int startRow = currentRow + cellInfo.Row;
-                                int startCol = 1 + cellInfo.Col;
-
-                                var cell = worksheet.Cell(startRow, startCol);
-                                cell.Value = cellInfo.Text;
-
-                                // ↓↓↓↓↓↓ 强制开启自动换行 ↓↓↓↓↓↓
-                                cell.Style.Alignment.WrapText = true;
-                                // ↑↑↑↑↑↑  ↑↑↑↑↑↑
-
-                                // 如果需要合并
-                                if (cellInfo.RowSpan > 1 || cellInfo.ColSpan > 1)
-                                {
-                                    int endRow = startRow + cellInfo.RowSpan - 1;
-                                    int endCol = startCol + cellInfo.ColSpan - 1;
-                                    worksheet.Range(startRow, startCol, endRow, endCol).Merge();
-                                }
-                            }
-
-                            int bodyRowCount = cells.Max(c => c.Row + c.RowSpan);
-                            currentRow += bodyRowCount;
-
-                            // --- 写入表尾，使用方案一 ---
-                            if (footerTexts != null && footerTexts.Any())
-                            {
-                                // currentRow++; // 在表格和表尾之间留一个空行
-                                int footerCellCount = footerTexts.Count;
-                                if (footerCellCount > 0)
-                                {
-                                    // 计算每部分大致应占的列数
-                                    int colsPerFooter = columnCount / footerCellCount;
-                                    int extraCols = columnCount % footerCellCount;
-                                    int currentColumn = 1;
-
-                                    for (int i = 0; i < footerCellCount; i++)
+                                    foreach (var header in headerTexts)
                                     {
-                                        var cell = worksheet.Cell(currentRow, currentColumn);
-                                        cell.Value = footerTexts[i];
-                                        cell.Style.Font.Italic = true;
-
-                                        // 计算当前单元格要合并的列数
-                                        int currentColspan = colsPerFooter + (i < extraCols ? 1 : 0);
-
-                                        // 确保最后一个单元格能填满剩余所有空间
-                                        if (i == footerCellCount - 1)
-                                        {
-                                            currentColspan = columnCount - currentColumn + 1;
-                                        }
-
-                                        if (currentColspan > 1)
-                                        {
-                                            worksheet.Range(currentRow, currentColumn, currentRow, currentColumn + currentColspan - 1).Merge();
-                                        }
-
-                                        currentColumn += currentColspan;
+                                        var cell = worksheet.Cell(currentRow, 1);
+                                        cell.Value = header;
+                                        worksheet.Range(currentRow, 1, currentRow, columnCount).Merge();
+                                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                        cell.Style.Font.Bold = true;
+                                        currentRow++;
                                     }
-                                    // 因为只占用一行，所以最后 currentRow++ 一次即可
-                                    currentRow++;
+                                    // 在表头和表格主体之间留一个空行
+                                    // currentRow++;
                                 }
-                            }
 
-                            worksheet.Columns().AdjustToContents();
-                            workbook.SaveAs(sfd.FileName);
+                                // --- ★★★ 手动写入和合并单元格 ★★★ ---
+                                foreach (var cellInfo in cells)
+                                {
+                                    // ClosedXML 的单元格坐标从 1 开始
+                                    int startRow = currentRow + cellInfo.Row;
+                                    int startCol = 1 + cellInfo.Col;
+
+                                    var cell = worksheet.Cell(startRow, startCol);
+                                    cell.Value = cellInfo.Text;
+
+                                    // ↓↓↓↓↓↓ 强制开启自动换行 ↓↓↓↓↓↓
+                                    cell.Style.Alignment.WrapText = true;
+                                    // ↑↑↑↑↑↑  ↑↑↑↑↑↑
+
+                                    // 如果需要合并
+                                    if (cellInfo.RowSpan > 1 || cellInfo.ColSpan > 1)
+                                    {
+                                        int endRow = startRow + cellInfo.RowSpan - 1;
+                                        int endCol = startCol + cellInfo.ColSpan - 1;
+                                        worksheet.Range(startRow, startCol, endRow, endCol).Merge();
+                                    }
+                                }
+
+                                int bodyRowCount = cells.Max(c => c.Row + c.RowSpan);
+                                currentRow += bodyRowCount;
+
+                                // --- 写入表尾，使用方案一 ---
+                                if (footerTexts != null && footerTexts.Any())
+                                {
+                                    // currentRow++; // 在表格和表尾之间留一个空行
+                                    int footerCellCount = footerTexts.Count;
+                                    if (footerCellCount > 0)
+                                    {
+                                        // 计算每部分大致应占的列数
+                                        int colsPerFooter = columnCount / footerCellCount;
+                                        int extraCols = columnCount % footerCellCount;
+                                        int currentColumn = 1;
+
+                                        for (int i = 0; i < footerCellCount; i++)
+                                        {
+                                            var cell = worksheet.Cell(currentRow, currentColumn);
+                                            cell.Value = footerTexts[i];
+                                            cell.Style.Font.Italic = true;
+
+                                            // 计算当前单元格要合并的列数
+                                            int currentColspan = colsPerFooter + (i < extraCols ? 1 : 0);
+
+                                            // 确保最后一个单元格能填满剩余所有空间
+                                            if (i == footerCellCount - 1)
+                                            {
+                                                currentColspan = columnCount - currentColumn + 1;
+                                            }
+
+                                            if (currentColspan > 1)
+                                            {
+                                                worksheet.Range(currentRow, currentColumn, currentRow, currentColumn + currentColspan - 1).Merge();
+                                            }
+
+                                            currentColumn += currentColspan;
+                                        }
+                                        // 因为只占用一行，所以最后 currentRow++ 一次即可
+                                        currentRow++;
+                                    }
+                                }
+
+
+                                worksheet.Columns().AdjustToContents();
+                                workbook.SaveAs(sfd.FileName);
+                            }
+                        };
+
+                        // 2. 定义一个出错时的处理方式
+                        Action<Exception> onError = (ex) =>
+                        {
+                            MessageBox.Show($"导出 Excel 文件时发生错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        };
+
+                        // 3. 创建并显示加载窗体，把“任务”和“出错处理”交给它
+                        var loadingForm = new FmLoadingExport(work, onError);
+                        var result = loadingForm.ShowDialog(owner);
+
+                        // 4. 加载窗体关闭后，根据结果显示成功信息
+                        if (result == DialogResult.OK)
+                        {
                             MessageBox.Show($"表格已成功导出到:\n{sfd.FileName}", "导出成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
+
                     }
                     catch (Exception ex)
                     {
@@ -154,6 +175,7 @@ namespace TrOCR.Helper
             }
         }
         //原始实现，用于参考，此方法不支持跨行跨列的合并单元格
+        [Obsolete("此方法已被新版本替代，不支持合并单元格和加载提示。")]
         public static void ExportToExcel(DataTable tableData, List<string> headerTexts, List<string> footerTexts)
         {
             if (tableData == null || tableData.Rows.Count == 0)

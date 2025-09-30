@@ -300,6 +300,7 @@
     <Compile Include="FmLoading.Designer.cs">
       <DependentUpon>FmLoading.cs</DependentUpon>
     </Compile>
+    <Compile Include="FmLoadingExport.cs" />
     <Compile Include="FmMain.cs">
       <SubType>Form</SubType>
     </Compile>
