@@ -1,13 +1,13 @@
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using Newtonsoft.Json.Linq;
-
-using System.Collections.Generic;
-using System.Linq;
-using System.Data;
 
 namespace TrOCR.Helper
 {
@@ -451,6 +451,7 @@ namespace TrOCR.Helper
                         maxRow = Math.Max(maxRow, rowBr);
                         maxCol = Math.Max(maxCol, colBr);
                     }
+                    Debug.WriteLine($"4444一共{bodyCells.Count}个单元格");
 
 
                     // --- 开始构建 DataTable ---
@@ -645,13 +646,26 @@ namespace TrOCR.Helper
                                 var currentCell = tableCells.FirstOrDefault(cell => cell.Row == r && cell.Col == c);
                                 if (currentCell != null)
                                 {
+                                     // --- ↓↓↓ 修正点 1：处理内容为空的现有单元格 ↓↓↓ ---
+                                    string cellText = currentCell.Text;
+                                    string encodedContent = System.Web.HttpUtility.HtmlEncode(cellText);
+                                    if (string.IsNullOrEmpty(encodedContent))
+                                    {
+                                        encodedContent = "&nbsp;";
+                                    }
+                                    else
+                                    {
+                                        encodedContent = encodedContent.Replace("\n", "&#10;");
+                                    }
+                                    // --- ↑↑↑ 修正结束 ↑↑↑ ---
                                     string tag = (currentCell.Type == "header" && !headerTexts.Any()) ? "th" : "td";
                                     string rowspanAttr = currentCell.RowSpan > 1 ? $" rowspan='{currentCell.RowSpan}'" : "";
                                     string colspanAttr = currentCell.ColSpan > 1 ? $" colspan='{currentCell.ColSpan}'" : "";
-                                    string cellText = System.Web.HttpUtility.HtmlEncode(currentCell.Text).Replace("\n", "&#10;");
+                                    // string cellText = System.Web.HttpUtility.HtmlEncode(currentCell.Text).Replace("\n", "&#10;");
 
 
-                                    finalHtml.AppendLine($"      <{tag}{rowspanAttr}{colspanAttr}>{cellText}</{tag}>");
+                                    // finalHtml.AppendLine($"      <{tag}{rowspanAttr}{colspanAttr}>{cellText}</{tag}>");
+                                    finalHtml.AppendLine($"      <{tag}{rowspanAttr}{colspanAttr}>{encodedContent}</{tag}>");
 
                                     for (int i = 0; i < currentCell.RowSpan; i++)
                                     {

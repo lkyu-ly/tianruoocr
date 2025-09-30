@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -710,6 +711,9 @@ namespace TrOCR.Helper
                         });
                     }
                 }
+
+                Debug.WriteLine($"1111一共{bodyCells.Count}个单元格");
+
                 // --- DataTable 构建逻辑现在可以简化或移除，因为我们主要依赖 bodyCells ---
                 // (为了兼容性，可以暂时保留)
                 // --- 开始构建 DataTable ---
@@ -982,6 +986,7 @@ namespace TrOCR.Helper
                     cells.Add(cellInfo);
                     maxRow = Math.Max(maxRow, cellInfo.RowEnd);
                 }
+                Debug.WriteLine($"2222一共{cells.Count}个单元格");
 
                 // 创建表格矩阵来跟踪已处理的单元格
                 var processedCells = new bool[maxRow, maxCol];
@@ -1016,10 +1021,25 @@ namespace TrOCR.Helper
                             
                             // 生成单元格HTML
                             string cellContent = cellInfo.Words;
+                            string encodedContent = System.Web.HttpUtility.HtmlEncode(cellContent);
+
+                            // ↓↓↓ 核心修正：在这里判断内容是否为空 ↓↓↓
+                            if (string.IsNullOrEmpty(encodedContent))
+                            {
+                                // 如果内容为空字符串，则强制使用 &nbsp;
+                                encodedContent = "&nbsp;";
+                            }
+                            else
+                            {
+                                // 如果有内容，才处理换行符
+                                encodedContent = encodedContent.Replace("\n", "&#10;");
+                            }
+                            // ↑↑↑ 核心修正结束 ↑↑↑
                             string cellHtml = "      <td";
                             if (rowSpan > 1) cellHtml += $" rowspan='{rowSpan}'";
                             if (colSpan > 1) cellHtml += $" colspan='{colSpan}'";
-                            cellHtml += $">{System.Web.HttpUtility.HtmlEncode(cellContent).Replace("\n", "&#10;")}</td>";
+                            // cellHtml += $">{System.Web.HttpUtility.HtmlEncode(cellContent).Replace("\n", "&#10;")}</td>";
+                            cellHtml += $">{encodedContent}</td>";
                             
                             htmlTable.AppendLine(cellHtml);
                         }
@@ -1101,7 +1121,9 @@ namespace TrOCR.Helper
                 // 生成HTML表格格式（Excel兼容）
                 StringBuilder htmlTable = new StringBuilder();
                 htmlTable.AppendLine("<table border='1' style='border-collapse: collapse;'>");
-                
+
+                Debug.WriteLine($"3333一共{cells.Count}个单元格");
+
                 // 创建表格矩阵来跟踪已处理的单元格
                 var processedCells = new bool[maxRow, maxCol];
                 
@@ -1135,10 +1157,26 @@ namespace TrOCR.Helper
                             
                             // 生成单元格HTML，保留换行符
                             string cellContent = cellInfo.Words;
+                            string encodedContent = System.Web.HttpUtility.HtmlEncode(cellContent);
+
+                            // ↓↓↓ 核心修正：在这里判断内容是否为空 ↓↓↓
+                            if (string.IsNullOrEmpty(encodedContent))
+                            {
+                                // 如果内容为空字符串，则强制使用 &nbsp;
+                                encodedContent = "&nbsp;";
+                            }
+                            else
+                            {
+                                // 如果有内容，才处理换行符
+                                encodedContent = encodedContent.Replace("\n", "&#10;");
+                            }
+                            // ↑↑↑ 核心修正结束 ↑↑↑
                             string cellHtml = "    <td";
                             if (rowSpan > 1) cellHtml += $" rowspan='{rowSpan}'";
                             if (colSpan > 1) cellHtml += $" colspan='{colSpan}'";
-                            cellHtml += $">{System.Web.HttpUtility.HtmlEncode(cellContent)}</td>";
+                            // cellHtml += $">{System.Web.HttpUtility.HtmlEncode(cellContent)}</td>";
+                            cellHtml += $">{encodedContent}</td>";
+
                             
                             htmlTable.AppendLine(cellHtml);
                         }
