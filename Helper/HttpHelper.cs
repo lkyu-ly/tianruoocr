@@ -169,15 +169,24 @@ namespace TrOCR.Helper
             var responseByte = new byte[0];
             using (var stream = new MemoryStream())
             {
-                var responseStream = response.GetResponseStream();
-                if (responseStream == null) return responseByte;
-                if (response.ContentEncoding.ToLower().Contains("gzip"))
+                // ★★★ 1. 将 GetResponseStream() 也放入 using 块中 ★★★
+                using (var responseStream = response.GetResponseStream())
                 {
-                    new GZipStream(responseStream, CompressionMode.Decompress).CopyTo(stream, 10240);
-                }
-                else
-                {
-                    responseStream.CopyTo(stream, 10240);
+                    if (responseStream == null) return responseByte;
+
+                    if (response.ContentEncoding != null && response.ContentEncoding.ToLower().Contains("gzip"))
+                    {
+                        // ★★★ 2. 将 GZipStream 也放入 using 块中 ★★★
+                        using (var gzipStream = new GZipStream(responseStream, CompressionMode.Decompress))
+                        {
+                            gzipStream.CopyTo(stream, 10240);
+                        }
+                    }
+                    else
+                    {
+                        responseStream.CopyTo(stream, 10240);
+                        
+                    }
                 }
                 responseByte = stream.ToArray();
             }
@@ -334,7 +343,10 @@ namespace TrOCR.Helper
                 if (buffer != null)
                 {
                     request.ContentLength = buffer.Length;
-                    request.GetRequestStream().Write(buffer, 0, buffer.Length);
+                    using (var stream = request.GetRequestStream())
+                    {
+                        stream.Write(buffer, 0, buffer.Length);
+                    }
                 }
                 else
                 {
