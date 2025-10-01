@@ -276,7 +276,7 @@ namespace TrOCR.Helper
                 // 获取腾讯表格识别密钥，如果为空则使用标准版密钥
                 string secretId = string.IsNullOrWhiteSpace(StaticValue.TX_TABLE_API_ID) ? StaticValue.TX_API_ID : StaticValue.TX_TABLE_API_ID;
                 string secretKey = string.IsNullOrWhiteSpace(StaticValue.TX_TABLE_API_KEY) ? StaticValue.TX_API_KEY : StaticValue.TX_TABLE_API_KEY;
-                if (string.IsNullOrEmpty(StaticValue.TX_API_ID) || string.IsNullOrEmpty(StaticValue.TX_API_KEY))
+                if (string.IsNullOrEmpty(secretId) || string.IsNullOrEmpty(secretKey))
                 {
                     return "***请在设置中输入腾讯标准版密钥或表格识别专用密钥***";
                 }
@@ -491,8 +491,8 @@ namespace TrOCR.Helper
                     }
                     // --- 结束构建 DataTable ---
                 }
-
-                return ProcessTencentTableResult(mainTable, maxRow, maxCol, headerTexts, footerTexts); // 调用原方法来获取HTML
+                //上面构建 DataTable：maxRow++,maxCol++，最大行列数都加了1，所以构建剪贴板html格式文本传递最大行列参数时要减1
+                return ProcessTencentTableResult(mainTable, bodyCells, maxRow-1, maxCol-1, headerTexts, footerTexts); // 调用原方法来获取HTML
             }
             catch (Exception ex)
             {
@@ -506,7 +506,7 @@ namespace TrOCR.Helper
         /// </summary>
         /// <param name="jsonResult">腾讯API返回的JSON结果</param>
         /// <returns>HTML格式的表格</returns>
-        private static string ProcessTencentTableResult(JToken mainTable,int maxRow,int maxCol,List<string> headerTexts,List<string> footerTexts)
+        private static string ProcessTencentTableResult(JToken mainTable, List<TableCell> bodyCells, int maxRow,int maxCol,List<string> headerTexts,List<string> footerTexts)
         {
             try
             {
@@ -577,30 +577,30 @@ namespace TrOCR.Helper
                 if (mainTable != null)
                 {
                     //var cells = mainTable["Cells"];
-                    var tableCells = new List<TableCell>();
+                    //var tableCells = new List<TableCell>();
 
 
-                    //     foreach (var cell in cells)
-                    //     {
-                    //         int rowTl = cell["RowTl"]?.Value<int>() ?? -1;
-                    //         if (rowTl < 0) continue;
+                    //foreach (var cell in cells)
+                    //{
+                    //    int rowTl = cell["RowTl"]?.Value<int>() ?? -1;
+                    //    if (rowTl < 0) continue;
 
-                    //         int colTl = cell["ColTl"].Value<int>();
-                    //         int rowBr = cell["RowBr"].Value<int>();
-                    //         int colBr = cell["ColBr"].Value<int>();
+                    //    int colTl = cell["ColTl"].Value<int>();
+                    //    int rowBr = cell["RowBr"].Value<int>();
+                    //    int colBr = cell["ColBr"].Value<int>();
 
-                    //         tableCells.Add(new TableCell
-                    //         {
-                    //             Text = cell["Text"]?.Value<string>() ?? "",
-                    //             Type = cell["Type"]?.Value<string>() ?? "body",
-                    //             Row = rowTl,
-                    //             Col = colTl,
-                    //             RowSpan = rowBr - rowTl,
-                    //             ColSpan = colBr - colTl
-                    //         });
-                    //         maxRow = Math.Max(maxRow, rowBr);
-                    //         maxCol = Math.Max(maxCol, colBr);
-                    //     }
+                    //    tableCells.Add(new TableCell
+                    //    {
+                    //        Text = cell["Text"]?.Value<string>() ?? "",
+                    //        Type = cell["Type"]?.Value<string>() ?? "body",
+                    //        Row = rowTl,
+                    //        Col = colTl,
+                    //        RowSpan = rowBr - rowTl,
+                    //        ColSpan = colBr - colTl
+                    //    });
+                    //    maxRow = Math.Max(maxRow, rowBr);
+                    //    maxCol = Math.Max(maxCol, colBr);
+                    //}
 
                     if (maxRow > 0 && maxCol > 0)
                     {
@@ -643,7 +643,9 @@ namespace TrOCR.Helper
                             {
                                 if (grid[r, c]) continue;
 
-                                var currentCell = tableCells.FirstOrDefault(cell => cell.Row == r && cell.Col == c);
+                                //var currentCell = tableCells.FirstOrDefault(cell => cell.Row == r && cell.Col == c);
+                                var currentCell = bodyCells.FirstOrDefault(cell => cell.Row == r && cell.Col == c);
+
                                 if (currentCell != null)
                                 {
                                      // --- ↓↓↓ 修正点 1：处理内容为空的现有单元格 ↓↓↓ ---
