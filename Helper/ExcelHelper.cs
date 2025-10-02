@@ -54,86 +54,81 @@ namespace TrOCR.Helper
                 {
                     try
                     {
-                        // 1. 定义一个“任务” (Action)，这个任务就是所有耗时的Excel操作
                         Action work = () =>
                         {
                             using (var workbook = new XLWorkbook())
                             {
                                 var worksheet = workbook.Worksheets.Add("识别结果");
+
+                                // --- 优化 1: 全局样式预设 ---
+                                // 为整个工作表设置基础样式，这比在循环中逐个设置快几个数量级
+                                //worksheet.Style.Font.FontName = "等线";
+                                //worksheet.Style.Font.FontSize = 11;
+                                worksheet.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center; // 所有单元格默认垂直居中
+                                worksheet.Style.Alignment.WrapText = true; // 所有单元格默认自动换行
+
                                 int currentRow = 1;
                                 int columnCount = cells.Any() ? cells.Max(c => c.Col + c.ColSpan) : 1;
 
-                                // --- 写入表头 ---
+                                // --- 优化 2: 高效写入表头 ---
                                 if (headerTexts != null && headerTexts.Any())
                                 {
-                                    foreach (var header in headerTexts)
+                                    var headerRange = worksheet.Range(currentRow, 1, currentRow + headerTexts.Count - 1, columnCount);
+                                    // 批量设置表头样式
+                                    headerRange.Style.Font.Bold = true;
+                                    headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                                    // 批量填充数据和合并
+                                    for (int i = 0; i < headerTexts.Count; i++)
                                     {
-                                        var cell = worksheet.Cell(currentRow, 1);
-                                        cell.Value = header;
-                                        worksheet.Range(currentRow, 1, currentRow, columnCount).Merge();
-                                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                                        // ★★★ 新增：表头垂直居中 ★★★
-                                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                                        cell.Style.Font.Bold = true;
-                                        currentRow++;
+                                        worksheet.Cell(currentRow + i, 1).Value = headerTexts[i];
+                                        if (columnCount > 1) worksheet.Range(currentRow + i, 1, currentRow + i, columnCount).Merge();
                                     }
-                                    // 在表头和表格主体之间留一个空行
-                                    // currentRow++;
+                                    currentRow += headerTexts.Count;
                                 }
 
-                                // --- ★★★ 手动写入和合并单元格 ★★★ ---
+                                int tableBodyStartRow = currentRow;
+
+                                // --- 优化 3: 纯数据填充循环 ---
+                                // 这个循环现在变得非常“纯粹”，只负责填入数据，速度极快
                                 foreach (var cellInfo in cells)
                                 {
-                                    // ClosedXML 的单元格坐标从 1 开始
-                                    int startRow = currentRow + cellInfo.Row;
-                                    int startCol = 1 + cellInfo.Col;
+                                    worksheet.Cell(tableBodyStartRow + cellInfo.Row, 1 + cellInfo.Col).Value = cellInfo.Text;
+                                }
 
-                                    var cell = worksheet.Cell(startRow, startCol);
-                                    cell.Value = cellInfo.Text;
+                                // --- 优化 4: 批量合并单元格 ---
+                                // 在所有数据都填充完毕后，再一次性处理所有需要合并的单元格
+                                foreach (var cellInfo in cells.Where(c => c.RowSpan > 1 || c.ColSpan > 1))
+                                {
+                                    worksheet.Range(
+                                        tableBodyStartRow + cellInfo.Row,
+                                        1 + cellInfo.Col,
+                                        tableBodyStartRow + cellInfo.Row + cellInfo.RowSpan - 1,
+                                        1 + cellInfo.Col + cellInfo.ColSpan - 1
+                                    ).Merge();
+                                }
 
+                                int bodyRowCount = cells.Any() ? cells.Max(c => c.Row + c.RowSpan) : 0;
+                                currentRow += bodyRowCount;
 
-                                    // ↓↓↓↓↓↓ 强制开启自动换行 ↓↓↓↓↓↓
-                                    cell.Style.Alignment.WrapText = true;
-                                    // ↑↑↑↑↑↑  ↑↑↑↑↑↑
-                                    //  cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center; // 水平居中
-                                    //  cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;   // 垂直居中
-
-                                    // ↓↓↓↓↓↓ 应用推荐的对齐规范 ↓↓↓↓↓↓
-
-                                    // 1. 垂直方向上，所有单元格都居中
-                                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-                                    // 2. 水平方向上，根据内容判断
-                                    decimal number;
-                                    // 尝试将单元格文本转换为数字
-                                    if (decimal.TryParse(cellInfo.Text, out number))
+                                // --- 优化 5: 批量处理数据区域的对齐 ---
+                                // 对所有数据单元格进行一次性的智能对齐
+                                var dataRange = worksheet.Range(tableBodyStartRow, 1, currentRow - 1, columnCount);
+                                foreach (var cell in dataRange.Cells())
+                                {
+                                    if (cell.Value.IsNumber)
                                     {
-                                        // 如果是纯数字，则靠右对齐
                                         cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
                                     }
                                     else
                                     {
-                                        // 否则，作为文本，靠左对齐
                                         cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                                    }
-                                    // ↑↑↑↑↑↑ 对齐规范结束 ↑↑↑↑↑↑
-
-                                    // 如果需要合并
-                                    if (cellInfo.RowSpan > 1 || cellInfo.ColSpan > 1)
-                                    {
-                                        int endRow = startRow + cellInfo.RowSpan - 1;
-                                        int endCol = startCol + cellInfo.ColSpan - 1;
-                                        worksheet.Range(startRow, startCol, endRow, endCol).Merge();
                                     }
                                 }
 
-                                int bodyRowCount = cells.Max(c => c.Row + c.RowSpan);
-                                currentRow += bodyRowCount;
-
-                                // --- 写入表尾，使用方案一 ---
+                                // --- 优化 6: 高效写入表尾 ---
                                 if (footerTexts != null && footerTexts.Any())
                                 {
-                                    // currentRow++; // 在表格和表尾之间留一个空行
                                     int footerCellCount = footerTexts.Count;
                                     if (footerCellCount > 0)
                                     {
@@ -146,10 +141,8 @@ namespace TrOCR.Helper
                                         {
                                             var cell = worksheet.Cell(currentRow, currentColumn);
                                             cell.Value = footerTexts[i];
-                                            cell.Style.Font.Italic = true;
-                                            // ★★★ 新增：表尾垂直居中 ★★★
-                                            cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                                            // ↓↓↓↓↓↓ 新增：为表尾也应用智能水平对齐 ↓↓↓↓↓↓
+                                            // cell.Style.Font.Italic = true;
+                                            // ↓↓↓↓↓↓ 可选：为表尾也应用智能水平对齐 ↓↓↓↓↓↓
                                             // if (decimal.TryParse(footerTexts[i], out _))
                                             // {
                                             //     // 如果是纯数字，则靠右对齐
@@ -173,69 +166,85 @@ namespace TrOCR.Helper
 
                                             if (currentColspan > 1)
                                             {
-                                                // worksheet.Range(currentRow, currentColumn, currentRow, currentColumn + currentColspan - 1).Merge();
                                                 var rangeToMerge = worksheet.Range(currentRow, currentColumn, currentRow, currentColumn + currentColspan - 1);
                                                 rangeToMerge.Merge();
-                                                // 合并后，样式需要使用所合并的第一个单元格的样式
-                                                rangeToMerge.FirstCell().Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
+                                                // 对整个合并后的范围设置样式
+                                                rangeToMerge.Style.Font.Italic = true;
                                             }
-
+                                            else
+                                            {
+                                                cell.Style.Font.Italic = true;
+                                            }
                                             currentColumn += currentColspan;
                                         }
-                                        // 因为只占用一行，所以最后 currentRow++ 一次即可
                                         currentRow++;
                                     }
                                 }
 
-                                // 可选：↓↓↓↓↓↓ 新增代码：为整个表格区域添加边框 ↓↓↓↓↓↓
-                                int totalRows = (headerTexts?.Count ?? 0) + bodyRowCount + (footerTexts?.Any() == true ? 1 : 0);
-                                int totalColumns = cells.Any() ? cells.Max(c => c.Col + c.ColSpan) : 1;
+                                // --- 优化 7: 统一添加边框 ---
+                                // 所有内容都完成后，对整个有效区域一次性添加边框
+                                var fullRange = worksheet.Range(1, 1, currentRow - 1, columnCount);
+                                fullRange.Style.Border.SetInsideBorder(XLBorderStyleValues.Thin);
+                                fullRange.Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin);
 
-                                if (totalRows > 0 && totalColumns > 0)
-                                {
-                                    // 从 A1 单元格开始，选中整个我们操作过的区域
-                                    var tableRange = worksheet.Range(1, 1, totalRows, totalColumns);
-                                    // 为这个区域的所有内外边框都设置上细线条样式
-                                    tableRange.Style.Border.SetInsideBorder(XLBorderStyleValues.Thin);
-                                    tableRange.Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin);
-                                }
-                                // ↑↑↑↑↑↑ 新增代码结束 ↑↑↑↑↑↑
+                                // --- 优化 8: 放弃 AdjustToContents，采用固定宽度（速度最快） ---
+                                // 这是为了极致速度。如果希望列宽自适应，请看下面的“备选方案”，或者放弃优化8，依旧使用AdjustToContents
+                                //worksheet.Columns().Width = 20; // 为所有列设置一个合理的固定宽度
+                                worksheet.Columns().AdjustToContents(1, 20); // 自动调整，允许的最小宽度为1.0，最大宽度为20.0（字符宽度单位）
 
+                                //// --- 优化 8 (备选): 估算列宽，代替 AdjustToContents ---
+                                //// 创建一个字典来存储每列的最大字符数
+                                //var maxChars = new Dictionary<int, int>();
+                                //var fullRange = worksheet.Range(1, 1, currentRow - 1, columnCount);
 
-                                worksheet.Columns().AdjustToContents();//自动调整列宽
-                                                                       //或者
-                                                                       // worksheet.Columns().Width = 15; // 将所有列的宽度统一设置为 15，也可以计算出最宽的单元格列宽，统一所有列列宽为最宽的
-                                                                       //或者
-                                                                       //worksheet.Columns().AdjustToContents(1, 20); // 自动调整，允许的最小宽度为1.0，最大宽度为20.0（字符宽度单位）
+                                //foreach (var cell in fullRange.Cells())
+                                //{
+                                //    // 跳过被合并的单元格，只计算每个合并区域左上角第一个单元格
+                                //    if (cell.IsMerged() && cell.Address != cell.MergedRange().FirstCell().Address) continue;
+
+                                //    int length = cell.GetValue<string>().Length;
+                                //    int col = cell.Address.ColumnNumber;
+
+                                //    // 考虑合并单元格的宽度分配
+                                //    int colSpan = cell.IsMerged() ? cell.MergedRange().ColumnCount() : 1;
+                                //    int avgLength = length / colSpan; // 将内容长度均分给被合并的列
+
+                                //    for (int i = 0; i < colSpan; i++)
+                                //    {
+                                //        int currentCol = col + i;
+                                //        if (!maxChars.ContainsKey(currentCol) || avgLength > maxChars[currentCol])
+                                //        {
+                                //            maxChars[currentCol] = avgLength;
+                                //        }
+                                //    }
+                                //}
+
+                                //// 根据最大字符数设置列宽 (这里的 1.2 是一个经验系数，您可以微调)
+                                //foreach (var pair in maxChars)
+                                //{
+                                //    // +2 是为了留出一些边距
+                                //    worksheet.Column(pair.Key).Width = Math.Min(pair.Value * 1.2 + 2, 100); // 设置一个最大宽度上限，防止过宽
+                                //}
 
                                 workbook.SaveAs(sfd.FileName);
-                                // 1. 测试，直接定义一个固定的、无害的保存路径（例如，在用户的临时文件夹中），不通过文件保存对话框
-                                //string testFilePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"TrOCR_Test_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
-                                //workbook.SaveAs(testFilePath);//测试，使用固定路径，不使用文件保存对话框
                             }
                         };
 
-                        // 2. 定义一个出错时的处理方式
+                        // 后续的加载窗体逻辑保持不变
                         Action<Exception> onError = (ex) =>
                         {
                             MessageBox.Show($"导出 Excel 文件时发生错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         };
-
-                        // 3. 创建并显示加载窗体，把“任务”和“出错处理”交给它
                         var loadingForm = new FmLoadingExport(work, onError);
                         var result = loadingForm.ShowDialog(owner);
 
-                        // 4. 加载窗体关闭后，根据结果显示成功信息
                         if (result == DialogResult.OK)
                         {
                             MessageBox.Show($"表格已成功导出到:\n{sfd.FileName}", "导出成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
-
-                    }
-                    catch (Exception ex)
+                    }catch(Exception ex)
                     {
-                        MessageBox.Show($"导出 Excel 文件时发生错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"导出异常:{ex.Message}");
                     }
                     finally
                     {
@@ -309,7 +318,7 @@ namespace TrOCR.Helper
                             //         currentRow++;
                             //     }
                             // }
-                            // 方案一：--- ★★★★★ 优化后的写入表尾逻辑 ★★★★★ ---
+                            // 方案一：---  优化后的写入表尾逻辑  ---
                             if (footerTexts != null && footerTexts.Any())
                             {
                                 // currentRow++; // 在表格和表尾之间留一个空行

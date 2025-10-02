@@ -741,7 +741,7 @@ namespace TrOCR.Helper
         public class TableCell
         {
             public string Text { get; set; }
-            public string Type { get; set; } // "header", "body", "footer"
+            public string Type { get; set; } // "header", "body", "footer","context"
             public int Row { get; set; }
             public int Col { get; set; }
             public int RowSpan { get; set; }
