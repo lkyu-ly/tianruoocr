@@ -6,7 +6,9 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
 
-[assembly: AssemblyVersion("6.0.0.2")]
+//更新版本号：AssemblyVersion，AssemblyFileVersion，AssemblyInformationalVersion三者皆需要修改
+// 1. AssemblyVersion: 供 .NET 运行时 (CLR) 使用
+[assembly: AssemblyVersion("6.0.1.0")]
 [assembly: AssemblyConfiguration("")]
 [assembly: ComVisible(false)]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2022")]
@@ -16,7 +18,10 @@ using System.Security.Permissions;
 [assembly: AssemblyTitle("天若OCR文字识别v6")]
 [assembly: AssemblyDescription("topkill")]
 [assembly: CompilationRelaxations(8)]
-[assembly: AssemblyFileVersion("6.0.0.2")]
+// 2. AssemblyFileVersion: 供 Windows 文件系统使用
+[assembly: AssemblyFileVersion("6.0.1-beta")]
+// 3. AssemblyInformationalVersion: 供程序逻辑和用户查看
+[assembly: AssemblyInformationalVersion("6.0.1-beta")]
 [assembly: AssemblyTrademark("")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows = true)]
 [assembly: CLSCompliant(true)]
