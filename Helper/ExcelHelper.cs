@@ -13,7 +13,7 @@ namespace TrOCR.Helper
     public static class ExcelHelper
     {
         // 重载方法，用于处理百度的 CellInfo
-        public static void ExportToExcel(List<CellInfo> bodyCells, List<string> headerTexts, List<string> footerTexts,Form owner)
+        public static void ExportToExcel(List<CellInfo> bodyCells, List<string> headerTexts, List<string> footerTexts, Form owner)
         {
             // 将百度的 CellInfo 转换为通用的 TableCell
             var genericCells = bodyCells.Select(c => new TableCell
@@ -26,17 +26,17 @@ namespace TrOCR.Helper
                 ColSpan = c.ColEnd - c.ColStart
             }).ToList();
 
-            GenerateExcelFile(genericCells, headerTexts, footerTexts,owner);
+            GenerateExcelFile(genericCells, headerTexts, footerTexts, owner);
         }
 
         // 重载方法，用于处理腾讯的 TableCell
-        public static void ExportToExcel(List<TableCell> bodyCells, List<string> headerTexts, List<string> footerTexts,Form owner)
+        public static void ExportToExcel(List<TableCell> bodyCells, List<string> headerTexts, List<string> footerTexts, Form owner)
         {
-            GenerateExcelFile(bodyCells, headerTexts, footerTexts,owner);
+            GenerateExcelFile(bodyCells, headerTexts, footerTexts, owner);
         }
 
         // 核心的 Excel 文件生成逻辑
-        private static void GenerateExcelFile(List<TableCell> cells, List<string> headerTexts, List<string> footerTexts,Form owner)
+        private static void GenerateExcelFile(List<TableCell> cells, List<string> headerTexts, List<string> footerTexts, Form owner)
         {
             if (cells == null || !cells.Any())
             {
@@ -90,14 +90,14 @@ namespace TrOCR.Helper
 
                                     var cell = worksheet.Cell(startRow, startCol);
                                     cell.Value = cellInfo.Text;
-  
+
 
                                     // ↓↓↓↓↓↓ 强制开启自动换行 ↓↓↓↓↓↓
                                     cell.Style.Alignment.WrapText = true;
                                     // ↑↑↑↑↑↑  ↑↑↑↑↑↑
                                     //  cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center; // 水平居中
                                     //  cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;   // 垂直居中
-                                    
+
                                     // ↓↓↓↓↓↓ 应用推荐的对齐规范 ↓↓↓↓↓↓
 
                                     // 1. 垂直方向上，所有单元格都居中
@@ -149,7 +149,7 @@ namespace TrOCR.Helper
                                             cell.Style.Font.Italic = true;
                                             // ★★★ 新增：表尾垂直居中 ★★★
                                             cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                                             // ↓↓↓↓↓↓ 新增：为表尾也应用智能水平对齐 ↓↓↓↓↓↓
+                                            // ↓↓↓↓↓↓ 新增：为表尾也应用智能水平对齐 ↓↓↓↓↓↓
                                             // if (decimal.TryParse(footerTexts[i], out _))
                                             // {
                                             //     // 如果是纯数字，则靠右对齐
@@ -202,14 +202,17 @@ namespace TrOCR.Helper
                                 }
                                 // ↑↑↑↑↑↑ 新增代码结束 ↑↑↑↑↑↑
 
-                            
+
                                 worksheet.Columns().AdjustToContents();//自动调整列宽
-                                //或者
-                                // worksheet.Columns().Width = 15; // 将所有列的宽度统一设置为 15，也可以计算出最宽的单元格列宽，统一所有列列宽为最宽的
-                                //或者
-                                //worksheet.Columns().AdjustToContents(1, 20); // 自动调整，允许的最小宽度为1.0，最大宽度为20.0（字符宽度单位）
+                                                                       //或者
+                                                                       // worksheet.Columns().Width = 15; // 将所有列的宽度统一设置为 15，也可以计算出最宽的单元格列宽，统一所有列列宽为最宽的
+                                                                       //或者
+                                                                       //worksheet.Columns().AdjustToContents(1, 20); // 自动调整，允许的最小宽度为1.0，最大宽度为20.0（字符宽度单位）
 
                                 workbook.SaveAs(sfd.FileName);
+                                // 1. 测试，直接定义一个固定的、无害的保存路径（例如，在用户的临时文件夹中），不通过文件保存对话框
+                                //string testFilePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"TrOCR_Test_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+                                //workbook.SaveAs(testFilePath);//测试，使用固定路径，不使用文件保存对话框
                             }
                         };
 
@@ -234,11 +237,16 @@ namespace TrOCR.Helper
                     {
                         MessageBox.Show($"导出 Excel 文件时发生错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                    finally
+                    {
+                        //治标方案,重新初始化，重置网络
+                        // NetworkInitializer.Reinitialize();
+                    }
                 }
             }
         }
         //原始实现，用于参考，此方法不支持跨行跨列的合并单元格
-        [Obsolete("此方法已被新版本替代，不支持合并单元格和加载提示。")]
+        [Obsolete("此方法已被新版本替代，不支持合并单元格和加载提示等。")]
         public static void ExportToExcel(DataTable tableData, List<string> headerTexts, List<string> footerTexts)
         {
             if (tableData == null || tableData.Rows.Count == 0)

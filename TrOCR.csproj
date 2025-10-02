@@ -300,7 +300,9 @@
     <Compile Include="FmLoading.Designer.cs">
       <DependentUpon>FmLoading.cs</DependentUpon>
     </Compile>
-    <Compile Include="FmLoadingExport.cs" />
+    <Compile Include="FmLoadingExport.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FmMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -339,6 +341,7 @@
     <Compile Include="Helper\HelpWin32.cs" />
     <Compile Include="Helper\HttpHelper.cs" />
     <Compile Include="Helper\IniHelper.cs" />
+    <Compile Include="Helper\NetworkInitializer.cs" />
     <Compile Include="Helper\OcrHelper.cs" />
     <Compile Include="Helper\Pangu.cs" />
     <Compile Include="Helper\TranslateHelper.cs" />
