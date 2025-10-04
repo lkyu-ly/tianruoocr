@@ -6587,12 +6587,16 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 			RichBoxBody.Text = Clipboard.GetText();
 			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
-			TransClick();
-			FormBorderStyle = FormBorderStyle.Sizable;
-			Visible = true;
-			HelpWin32.SetForegroundWindow(StaticValue.mainHandle);
-			Show();
-			WindowState = FormWindowState.Normal;
+            // 1. 先让窗口以正常状态显示出来
+            FormBorderStyle = FormBorderStyle.Sizable;
+            Visible = true;
+            Show();
+            WindowState = FormWindowState.Normal;
+            HelpWin32.SetForegroundWindow(StaticValue.mainHandle); // 激活窗口
+
+            // 2. 在窗口已经可见且状态正常后，再调用 TransClick() 来设置双栏布局
+            TransClick();
+
 			if (IniHelper.GetValue("工具栏", "顶置") == "True")
 			{
 				TopMost = true;
