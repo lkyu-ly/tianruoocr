@@ -2026,7 +2026,7 @@ namespace TrOCR
 			IniHelper.SetValue("模型配置_PaddleOCR2", "Keys", textBox_PaddleOCR2_Keys.Text);
 			IniHelper.SetValue("模型配置_PaddleOCR2", "AdvancedConfig", textBox6.Text);
 			IniHelper.SetValue("模型配置_PaddleOCR2", "Det_Version", comboBox_PaddleOCR2_det_Version.SelectedItem?.ToString() ?? "v5");
-			IniHelper.SetValue("模型配置_PaddleOCR2", "Cls_Version", comboBox_PaddleOCR2_cls_Version.SelectedItem?.ToString() ?? "v2");
+			IniHelper.SetValue("模型配置_PaddleOCR2", "Cls_Version", comboBox_PaddleOCR2_cls_Version.SelectedItem?.ToString() ?? "v5");
 			IniHelper.SetValue("模型配置_PaddleOCR2", "Rec_Version", comboBox_PaddleOCR2_rec_Version.SelectedItem?.ToString() ?? "v5");
 			
 			// RapidOCR配置

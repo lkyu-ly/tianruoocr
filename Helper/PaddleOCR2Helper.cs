@@ -59,7 +59,7 @@ namespace TrOCR.Helper
                 {
                     string modelBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR2_data", "models");
                     detModelPath = string.IsNullOrEmpty(detModelPath) ? Path.Combine(modelBasePath, "PP-OCRv5_mobile_det_infer") : detModelPath;
-                    clsModelPath = string.IsNullOrEmpty(clsModelPath) ? Path.Combine(modelBasePath, "ch_ppocr_mobile_v2.0_cls_infer") : clsModelPath;
+                    clsModelPath = string.IsNullOrEmpty(clsModelPath) ? Path.Combine(modelBasePath, "ch_ppocr_mobile_v5.0_cls_infer") : clsModelPath;
                     recModelPath = string.IsNullOrEmpty(recModelPath) ? Path.Combine(modelBasePath, "PP-OCRv5_mobile_rec_infer") : recModelPath;
                     keysPath = string.IsNullOrEmpty(keysPath) ? Path.Combine(modelBasePath, "ppocr_keys.txt") : keysPath;
                 }
