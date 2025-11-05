@@ -392,6 +392,21 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			}
 			if (m.Msg == 786 && m.WParam.ToInt32() == 590 && speak_copyb == "朗读")
 			{
+				if (ActiveControl.Name == "htmlTextBoxBody")
+				{
+					//优先使用选中的文本；如果未选中任何文本，则使用全部文本
+    				htmltxt = !string.IsNullOrEmpty(RichBoxBody.SelectText) 
+              		? RichBoxBody.SelectText 
+              		: RichBoxBody.Text;
+				}
+				if (ActiveControl.Name == "rich_trans")
+				{
+					htmltxt = RichBoxBody_T.Text;
+				}
+				if (htmltxt == "")
+				{
+					return;
+				}
 				TTS();
 				return;
 			}
@@ -433,7 +448,10 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			{
 				if (ActiveControl.Name == "htmlTextBoxBody")
 				{
-					htmltxt = RichBoxBody.Text;
+					//优先使用选中的文本；如果未选中任何文本，则使用全部文本
+    				htmltxt = !string.IsNullOrEmpty(RichBoxBody.SelectText) 
+              		? RichBoxBody.SelectText 
+              		: RichBoxBody.Text;
 				}
 				if (ActiveControl.Name == "rich_trans")
 				{
@@ -3293,33 +3311,52 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		public void TTS_thread()
 		{
 			try
-			{
-				// 清理文本内容，移除特殊标记
-				var text = htmltxt.Replace("***", "");
-				// 检测文本语言
-				var lang = CommonHelper.LangDetect(text);
-				//                var url = "https://fanyi.baidu.com/gettts?lan=" + lang + "&text=" + HttpUtility.UrlEncode(text) +
-				//                                   "&vol=9&per=0&spd=6&pit=4&source=web&ctp=1";
-				// 获取百度TTS语音合成URL
-				var url = TranslateHelper.BdTts(text, lang, 5);
-				// 下载语音数据
-				ttsData = new WebClient().DownloadData(url);
-				// 根据条件决定调用哪个播放方法
-				if (speak_copyb == "朗读" || voice_count == 0)
-				{
-					Invoke(new Translate(Speak_child));
-					speak_copyb = "";
-				}
-				else
-				{
-					Invoke(new Translate(TTS_child));
-				}
-				voice_count++;
-			}
-			catch (Exception)
-			{
-				MessageBox.Show("文本过长，请使用右键菜单中的选中朗读！", "提醒");
-			}
+        	{
+        	    Stream responseStream = ((HttpWebResponse) ((HttpWebRequest) WebRequest.Create(string.Format("{0}?{1}", "http://aip.baidubce.com/oauth/2.0/token", "grant_type=client_credentials&client_id=iQekhH39WqHoxur5ss59GpU4&client_secret=8bcee1cee76ed60cdfaed1f2c038584d"))).GetResponse( )).GetResponseStream( );
+        	    string text = new StreamReader(responseStream, Encoding.GetEncoding("utf-8")).ReadToEnd( );
+        	    responseStream.Close( );
+        	    string text2 = !contain_ch(htmltxt) ? "zh" : "zh";
+        	    HttpWebRequest httpWebRequest = (HttpWebRequest) WebRequest.Create(string.Concat(new string[]
+        	    {
+        	        "http://tsn.baidu.com/text2audio?lan=" + text2 + "&ctp=1&cuid=abcdxxx&tok=",
+        	        ((JObject)JsonConvert.DeserializeObject(text))["access_token"].ToString(),
+        	        "&tex=",
+        	        HttpUtility.UrlEncode(htmltxt.Replace("***", "")),
+        	        "&vol=9&per=0&spd=5&pit=5"
+        	    }));
+        	    httpWebRequest.Method = "POST";
+        	    HttpWebResponse httpWebResponse = (HttpWebResponse) httpWebRequest.GetResponse( );
+        	    byte[] array = new byte[16384];
+        	    byte[] array2;
+        	    using (MemoryStream memoryStream = new( ))
+        	    {
+        	        int num;
+        	        while ((num = httpWebResponse.GetResponseStream( ).Read(array, 0, array.Length)) > 0)
+        	        {
+        	            memoryStream.Write(array, 0, num);
+        	        }
+        	        array2 = memoryStream.ToArray( );
+        	    }
+        	    ttsData = array2;
+        	    if (speak_copyb == "朗读" || voice_count == 0)
+        	    {
+        	        Invoke(new Translate(Speak_child));
+                    speak_copyb = "";
+        	    }
+        	    else
+        	    {
+        	        Invoke(new Translate(TTS_child));
+        	    }
+                voice_count++;
+        	}
+        	catch (Exception ex)
+        	{
+        	    if (ex.ToString( ).IndexOf("Null") <= -1)
+        	    {
+        	        MessageBox.Show("文本过长，请使用右键菜单中的选中朗读！", "提醒");
+        	    }
+        	}
+    
 		}
 
 		/// <summary>
