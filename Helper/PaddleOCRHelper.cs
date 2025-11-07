@@ -35,6 +35,27 @@ namespace TrOCR.Helper
         // 构造函数依然是私有的
         private PaddleOCRHelper()
         {
+            // --- 优化：在每次初始化时都重新声明DLL搜索路径 ---
+            var processArchitecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
+            if (processArchitecture == System.Runtime.InteropServices.Architecture.X64)
+            {
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR_data", "win_x64");
+                if (Directory.Exists(path))
+                {
+                    // TrOCRUtils.AddDllDirectory 是 Program.cs 中 AddDllDirectory 的包装器
+                    TrOCRUtils.AddDllDirectory(path);
+                }
+            }
+            else if (processArchitecture == System.Runtime.InteropServices.Architecture.X86)
+            {
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PaddleOCR_data", "win_x86");
+                if (Directory.Exists(path))
+                {
+                    TrOCRUtils.AddDllDirectory(path);
+                }
+            }
+            // --- 优化结束 ---
+
             _architecture = RuntimeInformation.ProcessArchitecture ;
 
             if (_architecture != Architecture.X64)
