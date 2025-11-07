@@ -174,9 +174,10 @@ namespace TrOCR
 			this.minico.Text = "双击开始截图识别";
 			this.minico.Visible = true;
 			this.minico.MouseDoubleClick += new global::System.Windows.Forms.MouseEventHandler(this.tray_double_Click);
-			
-			// 字体基础尺寸
-			this.font_base.Width = 18f * this.F_factor;
+            this.minico.Click += new System.EventHandler(this.trayShowClick);
+
+            // 字体基础尺寸
+            this.font_base.Width = 18f * this.F_factor;
 			this.font_base.Height = 17f * this.F_factor;
 			
 			// 翻译文本框初始状态
