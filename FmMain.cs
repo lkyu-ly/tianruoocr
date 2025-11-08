@@ -7149,8 +7149,18 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
         // 2. 检查在时间窗口内总共发生了几次点击
         if (trayClickCount == 1)
         {
-            // 如果只有 1 次点击，判定为“单击”
-            trayShowClick(sender, e);
+            // 如果只有 1 次点击，判定为“单击”，执行“切换显示/隐藏”
+				if (this.Visible)
+				{
+					// 如果窗口当前可见，则隐藏它
+					this.Hide();
+					this.Visible = false;
+				}
+				else
+				{
+					// 如果窗口当前不可见，则调用 trayShowClick (它会负责 Show, Activate, TopMost 等)
+					trayShowClick(sender, e);
+				}
         }
         else if (trayClickCount >= 2)
         {
