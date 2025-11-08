@@ -19,9 +19,9 @@ using System.Security.Permissions;
 [assembly: AssemblyDescription("topkill")]
 [assembly: CompilationRelaxations(8)]
 // 2. AssemblyFileVersion: 供 Windows 文件系统使用
-[assembly: AssemblyFileVersion("6.0.1-beta")]
+[assembly: AssemblyFileVersion("6.0.1")]
 // 3. AssemblyInformationalVersion: 供程序逻辑和用户查看
-[assembly: AssemblyInformationalVersion("6.0.1-beta")]
+[assembly: AssemblyInformationalVersion("6.0.1")]
 [assembly: AssemblyTrademark("")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows = true)]
 [assembly: CLSCompliant(true)]
