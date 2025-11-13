@@ -114,7 +114,7 @@ namespace TrOCR
             this.toolStripButtonBold.Image = (Image)componentResourceManager.GetObject("toolStripButtonBold.Image");
             this.toolStripButtonBold.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonBold.Name = "toolStripButtonBold";
-            this.toolStripButtonBold.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonBold.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonBold.Text = "加粗";
             this.toolStripButtonBold.AutoSize= false;
             this.toolStripButtonBold.Click += this.toolStripButtonBold_Click;
@@ -122,7 +122,7 @@ namespace TrOCR
             this.toolStripButtonParagraph.Image = (Image)componentResourceManager.GetObject("toolStripButtonParagraph.Image");
             this.toolStripButtonParagraph.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonParagraph.Name = "toolStripButtonParagraph";
-            this.toolStripButtonParagraph.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonParagraph.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonParagraph.AutoSize = false;
             this.toolStripButtonParagraph.Text = "依据位置自动分段\r\n仅支持搜狗接口\r\n适合段落识别\r\n图片越清晰越准确\r\n准确度98%以上";
             this.toolStripButtonParagraph.Click += this.toolStripButtonParagraph_Click;
@@ -131,7 +131,7 @@ namespace TrOCR
             this.toolStripButtonFind.Image = (Image)componentResourceManager.GetObject("toolStripButtonFind.Image");
             this.toolStripButtonFind.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonFind.Name = "toolStripButtonFind";
-            this.toolStripButtonFind.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonFind.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonFind.Text = "查找\\替换";
             this.toolStripButtonFind.AutoSize = false;
             this.toolStripButtonFind.Click += this.toolStripButtonFind_Click;
@@ -139,7 +139,7 @@ namespace TrOCR
             this.toolStripButtonColor.Image = (Image)componentResourceManager.GetObject("toolStripButtonColor.Image");
             this.toolStripButtonColor.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonColor.Name = "toolStripButtonColor";
-            this.toolStripButtonColor.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonColor.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonColor.AutoSize = false;
             this.toolStripButtonColor.Text = "字体颜色";
             this.toolStripButtonColor.Click += this.toolStripButtonColor_Click;
@@ -147,7 +147,7 @@ namespace TrOCR
             this.toolStripButtonLeft.Image = (Image)componentResourceManager.GetObject("toolStripButtonLeft.Image");
             this.toolStripButtonLeft.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonLeft.Name = "toolStripButtonLeft";
-            this.toolStripButtonLeft.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonLeft.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonLeft.Text = "左对齐";
             this.toolStripButtonLeft.Click += this.toolStripButtonLeft_Click;
             this.toolStripButtonLeft.AutoSize = false;
@@ -155,7 +155,7 @@ namespace TrOCR
             this.toolStripButtonMerge.Image = (Image)componentResourceManager.GetObject("toolStripButtonMerge.Image");
             this.toolStripButtonMerge.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonMerge.Name = "toolStripButtonMerge";
-            this.toolStripButtonMerge.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonMerge.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonMerge.Text = "将文本合并成一段";
             this.toolStripButtonMerge.AutoSize = false;
             this.toolStripButtonMerge.Click += this.toolStripButtonMerge_Click;
@@ -164,7 +164,7 @@ namespace TrOCR
             this.toolStripButtonVoice.Image = (Image)componentResourceManager.GetObject("toolStripButtonVoice.Image");
             this.toolStripButtonVoice.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonVoice.Name = "toolStripButtonVoice";
-            this.toolStripButtonVoice.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonVoice.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonVoice.Text = "朗读";
             this.toolStripButtonVoice.AutoSize = false;
             this.toolStripButtonVoice.Click += this.toolStripButtonVoice_Click;
@@ -172,7 +172,7 @@ namespace TrOCR
             this.toolStripButtonFull.Image = (Image)componentResourceManager.GetObject("toolStripButtonFull.Image");
             this.toolStripButtonFull.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonFull.Name = "toolStripButtonFull";
-            this.toolStripButtonFull.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonFull.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonFull.Text = "两端对齐";
             this.toolStripButtonFull.AutoSize = false;
             this.toolStripButtonFull.Click += this.toolStripButtonFull_Click;
@@ -180,7 +180,7 @@ namespace TrOCR
             this.toolStripButtonspace.Image = (Image)componentResourceManager.GetObject("toolStripButtonspace.Image");
             this.toolStripButtonspace.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonspace.Name = "toolStripButtonLine";
-            this.toolStripButtonspace.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonspace.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonspace.Text = "首行缩进";
             this.toolStripButtonspace.AutoSize = false;
             this.toolStripButtonspace.Click += this.toolStripButtonspace_Click;
@@ -188,7 +188,7 @@ namespace TrOCR
             this.toolStripButtonFence.Image = (Image)componentResourceManager.GetObject("toolStripButtonFence.Image");
             this.toolStripButtonFence.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonFence.Name = "toolStripButtonformat";
-            this.toolStripButtonFence.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonFence.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonFence.Text = "截图时自动分栏\r\n多选区时无效\r\n单击显示分栏示意图";
             this.toolStripButtonFence.AutoSize = false;
             this.toolStripButtonFence.Click += this.toolStripButtonFence_Click;
@@ -197,7 +197,7 @@ namespace TrOCR
             this.toolStripButtonSend.Image = (Image)componentResourceManager.GetObject("toolStripButtonSend.Image");
             this.toolStripButtonSend.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonSend.Name = "toolStripButtonSend";
-            this.toolStripButtonSend.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonSend.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonSend.Text = "复制/发送";
             this.toolStripButtonSend.AutoSize = false;
             this.toolStripButtonSend.Click += this.toolStripButtonSend_Click;
@@ -205,7 +205,7 @@ namespace TrOCR
             this.toolStripButtonSplit.Image = (Image)componentResourceManager.GetObject("toolStripButtonSplit.Image");
             this.toolStripButtonSplit.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonSplit.Name = "toolStripButtonSplit";
-            this.toolStripButtonSplit.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonSplit.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonSplit.Text = "按图片中的行进行拆分";
             this.toolStripButtonSplit.AutoSize = false;
             this.toolStripButtonSplit.Click += this.toolStripButtonSplit_Click;
@@ -214,7 +214,7 @@ namespace TrOCR
             this.toolStripButtoncheck.Image = (Image)componentResourceManager.GetObject("toolStripButtoncheck.Image");
             this.toolStripButtoncheck.ImageTransparentColor = Color.Magenta;
             this.toolStripButtoncheck.Name = "toolStripButtoncheck";
-            this.toolStripButtoncheck.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtoncheck.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtoncheck.Text = "检查文本是否有错别字";
             this.toolStripButtoncheck.AutoSize = false;
             this.toolStripButtoncheck.Click += this.toolStripButtoncheck_Click;
@@ -223,7 +223,7 @@ namespace TrOCR
             this.toolStripButtonTrans.Image = (Image)componentResourceManager.GetObject("toolStripButtonTrans.Image");
             this.toolStripButtonTrans.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonTrans.Name = "toolStripButtonTrans";
-            this.toolStripButtonTrans.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonTrans.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonTrans.Text = "翻译";
             this.toolStripButtonTrans.AutoSize = false;
             this.toolStripButtonTrans.Click += this.toolStripButtonTrans_Click;
@@ -232,7 +232,7 @@ namespace TrOCR
             this.toolStripButtonNote.Image = (Image)componentResourceManager.GetObject("toolStripButtonNote.Image");
             this.toolStripButtonNote.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonNote.Name = "toolStripButtonTrans";
-            this.toolStripButtonNote.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonNote.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonNote.Text = "记录窗体";
             this.toolStripButtonNote.AutoSize = false;
             this.toolStripButtonNote.Click += this.toolStripButtonNote_Click;
@@ -240,7 +240,7 @@ namespace TrOCR
             this.toolStripButtonclose.Image = (Image)componentResourceManager.GetObject("toolStripButtonclose.Image");
             this.toolStripButtonclose.ImageTransparentColor = Color.Magenta;
             this.toolStripButtonclose.Name = "toolStripButtonclose";
-            this.toolStripButtonclose.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.toolStripButtonclose.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.toolStripButtonclose.Text = "关闭";
             this.toolStripButtonclose.AutoSize = false;
             this.toolStripButtonclose.Click += this.toolStripButtonclose_Click;
@@ -248,7 +248,7 @@ namespace TrOCR
             this.languagle.Image = (Image)componentResourceManager.GetObject("languagle.Image");
             this.languagle.ImageTransparentColor = Color.Magenta;
             this.languagle.Name = "toolStripButtonclose";
-            this.languagle.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.languagle.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.languagle.Text = "选择翻译语言\r\n支持自动检测\r\n可以双向翻译";
             this.zh_en.Text = "中⇆英";
             this.zh_en.ForeColor = Color.Red;
@@ -283,7 +283,7 @@ namespace TrOCR
             this.topmost.Image = (Image)componentResourceManager.GetObject("mode.Image");
             this.topmost.ImageTransparentColor = Color.Magenta;
             this.topmost.Name = "toolStripButtonclose";
-            this.topmost.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.topmost.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.topmost.Text = "顶置";
             this.topmost.AutoSize = false;
             this.topmost.MouseDown += this.topmost_keydown;
@@ -291,7 +291,7 @@ namespace TrOCR
             this.Fontstyle.Image = (Image)componentResourceManager.GetObject("Fontstyle.Image");
             this.Fontstyle.ImageTransparentColor = Color.Magenta;
             this.Fontstyle.Name = "toolStripButtonclose";
-            this.Fontstyle.Size = new Size( (int)(23 * Program.Factor),  (int)(22 * Program.Factor));
+            this.Fontstyle.Size = new Size( (int)(23 * Program.Factor *0.85),  (int)(22 * Program.Factor));
             this.Fontstyle.Text = "字体";
             this.Fontstyle.AutoSize = false;
             ((ToolStripDropDownMenu)this.Fontstyle.DropDown).ShowImageMargin = false;
