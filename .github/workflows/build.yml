@@ -4,7 +4,7 @@ name: .NET Framework Multi-Platform Build & Release
 # 触发工作流的事件
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main","feature/more" ]
     # tags: [ 'v*' ] # <--- 新增：当推送 v* 标签时也触发，匹配v开头的标签
     tags: [ '*' ] #匹配所有标签
   pull_request:
