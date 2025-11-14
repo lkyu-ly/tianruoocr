@@ -375,7 +375,65 @@ namespace TrOCR
             this.c = new AdvRichTextBox.cmd(50);
             this.Font = new Font(this.Font.Name, 9f / StaticValue.DpiFactor, this.Font.Style, this.Font.Unit, this.Font.GdiCharSet, this.Font.GdiVerticalFont);
             this.InitializeComponent();
-            this.readIniFile();
+            // [新增] 使用100%可靠的设计时检查：只有在程序 *运行* 时才读取INI文件, 不要 SSSSin Visual Studio 设计器中运行此代码
+            //解决设计器拖动创建或创建AdvRickTextBox控件时，因为配置文件找不到执行读取文件操作失败报错的问题
+            //设计器拖动创建或创建Fmmain控件时应该也有此问题，暂时不改，想改的话，只需要像下面这样修改Fmmain构造函数里所有需要读取或写入文件的地方就行了
+            bool inDesignMode = (LicenseManager.UsageMode == LicenseUsageMode.Designtime);
+
+            if (!inDesignMode)
+            {
+                this.readIniFile();
+            }
+            // [新增] 根据 dpi 强制缩放工具栏的 *目标* 图标尺寸
+            //这样工具栏图标也强制放大了，而不只是图标所占格子放大，但是原始图标是16x16的，强制放大后会糊，
+            // 需要提供更高像素的图标，比如32x32，64x64的，这样放大后才清晰不糊
+            // 低像素图标一般放大会糊，但是高像素图标缩小一般不会糊
+            if (Program.Factor > 1.0f)
+            {
+                // 1. 计算新的目标图标大小 (例如 16 * 2.0 = 32)
+                int newIconSize = (int)(16 * Program.Factor);
+
+                // 2. 将这个新尺寸应用到 *整个工具栏*
+                this.toolStripToolBar.ImageScalingSize = new System.Drawing.Size(newIconSize, newIconSize);
+            }
+
+            // [新增] 修复字体图标缩放，但是本程序使用的不是字体图标，是字体/文字转成的图片图标，所以注释掉
+            //        if (Program.Factor > 1.0f)
+            //{
+            //    // 1. 定义您的图标字体。
+            //    //    (如果 "T, B, A" 和 "段, 分, 拆" 使用的是标准字体，
+            //    //     而其他图标使用的是 Segoe，您可能需要分开设置)
+
+            //    // 假设所有图标都使用 "Segoe MDL2 Assets" 字体
+            //    // 请根据您的实际字体更改 "Segoe MDL2 Assets"
+            //    Font iconFont = new Font("Segoe MDL2 Assets", 10f * Program.Factor); // 10pt * 2.0 = 20pt
+
+            //    // 假设 "T, B, A" 使用的是 "Arial" 粗体
+            //    Font textIconFont = new Font("Arial", 9f * Program.Factor, FontStyle.Bold); // 9pt * 2.0 = 18pt
+
+            //    // 2. 遍历工具栏上的所有项目并应用新字体
+            //    foreach (ToolStripItem item in this.toolStripToolBar.Items)
+            //    {
+            //        // 只修改我们关心的按钮
+            //        if (item is ToolStripButton || item is ToolStripDropDownButton)
+            //        {
+            //            // 这是一个示例，您需要根据按钮的名字来区分
+            //            if (item.Name == "toolStripButtonBold" || item.Name == "toolStripButtonItalic") // (假设 T, B, A 是这些)
+            //            {
+            //                item.Font = textIconFont;
+            //            }
+            //            else if (item.Text == "段" || item.Text == "分" || item.Text == "拆") // (按文本区分)
+            //            {
+            //                item.Font = this.Font; // (使用控件的默认字体，它已经被缩放了)
+            //            }
+            //            else
+            //            {
+            //                // 其他所有“真·图标字体”的按钮
+            //                item.Font = iconFont;
+            //            }
+            //        }
+            //    }
+            //}
             this.richTextBox1.LanguageOption = RichTextBoxLanguageOptions.UIFonts;
         }
         
