@@ -17,7 +17,9 @@ on:
     inputs:
       tag_name:
         description: '要发布的标签名 (例如: 1.2.0)'
-        required: true # 设为必填
+        # <--- 修改：设为可选 ---
+        required: false
+        default: ''
 
 jobs:
   # --- 第一个任务：编译 x86 版本 ---
@@ -93,8 +95,12 @@ jobs:
   # --- 第三个任务：创建 Release发行版 ---
   create-release:
     name: Create Release
-    # <--- 修改：在推送标签 或 手动运行时 触发 ---
-    if: (startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'workflow_dispatch')
+    # <--- 关键修改：
+    # 1. (自动推送标签时)
+    # 2. (手动运行输入标签 且 输入了 tag_name)
+    if: |
+      (startsWith(github.ref, 'refs/tags/')) ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.tag_name != '')
     
     # (关键) 等待 x86 和 x64 都编译成功
     needs: [build-x86, build-x64]
