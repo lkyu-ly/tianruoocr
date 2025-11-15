@@ -1,14 +1,16 @@
 # 工作流的名称
-name: .NET Framework Multi-Platform Build & Release
+name: 构建并发行
+# name: .NET Framework Multi-Platform Build & Release
 
 # 触发工作流的事件
 on:
-  push:
-    branches: [ "main","feature/more" ]
+  # push:
+    # # branches: [ "main","feature/more" ]
+    # branches: [ "main" ]
     # tags: [ 'v*' ] # <--- 新增：当推送 v* 标签时也触发，匹配v开头的标签
-    tags: [ '*' ] #匹配所有标签
-  pull_request:
-    branches: [ "main" ]
+    # tags: [ '*' ] #匹配所有标签
+  # pull_request:
+  #   branches: [ "main" ]
   watch:
     types: [started]
   #手动触发按钮
@@ -38,9 +40,9 @@ jobs:
       uses: actions/checkout@v4
       with:
         # <--- 关键修改 ---
-        # 智能签出:
-        # 1. 如果是手动运行, 签出你输入的 tag_name
-        # 2. 如果是其他运行 (push tag, push main), 签出 github.ref
+        # 智能签出 (优先级从高到低):
+        # 1. 如果是手动运行且在 [文本框] 中输入了 tag_name, 优先使用它。
+        # 2. 否则 (包括[推送标签]触发, 或手动运行[下拉菜单]选择), 使用 github.ref。
         ref: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.tag_name) || github.ref }}
 
     - name: Setup MSBuild
@@ -99,9 +101,9 @@ jobs:
   # --- 第三个任务：创建 Release发行版 ---
   create-release:
     name: Create Release
-    # <--- 关键修改：
-    # 1. (自动推送标签时)
-    # 2. (手动运行输入标签 且 输入了 tag_name)
+    # <--- 关键修改 (满足任一条件即可运行)：
+    # 1. 引用(ref)是一个标签 (包括[推送标签]或[手动下拉菜单选择标签])
+    # 2. 手动运行且在[文本框]中输入了 tag_name
     if: |
       (startsWith(github.ref, 'refs/tags/')) ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.tag_name != '')
@@ -119,7 +121,9 @@ jobs:
 
     # <--- 新增：设置一个环境变量来存储标签名 ---
     env:
-      # 如果是手动运行, 使用输入的值; 否则 (即 push tag), 使用 ref_name
+      # 智能设置标签名 (优先级从高到低):
+      # 1. 如果手动运行且在 [文本框] 中输入了 tag_name, 优先使用它。
+      # 2. 否则 (包括[推送标签]触发, 或手动运行[下拉菜单]选择), 使用 github.ref_name。
       RELEASE_TAG: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.tag_name) || github.ref_name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # (gh api 需要这个)
 
