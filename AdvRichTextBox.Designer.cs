@@ -368,17 +368,17 @@ namespace TrOCR
             // 低像素图标一般放大会糊，但是高像素图标缩小一般不会糊
             //ps：省事的话只需要一套高像素尺寸图标即可，更专业的是提供不同套像素尺寸的图标，然后根据dpi自动选择或缩放哪一套，
             // 这里及未来会直接采用省事的方案: 只需要一套高像素图标
-            if (Program.Factor > 1.0f)//这个if判断去掉也行，dpi对应1.0f的时候，计算一下也没啥性能影响
-            {
-                // 1. 计算新的目标图标大小 (例如 16 * 2.0 = 32)
-                int newIconSize = (int)(16 * Program.Factor);
+            // if (Program.Factor > 1.0f)//这个if判断去掉也行，dpi对应1.0f的时候，计算一下也没啥性能影响
+            // {
+            //     // 1. 计算新的目标图标大小 (例如 16 * 2.0 = 32)
+            //     int newIconSize = (int)(16 * Program.Factor);
 
-                // 2. 将这个新尺寸应用到 *整个工具栏*
-                this.toolStripToolBar.ImageScalingSize = new System.Drawing.Size(newIconSize, newIconSize);
-                //或者直接            
-                // this.toolStripToolBar.ImageScalingSize = new Size((int)(16 * Program.Factor), (int)(16 * Program.Factor));
+            //     // 2. 将这个新尺寸应用到 *整个工具栏*
+            //     this.toolStripToolBar.ImageScalingSize = new System.Drawing.Size(newIconSize, newIconSize);
+            //     //或者直接            
+            //     // this.toolStripToolBar.ImageScalingSize = new Size((int)(16 * Program.Factor), (int)(16 * Program.Factor));
 
-            }
+            // }
             //字体图标（非图片图标）的思路看上个提交吧
         
             this.richTextBox1.LanguageOption = RichTextBoxLanguageOptions.UIFonts;
