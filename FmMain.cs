@@ -2835,9 +2835,17 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			PositionLoadingIcon();
 			if (pinyin_flag)
 			{
-				// 如果设置了拼音标志，则将文本转换为拼音
-				googleTranslate_txt = HanToPinyin.GetFullPinyin(typeset_txt);
-			}
+				try
+				{
+                    // 如果设置了拼音标志，则将文本转换为拼音
+                    googleTranslate_txt = HanToPinyin.GetFullPinyin(typeset_txt);
+                }catch (Exception ex)
+				{
+                    System.Diagnostics.Debug.WriteLine("拼音转换出错: " + ex.Message);
+                    googleTranslate_txt = "拼音转换出错：" + ex.Message;
+					pinyin_flag= false;
+                }
+            }
 			else if (string.IsNullOrWhiteSpace(typeset_txt))
 			{
 				// 如果文本为空或只包含空白字符，则翻译结果也为空
