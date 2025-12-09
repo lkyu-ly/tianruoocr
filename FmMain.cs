@@ -716,8 +716,11 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		/// </summary>
 		private void traySilentOcrClick(object sender, EventArgs e)
 		{
-			MainSilentOcr();
-		}
+            MainSilentOcr();
+            // // 抛出一个带有自定义消息的通用异常
+            // throw new Exception("这是一个测试异常，用于验证 PDB 路径映射是否生效！");
+
+        }
 
 		/// <summary>
 		/// 主静默OCR功能
