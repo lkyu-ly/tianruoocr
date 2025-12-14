@@ -4284,10 +4284,12 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		public void Main_OCR_Thread()
 		{
 			// 优先检查是否为二维码，如果是则直接返回二维码内容
-			if (ScanQRCode() != "")
+			string qrCodeResult = ScanQRCode();
+			if (!string.IsNullOrEmpty(qrCodeResult))
 			{
-				typeset_txt = ScanQRCode();
-				RichBoxBody.Text = typeset_txt;
+				typeset_txt = qrCodeResult;
+                split_txt = qrCodeResult;
+                RichBoxBody.Text = typeset_txt;
 				fmloading.FmlClose = "窗体已关闭";
 				Invoke(new OcrThread(Main_OCR_Thread_last));
 				return;
