@@ -2330,10 +2330,6 @@ namespace TrOCR
         	{
         		selectedPage = tabControl2.SelectedTab;
         	}
-        	else if (selectedPage == Page_AI密钥)
-        	{
-        		selectedPage = tabControl_AI.SelectedTab;
-        	}
         	else if (selectedPage == Page_翻译接口)
         	{
         	    selectedPage = tabControl_Trans.SelectedTab;
