@@ -168,6 +168,14 @@ namespace TrOCR.Helper
         public static string OpenAICompatible_OCR_API_KEY { get; set; }
         public static string OpenAICompatible_OCR_MODEL { get; set; }
         public static string OpenAICompatible_OCR_CONFIG_PATH { get; set; }
+        //  [OpenAICompatibleTrans]
+        public static string OpenAICompatible_Trans_BASE_URL { get; set; }
+        public static string OpenAICompatible_Trans_API_KEY { get; set; }
+        public static string OpenAICompatible_Trans_MODEL { get; set; }
+        public static string OpenAICompatible_Trans_CONFIG_PATH { get; set; }
+        public static string OpenAICompatible_Trans_Source { get; set; }
+        public static string OpenAICompatible_Trans_Target { get; set; }
+
 
         /// <summary>
         /// 从config.ini加载配置到静态变量
@@ -210,6 +218,13 @@ namespace TrOCR.Helper
             OpenAICompatible_OCR_API_KEY = GetValue("OpenAICompatible", "APIKey", "");
             OpenAICompatible_OCR_MODEL = GetValue("OpenAICompatible", "Model", "");
             OpenAICompatible_OCR_CONFIG_PATH = GetValue("OpenAICompatible", "Config", "");
+
+            OpenAICompatible_Trans_BASE_URL = GetValue("OpenAICompatibleTrans", "BaseUrl", "");
+            OpenAICompatible_Trans_API_KEY = GetValue("OpenAICompatibleTrans", "APIKey", "");
+            OpenAICompatible_Trans_MODEL = GetValue("OpenAICompatibleTrans", "Model", "");
+            OpenAICompatible_Trans_CONFIG_PATH = GetValue("OpenAICompatibleTrans", "Config", "");
+            OpenAICompatible_Trans_Source= GetValue("OpenAICompatibleTrans", "Source", "Auto Detect");
+            OpenAICompatible_Trans_Target= GetValue("OpenAICompatibleTrans", "Target", "Simplified Chinese");
 
         }
 

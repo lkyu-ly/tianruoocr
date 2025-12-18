@@ -2269,6 +2269,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		public void tray_Set_Click(object sender, EventArgs e)
 		{
             string oldPath = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "");
+            string oldPath2 = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Config", "");
             // 取消注册所有热键
             HelpWin32.UnregisterHotKey(Handle, 200);
 			HelpWin32.UnregisterHotKey(Handle, 205);
@@ -2291,7 +2292,14 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
                 string iniFile = AppDomain.CurrentDomain.BaseDirectory + "Data\\config.ini";
                 IniHelper.RemoveKey("OpenAICompatible", "SelectedMode", iniFile);
             }
-            IniHelper.RemoveKey("OpenAICompatible", "SelectedMode", AppDomain.CurrentDomain.BaseDirectory + "Data\\config.ini");
+
+			string newPath2 = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Config", "");
+            if (newPath2 != oldPath2)
+            {
+                string iniFile = AppDomain.CurrentDomain.BaseDirectory + "Data\\config.ini";
+                IniHelper.RemoveKey("OpenAICompatibleTrans", "SelectedMode", iniFile);
+            }
+			
 			if (fmSetting.DialogResult == DialogResult.OK)
 			{
 				// 在重新加载配置前，保存旧的百度密钥

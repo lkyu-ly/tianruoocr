@@ -45,7 +45,7 @@ namespace TrOCR
                 string configPath = TrOCRUtils.LoadSetting("OpenAICompatible", "Config","");
                 if (string.IsNullOrEmpty(configPath))
                 {
-                    configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "AIConfig.json");
+                    configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "AIOCRConfig.json");
                 }
 
                 // 2. 如果文件不存在，直接结束（此时菜单已重置为默认的三级菜单）

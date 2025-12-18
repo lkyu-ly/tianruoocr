@@ -825,11 +825,18 @@ namespace TrOCR
 			// 读取OCR模型配置
 			ReadOcrModelConfigs();
 
-			// 读取OpenAICompatible配置
+			// 读取OpenAICompatible OCR配置
 			txtOpenAICompatibleBaseUrl.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "BaseUrl","") ;
 			txtOpenAICompatibleModel.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "Model", "") ;
 			txtOpenAICompatibleKey.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "APIKey", "") ;
 			txtOpenAICompatibleConfig.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "") ;
+			// 读取OpenAICompatible 翻译配置
+			txtOpenAICompatibleTransBaseUrl.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "BaseUrl","") ;
+			txtOpenAICompatibleTransModel.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Model", "") ;
+			txtOpenAICompatibleTransKey.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "APIKey", "") ;
+			txtOpenAICompatibleTransConfig.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Config", "") ;
+			textBox_OpenAICompatible_Source.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Source", "") ;
+			textBox_OpenAICompatible_Target.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Target", "") ;
 		}
 
 		/// <summary>
@@ -2083,11 +2090,18 @@ namespace TrOCR
 			IniHelper.SetValue("模型配置_RapidOCR", "Keys", textBox_RapidOCR_Keys.Text);
 			IniHelper.SetValue("模型配置_RapidOCR", "AdvancedConfig", textBox7.Text);
 
-			// 保存OpenAICompatible配置
+			// 保存OpenAICompatible OCR配置
 			IniHelper.SetValue("OpenAICompatible", "BaseUrl", txtOpenAICompatibleBaseUrl.Text);
 			IniHelper.SetValue("OpenAICompatible", "Model", txtOpenAICompatibleModel.Text);
 			IniHelper.SetValue("OpenAICompatible", "APIKey", txtOpenAICompatibleKey.Text);
 			IniHelper.SetValue("OpenAICompatible", "Config", txtOpenAICompatibleConfig.Text);
+			// 保存OpenAICompatible 翻译配置
+			IniHelper.SetValue("OpenAICompatibleTrans", "BaseUrl", txtOpenAICompatibleTransBaseUrl.Text);
+			IniHelper.SetValue("OpenAICompatibleTrans", "Model", txtOpenAICompatibleTransModel.Text);
+			IniHelper.SetValue("OpenAICompatibleTrans", "APIKey", txtOpenAICompatibleTransKey.Text);
+			IniHelper.SetValue("OpenAICompatibleTrans", "Config", txtOpenAICompatibleTransConfig.Text);
+			IniHelper.SetValue("OpenAICompatibleTrans", "Source", textBox_OpenAICompatible_Source.Text);
+			IniHelper.SetValue("OpenAICompatibleTrans", "Target", textBox_OpenAICompatible_Target.Text);
 
 			ResetOcrEngineOnConfigChange();
 			DialogResult = DialogResult.OK;
@@ -2806,5 +2820,9 @@ namespace TrOCR
             label_OcrApiHelpText.Text = helpText;
         }
 
+        private void btn_OpenAICompatible_Trans_Config_Browse_Click(object sender, EventArgs e)
+        {
+            BrowseAdvancedConfigModelFile(txtOpenAICompatibleTransConfig, "OpenAICompatible翻译配置文件");
+        }
     }
 }

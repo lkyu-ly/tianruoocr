@@ -553,7 +553,7 @@ namespace TrOCR
             this.btn_OpenAICompatible_Trans_Config_Browse = new System.Windows.Forms.Button();
             this.txtOpenAICompatibleTransConfig = new System.Windows.Forms.TextBox();
             this.label54 = new System.Windows.Forms.Label();
-            this.txtOpenAICompatibleTransApiKey = new System.Windows.Forms.TextBox();
+            this.txtOpenAICompatibleTransKey = new System.Windows.Forms.TextBox();
             this.label55 = new System.Windows.Forms.Label();
             this.txtOpenAICompatibleTransModel = new System.Windows.Forms.TextBox();
             this.label56 = new System.Windows.Forms.Label();
@@ -6398,7 +6398,7 @@ namespace TrOCR
             this.groupBox_Trans_OpenAICompatible.Controls.Add(this.btn_OpenAICompatible_Trans_Config_Browse);
             this.groupBox_Trans_OpenAICompatible.Controls.Add(this.txtOpenAICompatibleTransConfig);
             this.groupBox_Trans_OpenAICompatible.Controls.Add(this.label54);
-            this.groupBox_Trans_OpenAICompatible.Controls.Add(this.txtOpenAICompatibleTransApiKey);
+            this.groupBox_Trans_OpenAICompatible.Controls.Add(this.txtOpenAICompatibleTransKey);
             this.groupBox_Trans_OpenAICompatible.Controls.Add(this.label55);
             this.groupBox_Trans_OpenAICompatible.Controls.Add(this.txtOpenAICompatibleTransModel);
             this.groupBox_Trans_OpenAICompatible.Controls.Add(this.label56);
@@ -6419,6 +6419,7 @@ namespace TrOCR
             this.btn_OpenAICompatible_Trans_Config_Browse.TabIndex = 8;
             this.btn_OpenAICompatible_Trans_Config_Browse.Text = "...";
             this.btn_OpenAICompatible_Trans_Config_Browse.UseVisualStyleBackColor = true;
+            this.btn_OpenAICompatible_Trans_Config_Browse.Click += new System.EventHandler(this.btn_OpenAICompatible_Trans_Config_Browse_Click);
             // 
             // txtOpenAICompatibleTransConfig
             // 
@@ -6436,13 +6437,13 @@ namespace TrOCR
             this.label54.TabIndex = 6;
             this.label54.Text = "配置文件:";
             // 
-            // txtOpenAICompatibleTransApiKey
+            // txtOpenAICompatibleTransKey
             // 
-            this.txtOpenAICompatibleTransApiKey.Location = new System.Drawing.Point(100, 107);
-            this.txtOpenAICompatibleTransApiKey.Name = "txtOpenAICompatibleTransApiKey";
-            this.txtOpenAICompatibleTransApiKey.PasswordChar = '*';
-            this.txtOpenAICompatibleTransApiKey.Size = new System.Drawing.Size(370, 25);
-            this.txtOpenAICompatibleTransApiKey.TabIndex = 5;
+            this.txtOpenAICompatibleTransKey.Location = new System.Drawing.Point(100, 107);
+            this.txtOpenAICompatibleTransKey.Name = "txtOpenAICompatibleTransKey";
+            this.txtOpenAICompatibleTransKey.PasswordChar = '*';
+            this.txtOpenAICompatibleTransKey.Size = new System.Drawing.Size(370, 25);
+            this.txtOpenAICompatibleTransKey.TabIndex = 5;
             // 
             // label55
             // 
@@ -7181,7 +7182,7 @@ namespace TrOCR
         private System.Windows.Forms.Button btn_OpenAICompatible_Trans_Config_Browse;
         private System.Windows.Forms.TextBox txtOpenAICompatibleTransConfig;
         private System.Windows.Forms.Label label54;
-        private System.Windows.Forms.TextBox txtOpenAICompatibleTransApiKey;
+        private System.Windows.Forms.TextBox txtOpenAICompatibleTransKey;
         private System.Windows.Forms.Label label55;
         private System.Windows.Forms.TextBox txtOpenAICompatibleTransModel;
         private System.Windows.Forms.Label label56;
