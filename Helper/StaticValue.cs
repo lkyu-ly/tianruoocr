@@ -159,6 +159,16 @@ namespace TrOCR.Helper
         // 【新增】用于控制是否使用无窗口截图
          public static bool NoWindowScreenshotTranslation { get; set; }
 
+        // ======================================================
+        // 【新增】OpenAI 兼容接口配置缓存
+        // ======================================================
+
+        //  [OpenAICompatible]
+        public static string OpenAICompatible_OCR_BASE_URL { get; set; }
+        public static string OpenAICompatible_OCR_API_KEY { get; set; }
+        public static string OpenAICompatible_OCR_MODEL { get; set; }
+        public static string OpenAICompatible_OCR_CONFIG_PATH { get; set; }
+
         /// <summary>
         /// 从config.ini加载配置到静态变量
         /// </summary>
@@ -195,6 +205,11 @@ namespace TrOCR.Helper
             // --- 新增: 加载百度表格识别密钥 ---
             // BD_TABLE_API_ID = GetValue("密钥_百度表格", "secret_id", "");
             // BD_TABLE_API_KEY = GetValue("密钥_百度表格", "secret_key", "");
+
+            OpenAICompatible_OCR_BASE_URL = GetValue("OpenAICompatible", "BaseUrl", "");
+            OpenAICompatible_OCR_API_KEY = GetValue("OpenAICompatible", "APIKey", "");
+            OpenAICompatible_OCR_MODEL = GetValue("OpenAICompatible", "Model", "");
+            OpenAICompatible_OCR_CONFIG_PATH = GetValue("OpenAICompatible", "Config", "");
 
         }
 

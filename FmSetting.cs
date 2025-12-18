@@ -826,10 +826,10 @@ namespace TrOCR
 			ReadOcrModelConfigs();
 
 			// 读取OpenAICompatible配置
-			txtOpenAICompatibleBaseUrl.Text = IniHelper.GetValue("OpenAICompatible", "BaseUrl") == "发生错误" ? "" : IniHelper.GetValue("OpenAICompatible", "BaseUrl");
-			txtOpenAICompatibleModel.Text = IniHelper.GetValue("OpenAICompatible", "Model") == "发生错误" ? "" : IniHelper.GetValue("OpenAICompatible", "Model");
-			txtOpenAICompatibleKey.Text = IniHelper.GetValue("OpenAICompatible", "APIKey") == "发生错误" ? "" : IniHelper.GetValue("OpenAICompatible", "APIKey");
-			txtOpenAICompatibleConfig.Text = IniHelper.GetValue("OpenAICompatible", "Config") == "发生错误" ? "" : IniHelper.GetValue("OpenAICompatible", "Config");
+			txtOpenAICompatibleBaseUrl.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "BaseUrl","") ;
+			txtOpenAICompatibleModel.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "Model", "") ;
+			txtOpenAICompatibleKey.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "APIKey", "") ;
+			txtOpenAICompatibleConfig.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "") ;
 		}
 
 		/// <summary>

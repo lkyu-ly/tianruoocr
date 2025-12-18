@@ -28,10 +28,10 @@ namespace TrOCR.Helper
         {
             Debug.WriteLine("传入AI接口的模式是" + JsonConvert.SerializeObject(manualMode, Formatting.Indented));
             // 1. 基础配置校验
-            string baseUrl = IniHelper.GetValue("OpenAICompatible", "BaseUrl");
-            string apiKey = IniHelper.GetValue("OpenAICompatible", "APIKey");
-            string modelName = IniHelper.GetValue("OpenAICompatible", "Model");
-            string configJsonPath = IniHelper.GetValue("OpenAICompatible", "Config");
+            string baseUrl = StaticValue.OpenAICompatible_OCR_BASE_URL;
+            string apiKey = StaticValue.OpenAICompatible_OCR_API_KEY;
+            string modelName = StaticValue.OpenAICompatible_OCR_MODEL;
+            string configJsonPath = StaticValue.OpenAICompatible_OCR_CONFIG_PATH;
 
             if (string.IsNullOrEmpty(baseUrl)) return "错误：未配置 BaseUrl";
             if (string.IsNullOrEmpty(apiKey)) return "错误：未配置 API Key";
@@ -83,7 +83,7 @@ namespace TrOCR.Helper
                 if (aiConfig != null && aiConfig.modes != null && aiConfig.modes.Count > 0)
                 {
                     // 2. 尝试读取配置文件中保存的“模式名称”
-                    string savedModeName = IniHelper.GetValue("OpenAICompatible", "SelectedMode");
+                    string savedModeName = TrOCRUtils.LoadSetting("OpenAICompatible", "SelectedMode","");
                     AIMode foundMode = null;
 
                     if (!string.IsNullOrEmpty(savedModeName))
@@ -111,6 +111,7 @@ namespace TrOCR.Helper
                     Debug.WriteLine("配置文件不存在，将使用程序内置的默认模式");
                     // 4. 连配置文件都读不到 -> 直接用内置默认
                     currentMode = defaultSafeMode;
+                    
                 }
 
             }

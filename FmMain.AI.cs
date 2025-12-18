@@ -38,11 +38,11 @@ namespace TrOCR
                 this.ai_openai_compatible.Click += new EventHandler(this.OCR_ai_openai_compatible_Click);
                 // 4. 重置当前选中的模式
                 this.currentSelectedAIMode = null;
-                // === 【新增】读取上次保存的模式名称 ===
-                string lastSelectedModeName = IniHelper.GetValue("OpenAICompatible", "SelectedMode");
+                // === 读取上次保存的模式名称 ===
+                string lastSelectedModeName = TrOCRUtils.LoadSetting("OpenAICompatible", "SelectedMode", "");
                 // 1. 获取配置文件路径 (假设在 Data 目录下)
                 // 这里我们优先使用 Ini 中配置的路径，如果没有则尝试默认路径
-                string configPath = IniHelper.GetValue("OpenAICompatible", "Config");
+                string configPath = TrOCRUtils.LoadSetting("OpenAICompatible", "Config","");
                 if (string.IsNullOrEmpty(configPath))
                 {
                     configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "AIConfig.json");
