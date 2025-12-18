@@ -1950,7 +1950,9 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 
 		private void OCR_ai_openai_compatible_Click(object sender, EventArgs e)
 		{
-			OCR_foreach("OpenAICompatible");
+            // 确保没有选中特定模式（使用默认）
+            this.currentSelectedAIMode = null;
+            OCR_foreach("OpenAICompatible");
 		}
 		#endregion
 // ====================================================================================================================
@@ -2126,6 +2128,8 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		{
 			// 初始化API菜单
 			InitializeApiMenus();
+			// 【新增】加载 AI 动态菜单
+    		LoadAIConfigMenus();
 			
 			// 初始化OCR接口配置
 			interface_flag = GetConfigValueSafely("配置", "接口", "搜狗");
@@ -5678,30 +5682,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				}
 			}
 		}
-		public void OCR_OpenAICompatible()
-		{
-			try
-			{
-                string result = OpenAICompatibleHelper.OCR(image_screen);
-
-                if (string.IsNullOrEmpty(result))
-                {
-                    typeset_txt = "未识别到文本或接口返回为空。";
-                }
-                else
-                {
-                    typeset_txt = result;
-                }
-                // 必须同时设置 split_txt
-                split_txt = typeset_txt;
-			}
-			catch(Exception ex)
-            {
-                typeset_txt = "OpenAICompatible 接口调用出错: " + ex.Message;
-                split_txt = typeset_txt;
-            }
-        	
-		}
+		
 		/// <summary>
 		/// 在输入图像中查找轮廓并为每个轮廓绘制边界框，将结果绘制到目标图像上
 		/// </summary>

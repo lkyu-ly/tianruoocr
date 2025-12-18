@@ -23,7 +23,7 @@ namespace TrOCR.Helper
         /// 执行 OCR 识别
         /// </summary>
         /// <returns>识别结果文本</returns>
-        public static string OCR(Image image)
+        public static string OCR(Image image, AIMode manualMode = null)
         {
             // 1. 基础配置校验
             string baseUrl = IniHelper.GetValue("OpenAICompatible", "BaseUrl");
@@ -35,32 +35,45 @@ namespace TrOCR.Helper
             if (string.IsNullOrEmpty(apiKey)) return "错误：未配置 API Key";
             if (string.IsNullOrEmpty(modelName)) return "错误：未配置模型";
             
-            // 2. 读取提示词配置 (JSON)
-            // 如果没有配置文件，使用默认的 Config 对象，防止报错
-            AIConfig aiConfig = null;
-            if (!string.IsNullOrEmpty(configJsonPath) && File.Exists(configJsonPath))
+
+          
+            // 2. 确定使用的模式
+            AIMode currentMode = null;
+            if (manualMode != null)
             {
-                try 
-                {
-                    string jsonContent = File.ReadAllText(configJsonPath, Encoding.UTF8);
-                    aiConfig = JsonConvert.DeserializeObject<AIConfig>(jsonContent);
-                }
-                catch(Exception ex) { 
-                    return "读取配置文件出错"+ex.Message;
-                }
+                // 情况A：从菜单选中了特定模式
+                currentMode = manualMode;
             }
+            else
+            {   // 情况B：没有特定模式（默认行为），尝试读取 Config 文件
+                // 如果没有配置文件，使用默认的 Config 对象，防止报错
+                AIConfig aiConfig = null;
+                if (!string.IsNullOrEmpty(configJsonPath) && File.Exists(configJsonPath))
+                {
+                    try
+                    {
+                        string jsonContent = File.ReadAllText(configJsonPath, Encoding.UTF8);
+                        aiConfig = JsonConvert.DeserializeObject<AIConfig>(jsonContent);
+                    }
+                    catch (Exception ex)
+                    {
+                        return "读取配置文件出错" + ex.Message;
+                    }
+                }
 
-            // 获取当前模式（默认第一项，或者回退到默认值）
-            AIMode currentMode = (aiConfig != null && aiConfig.modes != null && aiConfig.modes.Count > 0) 
-                                ? aiConfig.modes[0] 
-                                : new AIMode { // 默认模式
-                                    mode="默认模式",
-                                    system_prompt = "You are a professional OCR engine. Recognize the text in the image and output it directly. Do not use markdown code blocks. Do not output any conversational filler. Maintain the original line breaks. If the image contains code, remember to preserve the formatting.",
-                                    prompt = "OCR this image.",
-                                    temperature = 0.1,
-                                    enable_thinking=false,
+                // 获取当前模式（默认第一项，或者回退到默认值）
+                 currentMode = (aiConfig != null && aiConfig.modes != null && aiConfig.modes.Count > 0)
+                                    ? aiConfig.modes[0]
+                                    : new AIMode
+                                    { // 默认模式
+                                        mode = "默认模式",
+                                        system_prompt = "You are a professional OCR engine. Recognize the text in the image and output it directly. Do not use markdown code blocks. Do not output any conversational filler. Maintain the original line breaks. If the image contains code, remember to preserve the formatting.",
+                                        prompt = "OCR this image.",
+                                        temperature = 0.1,
+                                        enable_thinking = false,
 
-                                };
+                                    };
+            }
 
             try
             {
