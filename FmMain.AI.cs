@@ -22,6 +22,15 @@ namespace TrOCR
         {
             try
             {
+                // === 第一步：先彻底重置菜单到默认状态（三级菜单模式） ===
+                // 1. 清空所有子菜单
+                this.ai_openai_compatible.DropDownItems.Clear();
+                // 2. 移除可能存在的子菜单点击逻辑（虽然清空了Items，但习惯上解绑是个好习惯）
+                // 3. 重新绑定默认的父级点击事件（防止重复绑定，先减后加）
+                this.ai_openai_compatible.Click -= new EventHandler(this.OCR_ai_openai_compatible_Click);
+                this.ai_openai_compatible.Click += new EventHandler(this.OCR_ai_openai_compatible_Click);
+                // 4. 重置当前选中的模式
+                this.currentSelectedAIMode = null;
                 // 1. 获取配置文件路径 (假设在 Data 目录下)
                 // 这里我们优先使用 Ini 中配置的路径，如果没有则尝试默认路径
                 string configPath = IniHelper.GetValue("OpenAICompatible", "Config");
@@ -30,7 +39,7 @@ namespace TrOCR
                     configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "AIConfig.json");
                 }
 
-                // 2. 如果文件不存在，直接返回，保持 Designer 中定义的默认行为（三级菜单点击）
+                // 2. 如果文件不存在，直接结束（此时菜单已重置为默认的三级菜单）
                 if (!File.Exists(configPath))
                 {
                     return;
@@ -105,12 +114,42 @@ namespace TrOCR
         }
 
         /// <summary>
+        /// 清除 OpenAI 菜单的所有勾选状态，并重置为默认模式
+        /// </summary>
+        public void ClearAIConfigSelection()
+        {
+            // 1. 遍历取消视觉上的勾选
+            foreach (ToolStripItem item in this.ai_openai_compatible.DropDownItems)
+            {
+                if (item is ToolStripMenuItem menuItem)
+                {
+                    menuItem.Checked = false;
+                }
+            }
+
+            // 2. 重置内部状态（下次点击父菜单时，将使用默认配置）
+            this.currentSelectedAIMode = null;
+        }
+
+        /// <summary>
         /// OpenAICompatible OCR 执行入口 (被 Main_OCR_Thread 调用)
         /// </summary>
         public void OCR_OpenAICompatible()
         {
             try
             {
+                // === 【日志代码】开始 ===
+                //string logModeName = this.currentSelectedAIMode != null
+                //                     ? this.currentSelectedAIMode.mode
+                //                     : "null (将使用程序内部硬编码默认值)";
+                string logModeName = this.currentSelectedAIMode != null
+                                     ? JsonConvert.SerializeObject(currentSelectedAIMode, Formatting.Indented)
+                                     : "null (将使用程序内部硬编码默认值)";
+
+                System.Diagnostics.Debug.WriteLine("--------------------------------------------------");
+                System.Diagnostics.Debug.WriteLine($"[FmMain] 准备开始 OCR");
+                System.Diagnostics.Debug.WriteLine($"[FmMain] 当前选中的 currentSelectedAIMode: {logModeName}");
+                // === 【日志代码】结束 ===
                 // 调用 Helper，并传入当前选中的模式 (currentSelectedAIMode)
                 // 如果是从三级菜单（默认无配置）进来的，currentSelectedAIMode 为 null，Helper 会处理
                 string result = OpenAICompatibleHelper.OCR(image_screen, this.currentSelectedAIMode);

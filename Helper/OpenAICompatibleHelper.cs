@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Windows.Forms;
-using System.Drawing.Imaging; // 用于获取 StartupPath
+using System.Drawing.Imaging;
+using System.Diagnostics; // 用于获取 StartupPath
 
 namespace TrOCR.Helper
 {
@@ -25,6 +26,7 @@ namespace TrOCR.Helper
         /// <returns>识别结果文本</returns>
         public static string OCR(Image image, AIMode manualMode = null)
         {
+            Debug.WriteLine("传入AI接口的模式是" + JsonConvert.SerializeObject(manualMode, Formatting.Indented));
             // 1. 基础配置校验
             string baseUrl = IniHelper.GetValue("OpenAICompatible", "BaseUrl");
             string apiKey = IniHelper.GetValue("OpenAICompatible", "APIKey");
@@ -74,7 +76,8 @@ namespace TrOCR.Helper
 
                                     };
             }
-
+            System.Diagnostics.Debug.WriteLine($"[Helper] 最终使用的模式名称: {currentMode.mode}");
+            System.Diagnostics.Debug.WriteLine($"[Helper] 最终使用的模式详情: {JsonConvert.SerializeObject(currentMode, Formatting.Indented)}");
             try
             {
                 // 3. 内存图片转 Base64 (直接使用传入的 Image 对象)

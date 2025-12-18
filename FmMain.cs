@@ -1950,8 +1950,8 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 
 		private void OCR_ai_openai_compatible_Click(object sender, EventArgs e)
 		{
-            // 确保没有选中特定模式（使用默认）
-            this.currentSelectedAIMode = null;
+            // 【新增】使用默认模式，清除子菜单的勾选
+            ClearAIConfigSelection();
             OCR_foreach("OpenAICompatible");
 		}
 		#endregion
@@ -2286,6 +2286,8 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			var fmSetting = new FmSetting();
 			fmSetting.TopMost = true;
 			fmSetting.ShowDialog();
+			//刷新 AI 菜单，这行代码写在fmsetting.Form1_FormClosed里也行，写在这里也行
+    		LoadAIConfigMenus();
 			if (fmSetting.DialogResult == DialogResult.OK)
 			{
 				// 在重新加载配置前，保存旧的百度密钥
@@ -5383,8 +5385,13 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 					CommonHelper.AddLog($"释放 RapidOCR 引擎时出错: {ex.Message}");
 				}
 			}
-			
-			switch (name)
+            // === 【新增】 如果切换到了其他接口，清除 OpenAI 菜单的勾选状态 ===
+            if (name != "OpenAICompatible")
+            {
+                // 清除openai兼容菜单的子菜单的勾选项
+                ClearAIConfigSelection();
+            }
+            switch (name)
 			{
 				case "韩语":
 					interface_flag = "韩语";
