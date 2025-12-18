@@ -151,6 +151,9 @@ namespace TrOCR
 			// AI_OCR菜单项
 			this.ai_menu = new global::System.Windows.Forms.ToolStripMenuItem();
 			this.ai_openai_compatible = new global::System.Windows.Forms.ToolStripMenuItem();
+			// AI_Trans菜单项
+			this.ai_menu_trans = new global::System.Windows.Forms.ToolStripMenuItem();
+			this.ai_openai_compatible_trans = new global::System.Windows.Forms.ToolStripMenuItem();
 			
 			// 文本转换菜单项
 			this.Chinese = new global::System.Windows.Forms.ToolStripMenuItem();            // 中文
@@ -263,6 +266,7 @@ namespace TrOCR
 			// 翻译接口菜单项设置
 			this.trans_input.DropDownItems.AddRange(new global::System.Windows.Forms.ToolStripItem[]
 			{
+				this.ai_menu_trans,
 				this.trans_google,
 				this.trans_baidu,
 				this.trans_tencent,
@@ -374,6 +378,15 @@ namespace TrOCR
 			this.ai_menu.DropDownItems.AddRange(new global::System.Windows.Forms.ToolStripItem[]
 			{
 				this.ai_openai_compatible
+			});
+			this.ai_menu_trans.Name = "ai_menu_trans";
+			this.ai_menu_trans.Text = "AI";
+			this.ai_openai_compatible_trans.Name = "ai_openai_compatible_trans";
+			this.ai_openai_compatible_trans.Text = "OpenAICompatible";
+			this.ai_openai_compatible_trans.Click += new global::System.EventHandler(this.Trans_ai_openai_compatible_Click);
+			this.ai_menu_trans.DropDownItems.AddRange(new global::System.Windows.Forms.ToolStripItem[]
+			{
+				this.ai_openai_compatible_trans
 			});
 			this.shupai.Text = "竖排";
 			this.shupai.Click += new global::System.EventHandler(this.OCR_shupai_Click);
@@ -806,12 +819,16 @@ namespace TrOCR
 		public global::System.Windows.Forms.ToolStripMenuItem ai_menu;
 		//"AI_OCR"子菜单
 		public global::System.Windows.Forms.ToolStripMenuItem ai_openai_compatible;
+        //"AI_Trans"菜单
+        public global::System.Windows.Forms.ToolStripMenuItem ai_menu_trans;
+        //"AI_Trans"子菜单
+        public global::System.Windows.Forms.ToolStripMenuItem ai_openai_compatible_trans;
 
-		#endregion
+        #endregion
 
-		#region 其他UI控件和变量
+        #region 其他UI控件和变量
 
-		public global::System.Drawing.SizeF font_base;
+        public global::System.Drawing.SizeF font_base;
 
 		public global::System.Windows.Forms.PictureBox PictureBox1;
 

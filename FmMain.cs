@@ -949,7 +949,30 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				case "百度2":
 					googleTranslate_txt = await BaiduTranslator2Helper.TranslateAsync(typeset_txt, fromLang, toLang);
 					break;
-				default:
+                case "OpenAICompatible": // 注意：这个名字要和 Trans_foreach 里设置的一致
+										 // 调用 OpenAICompatibleTranslate.Translate
+										 // textToTranslate: 原文
+										 // currentSelectedAITransMode: 当前选中的模式 (定义在 FmMain.AI.Translate.cs 中)
+										 // toLang: 目标语言
+										 // fromLang: 源语言
+										 // 注意：这里通常不需要 await，因为 Translate 内部用了 .Result (同步等待)，除非你改造 Helper 为异步
+					//await System.Threading.Tasks.Task.Run(() =>
+					//{
+					//	googleTranslate_txt = OpenAICompatibleTranslate.Translate(
+					//	 typeset_txt,
+					//						 this.currentSelectedAITransMode,
+					//						 toLang,
+					//						 fromLang
+					//					 );
+					//});
+					await System.Threading.Tasks.Task.Run(() =>
+					{
+						Trans_OpenAICompatible(typeset_txt,fromLang,toLang);
+
+					});
+					break;
+                // =============== 【新增代码结束】 ===============
+                default:
 					googleTranslate_txt = await GTranslateHelper.TranslateAsync(typeset_txt, fromLang, toLang, "google");
 					break;
 			}
@@ -2125,6 +2148,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			InitializeApiMenus();
 			// 【新增】加载 AI 动态菜单
     		LoadAIConfigMenus();
+			LoadAITranConfigMenus();
 			
 			// 初始化OCR接口配置
 			interface_flag = GetConfigValueSafely("配置", "接口", "搜狗");
@@ -2285,6 +2309,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			fmSetting.ShowDialog();
 			//刷新 AI 菜单，这行代码写在fmsetting.Form1_FormClosed里也行，写在这里也行
     		LoadAIConfigMenus();
+			LoadAITranConfigMenus();
 			//更新AI接口设置后，清理ini里的AI模式
             string newPath = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "");
             if (newPath != oldPath)
@@ -6737,7 +6762,29 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 						case "百度2":
 							data = await BaiduTranslator2Helper.TranslateAsync(trans_hotkey, fromLang, toLang);
 							break;
-						default:
+                        case "OpenAICompatible": // 注意：这个名字要和 Trans_foreach 里设置的一致
+                                                      // 调用 OpenAICompatibleTranslate.Translate
+                                                      // textToTranslate: 原文
+                                                      // currentSelectedAITransMode: 当前选中的模式 (定义在 FmMain.AI.Translate.cs 中)
+                                                      // toLang: 目标语言
+                                                      // fromLang: 源语言
+                                                      // 注意：这里通常不需要 await，因为 Translate 内部用了 .Result (同步等待)，除非你改造 Helper 为异步
+                            // await System.Threading.Tasks.Task.Run(() =>
+                            // {
+                            //     googleTranslate_txt = OpenAICompatibleTranslate.Translate(
+                            //         trans_hotkey,
+                            //         this.currentSelectedAITransMode,
+                            //         toLang,
+                            //         fromLang
+                            //     );
+                            // });
+							await System.Threading.Tasks.Task.Run(() =>
+							{
+								Trans_OpenAICompatible(trans_hotkey,fromLang,toLang);
+
+							});
+                            break;
+                        default:
 							data = await GTranslateHelper.TranslateAsync(trans_hotkey, fromLang, toLang, "google");
 							break;
 					}
@@ -7394,7 +7441,15 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			trans_volcano.Text = "火山";
 			trans_caiyun2.Text = "彩云2";
 			trans_baidu2.Text = "百度2";
+			ai_menu_trans.Text = "AI";
+			ai_openai_compatible_trans.Text="OpenAICompatible";
 
+
+			if (name != "OpenAICompatible")
+            {
+                // 清除openai兼容菜单的子菜单的勾选项
+                ClearAITransConfigSelection();
+            }
 
 			// 根据选择的翻译接口设置对应按钮文本
 			if (name == "百度")
@@ -7445,6 +7500,13 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			{
 				trans_baidu2.Text = "百度2√";
 			}
+			if (name == "OpenAICompatible")
+			{
+				ai_menu_trans.Text = "AI√";
+				ai_openai_compatible_trans.Text = "OpenAICompatible√";
+			}
+
+
 			
 			// 保存翻译接口配置
 			IniHelper.SetValue("配置", "翻译接口", name);
