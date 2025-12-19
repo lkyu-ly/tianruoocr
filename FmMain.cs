@@ -122,9 +122,23 @@ namespace TrOCR
 			components = null;
 
 			// 【新增】开启双缓冲，减少闪烁
-			// 怪了，加上这个闪烁就变成黑屏了，不加了
+			// 加上这个双缓冲,闪烁就变成黑屏了，不加了(ps:更准确的说是黑底，不是黑屏)
 			//SuspendLayout 是解决布局闪烁（控件乱跳）的，而 DoubleBuffered 是解决绘制闪烁（背景重绘）的？不知道对不对
+			//注意：这里开启双缓冲，DoubleBuffered = true 只对 Form（窗体）本身生效，无法遗传给子控件
 			// this.DoubleBuffered = true;
+			//禁止系统擦背景(AllPaintingInWmPaint) + 自己绘制(UserPaint)
+			// this.SetStyle(ControlStyles.UserPaint, true);
+			// this.SetStyle(ControlStyles.AllPaintingInWmPaint, true); 
+			// this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+		    
+			//这个不知道加上有什么用，要不要加：
+            // this.UpdateStyles(); // 强制应用样式
+			
+
+            //  手动设置一个背景色，防止默认黑底
+            // this.BackColor = Color.White;
+			//这个设置的颜色不知道为什么不生效，还是黑底
+			
 			
 
 			// 初始化组件和系统设置
@@ -223,14 +237,14 @@ namespace TrOCR
 			this.RichBoxBody_T.TemporaryTranslateRequested += RichBoxBody_T_OnTemporaryTranslateRequested;
 	
 			
-		}
+        }
 
-		/// <summary>
-		/// 点击加载按钮时触发的事件处理函数，将窗体最小化并隐藏
-		/// </summary>
-		/// <param name="sender">事件发送者</param>
-		/// <param name="e">事件参数</param>
-		private void Load_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 点击加载按钮时触发的事件处理函数，将窗体最小化并隐藏
+        /// </summary>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">事件参数</param>
+        private void Load_Click(object sender, EventArgs e)
 		{
 			WindowState = FormWindowState.Minimized;
 			Visible = false;
