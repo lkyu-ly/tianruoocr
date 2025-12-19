@@ -79,7 +79,7 @@ namespace TrOCR.Helper
                     mode = "默认模式翻译 (内置)",
                     system_prompt = " You are a professional translator. Translate the user input directly, without any explanations",
                     prompt = "Translate the following text. If it is in Chinese, translate to English. Otherwise, translate to Simplified Chinese. Do not explain:",
-                    temperature = 0.7,
+                    temperature = 1.0,
                     enable_thinking = false,
                 };
 
@@ -126,11 +126,15 @@ namespace TrOCR.Helper
                 // 如果 system_prompt 里写了 {target_lang}，就替换成 UI 传进来的值
                 // 如果没写（比如润色模式），Replace 不会生效，保持原样，不会报错
                 string finalSystemPrompt = (currentMode.system_prompt ?? "")
-                    .Replace("{target_lang}", targetLang)
-                    .Replace("{source_lang}", sourceLang);
+                    .Replace("${tolang}", targetLang)
+                    .Replace("${fromlang}", sourceLang);
                 string finalUserPrompt = (currentMode.prompt ?? "")
-                    .Replace("{target_lang}", targetLang)
-                    .Replace("{source_lang}", sourceLang);
+                    .Replace("${tolang}", targetLang)
+                    .Replace("${fromlang}", sourceLang);
+                // === 处理 Assistant Prompt 变量替换 ===
+                string finalAssistantPrompt = (currentMode.assistant_prompt ?? "")
+                    .Replace("${tolang}", targetLang) 
+                    .Replace("${fromlang}", sourceLang);
 
                 // 可选优化：如果 UI 选的是 "自动检测"，把 Prompt 里的 "from Auto Detect" 稍微润色一下
                 //if (sourceLang == "Auto Detect" || sourceLang == "Auto")
@@ -149,7 +153,12 @@ namespace TrOCR.Helper
                 {
                     messagesList.Add(new { role = "system", content = finalSystemPrompt });
                 }
-           
+                // ===  (A.5) Assistant Message: 有才加 ===
+                if (!string.IsNullOrEmpty(finalAssistantPrompt))
+                {
+                    messagesList.Add(new { role = "assistant", content = finalAssistantPrompt });
+                }
+
                 // (B) 添加 User Message (包含 inputContent)
                 // 逻辑：将 Config 里的 Prompt 和 用户输入的 inputContent 拼接，或者作为 User 消息
                 // 对于翻译，最简单直接的方式是：System给指令，User给原文

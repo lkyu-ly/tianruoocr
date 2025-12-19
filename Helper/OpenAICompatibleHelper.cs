@@ -133,6 +133,12 @@ namespace TrOCR.Helper
                 {
                     messagesList.Add(new { role = "system", content = currentMode.system_prompt });
                 }
+                // ===  (A.5) Assistant Message: 有才加 ===
+                // 作用：用于 Few-Shot (少样本) 示例，或者维持对话上下文
+                if (!string.IsNullOrEmpty(currentMode.assistant_prompt))
+                {
+                    messagesList.Add(new { role = "assistant", content = currentMode.assistant_prompt });
+                }
                 // (B) User Message Content: 动态构建
                 var userContentList = new List<object>();
 
@@ -253,7 +259,9 @@ namespace TrOCR.Helper
         public string mode { get; set; }
         public string description { get; set; }
         public string system_prompt { get; set; }
+        //user_prompt
         public string prompt { get; set; }
+        public string assistant_prompt { get; set; }
         // 改为可空类型 (double?)，如果 json 里没填，值为 null
         public double? temperature { get; set; }
 
