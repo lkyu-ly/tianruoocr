@@ -26,6 +26,8 @@ namespace TrOCR.Helper
         private static AIConfig _cachedConfig = null;
         // 上次读取配置文件的时间
         private static DateTime _lastConfigWriteTime = DateTime.MinValue;
+        //用于保留顺序的 JObject
+        private static JObject _cachedJsonRoot = null; 
 
         /// <summary>
         /// 执行 OCR 识别
@@ -45,8 +47,9 @@ namespace TrOCR.Helper
             if (string.IsNullOrEmpty(modelName)) return "错误：未配置模型";
             
 
-            // === 智能刷新配置逻辑 (检测文件变动) ===
+            // === 智能刷新配置逻辑 (检测文件变动，热重载) ===
             AIConfig freshConfig = null;
+            JObject freshJsonRoot = null;
             
             // 加锁确保安全
             lock (_configLock)
@@ -64,7 +67,10 @@ namespace TrOCR.Helper
                         {
                             Debug.WriteLine("[配置更新] 检测到文件变化，正在重新读取...");
                             string jsonContent = File.ReadAllText(configJsonPath, Encoding.UTF8);
+                            // 1. 反序列化为强类型对象 (用于取值)
                             var loadedConfig = JsonConvert.DeserializeObject<AIConfig>(jsonContent);
+                            // 2. 解析为 JObject (用于取顺序)
+                            var loadedJsonRoot = JObject.Parse(jsonContent);
 
                             // 检查配置文件类型是否为 ocr
                             if (loadedConfig != null && !string.Equals(loadedConfig.type, "ocr", StringComparison.OrdinalIgnoreCase))
@@ -77,11 +83,13 @@ namespace TrOCR.Helper
                                 // 更新缓存和时间戳
                                 _cachedConfig = loadedConfig;
                                 _lastConfigWriteTime = currentWriteTime;
+                                _cachedJsonRoot = loadedJsonRoot; // 更新 JObject 缓存
                             }
                         }
                         
                         // 拿到最新的配置（不管是刚读的，还是缓存的）
                         freshConfig = _cachedConfig; 
+                        freshJsonRoot = _cachedJsonRoot;
                     }
                     catch (Exception ex)
                     {
@@ -102,6 +110,7 @@ namespace TrOCR.Helper
 
             // 2. 确定使用的模式
             AIMode currentMode = null;
+            JToken currentModeJToken = null; // 对应模式的 JToken 节点
 
             if (manualMode != null)
             {
@@ -113,6 +122,11 @@ namespace TrOCR.Helper
                     var foundFreshMode = freshConfig.modes.FirstOrDefault(m => m.mode == manualMode.mode);
                     // 找到了就用新的（热更新生效），找不到就用传入的旧的
                     currentMode = foundFreshMode ?? manualMode;
+                    // 同时找到对应的 JToken 节点 (为了顺序)
+                    if (freshJsonRoot != null && freshJsonRoot["modes"] is JArray modesArray)
+                    {
+                        currentModeJToken = modesArray.FirstOrDefault(m => m["mode"]?.ToString() == manualMode.mode);
+                    }
                 }
                 else
                 {
@@ -141,6 +155,11 @@ namespace TrOCR.Helper
                     }
 
                     currentMode = foundMode;
+                    // 同时查找 JToken
+                    if (freshJsonRoot != null && freshJsonRoot["modes"] is JArray modesArray)
+                    {
+                        currentModeJToken = modesArray.FirstOrDefault(m => m["mode"]?.ToString() == savedModeName);
+                    }
                 }
                 else
                 {
@@ -162,42 +181,66 @@ namespace TrOCR.Helper
                 if (string.IsNullOrEmpty(base64Image)) return "错误：图片转换失败";
 
                 // === 4. 动态组装请求体 ===
-
-                // 4.1 动态构建 messages 列表
                 var messagesList = new List<object>();
-
-                // === 顺序控制 ===
-                // 1. System Prompt (系统提示词) - 始终在最前
-                if (!string.IsNullOrEmpty(currentMode.system_prompt))
+                if (currentModeJToken != null && currentModeJToken is JObject modeObj)
                 {
-                    messagesList.Add(new { role = "system", content = currentMode.system_prompt });
+                    // 【方案 A】: 如果能读到 JObject，就按照 JSON 文件里的顺序遍历属性
+                    foreach (var property in modeObj.Properties())
+                    {
+                        string key = property.Name;
+                        
+                        // 1. 处理 System Prompt
+                        if (key == "system_prompt")
+                        {
+                            string val = currentMode.system_prompt; // 从强类型取值，确保数据准确
+                            if (!string.IsNullOrEmpty(val))
+                                messagesList.Add(new { role = "system", content = val });
+                        }
+                        // 2. 处理 Assistant Prompt
+                        else if (key == "assistant_prompt")
+                        {
+                            string val = currentMode.assistant_prompt;
+                            if (!string.IsNullOrEmpty(val))
+                                messagesList.Add(new { role = "assistant", content = val });
+                        }
+                        // 3. 处理 User Prompt (prompt) -> 必须附带图片
+                        else if (key == "prompt")
+                        {
+                            string val = currentMode.prompt;
+                            var userContentList = new List<object>();
+                            if (!string.IsNullOrEmpty(val)) // 即使为空也需要发图片
+                            {
+                                userContentList.Add(new { type = "text", text = val });                              
+                            }
+                            // 图片是必须添加的
+                            userContentList.Add(new { type = "image_url", image_url = new { url = $"data:image/jpeg;base64,{base64Image}" } });
+
+                            messagesList.Add(new { role = "user", content = userContentList });
+                        }
+                    }
                 }
-
-                // 2. Assistant Prompt (助手提示词) - 紧随 System 之后
-                // 作用：用于 Few-Shot (少样本) 示例，或者维持对话上下文
-                if (!string.IsNullOrEmpty(currentMode.assistant_prompt))
+                else
                 {
-                    messagesList.Add(new { role = "assistant", content = currentMode.assistant_prompt });
+                    // 【方案 B】: 如果读不到文件 (比如用的内置默认模式)，则回退到固定顺序 (System -> Assistant -> User)
+                    if (!string.IsNullOrEmpty(currentMode.system_prompt))
+                        messagesList.Add(new { role = "system", content = currentMode.system_prompt });
+
+                    if (!string.IsNullOrEmpty(currentMode.assistant_prompt))
+                        messagesList.Add(new { role = "assistant", content = currentMode.assistant_prompt });
+
+                    // User 总是放在最后
+                    var userContentList = new List<object>();
+                    if (!string.IsNullOrEmpty(currentMode.prompt))
+                    {   
+                        userContentList.Add(new { type = "text", text = currentMode.prompt });
+                    }
+
+                    // 图片是必须添加的
+                    userContentList.Add(new { type = "image_url", image_url = new { url = $"data:image/jpeg;base64,{base64Image}" } });
+
+                    
+                    messagesList.Add(new { role = "user", content = userContentList });
                 }
-
-                // 3. User Prompt (用户提示词 + 图片) - 放在最后
-                var userContentList = new List<object>();
-
-                // 只有当 prompt 不为空时，才添加 text 类型的节点
-                if (!string.IsNullOrEmpty(currentMode.prompt))
-                {
-                    userContentList.Add(new { type = "text", text = currentMode.prompt });
-                }
-
-                // 图片是必须添加的
-                userContentList.Add(new { type = "image_url", image_url = new { url = $"data:image/jpeg;base64,{base64Image}" } });
-
-                // 将构建好的 content 放入 user message
-                messagesList.Add(new
-                {
-                    role = "user",
-                    content = userContentList
-                });
 
                 
                 // 4.2 构造请求体
