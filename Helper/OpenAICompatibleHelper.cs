@@ -19,6 +19,13 @@ namespace TrOCR.Helper
        
         private static readonly HttpClient httpClient = new HttpClient();
 
+        // ===  缓存相关的静态变量 ===
+        // 线程锁，防止并发读写文件冲突
+        private static readonly object _configLock = new object();
+        // 缓存的配置对象（内存变量）
+        private static AIConfig _cachedConfig = null;
+        // 上次读取配置文件的时间
+        private static DateTime _lastConfigWriteTime = DateTime.MinValue;
 
         /// <summary>
         /// 执行 OCR 识别
@@ -38,49 +45,84 @@ namespace TrOCR.Helper
             if (string.IsNullOrEmpty(modelName)) return "错误：未配置模型";
             
 
-          
-            // 2. 确定使用的模式
-            AIMode currentMode = null;
-            if (manualMode != null)
+            // === 智能刷新配置逻辑 (检测文件变动) ===
+            AIConfig freshConfig = null;
+            
+            // 加锁确保安全
+            lock (_configLock)
             {
-                // 情况A：从菜单选中了特定模式
-                currentMode = manualMode;
-            }
-            else
-            {   // 情况B：没有特定模式（默认行为），尝试读取 Config 文件
-                // 如果没有配置文件，使用默认的 Config 对象，防止报错
-                AIConfig aiConfig = null;
                 if (!string.IsNullOrEmpty(configJsonPath) && File.Exists(configJsonPath))
                 {
                     try
                     {
-                        string jsonContent = File.ReadAllText(configJsonPath, Encoding.UTF8);
-                        aiConfig = JsonConvert.DeserializeObject<AIConfig>(jsonContent);
-                        // === 【新增功能 1】检查配置文件类型是否为 ocr ===
-                        // 如果 type 字段存在但不是 "ocr" (忽略大小写)，则报错
-                        if (aiConfig != null && !string.Equals(aiConfig.type, "ocr", StringComparison.OrdinalIgnoreCase))
+                        // 获取配置文件当前的修改时间 (不读取内容，速度极快)
+                        var fileInfo = new FileInfo(configJsonPath);
+                        DateTime currentWriteTime = fileInfo.LastWriteTime;
+
+                        // 比较时间：如果文件被修改过(时间变了)，或者缓存是空的 -> 重新读取
+                        if (_cachedConfig == null || currentWriteTime != _lastConfigWriteTime)
                         {
-                            return "配置错误：所选配置文件类型不匹配。\r\n当前文件 type 为: " + (aiConfig.type ?? "null") + "，OCR 功能仅支持 type: \"ocr\"。";
+                            Debug.WriteLine("[配置更新] 检测到文件变化，正在重新读取...");
+                            string jsonContent = File.ReadAllText(configJsonPath, Encoding.UTF8);
+                            var loadedConfig = JsonConvert.DeserializeObject<AIConfig>(jsonContent);
+
+                            // 检查配置文件类型是否为 ocr
+                            if (loadedConfig != null && !string.Equals(loadedConfig.type, "ocr", StringComparison.OrdinalIgnoreCase))
+                            {
+                                return "配置错误：所选配置文件类型不匹配。\r\n当前文件 type 为: " + (loadedConfig.type ?? "null") + "，OCR 功能仅支持 type: \"ocr\"。";
+
+                            }
+                            else
+                            {
+                                // 更新缓存和时间戳
+                                _cachedConfig = loadedConfig;
+                                _lastConfigWriteTime = currentWriteTime;
+                            }
                         }
+                        
+                        // 拿到最新的配置（不管是刚读的，还是缓存的）
+                        freshConfig = _cachedConfig; 
                     }
                     catch (Exception ex)
                     {
                         return "读取配置文件出错" + ex.Message;
                     }
                 }
-               
-                // 1. 先准备一个“兜底”的内置安全模式 (Hardcoded Default)
-                // 作用：当配置文件不存在、或者配置文件里找不到对应的模式时，使用这个模式。
-                AIMode defaultSafeMode = new AIMode
-                {
-                    mode = "默认模式 (内置)",
-                    system_prompt = "You are a professional OCR engine. Recognize the text in the image and output it directly. Do not use markdown code blocks. Do not output any conversational filler. Maintain the original line breaks. If the image contains code, remember to preserve the formatting.",
-                    prompt = "OCR this image.",
-                    temperature = 0.1,
-                    enable_thinking = false,
-                };
+            }
 
-                if (aiConfig != null && aiConfig.modes != null && aiConfig.modes.Count > 0)
+            // 1. 先准备一个“兜底”的内置安全模式 (Hardcoded Default)
+            AIMode defaultSafeMode = new AIMode
+            {
+                mode = "默认模式 (内置)",
+                system_prompt = "You are a professional OCR engine. Recognize the text in the image and output it directly. Do not use markdown code blocks. Do not output any conversational filler. Maintain the original line breaks. If the image contains code, remember to preserve the formatting.",
+                prompt = "OCR this image.",
+                temperature = 0.1,
+                enable_thinking = false,
+            };
+
+            // 2. 确定使用的模式
+            AIMode currentMode = null;
+
+            if (manualMode != null)
+            {
+                // 情况A：从菜单选中了特定模式
+                // === 【优化】即使传入了 manualMode，也尝试从 freshConfig 里找同名的最新版 ===
+                // 这样用户修改了配置文件后，不需要切换菜单就能生效
+                if (freshConfig != null && freshConfig.modes != null)
+                {
+                    var foundFreshMode = freshConfig.modes.FirstOrDefault(m => m.mode == manualMode.mode);
+                    // 找到了就用新的（热更新生效），找不到就用传入的旧的
+                    currentMode = foundFreshMode ?? manualMode;
+                }
+                else
+                {
+                    currentMode = manualMode;
+                }
+            }
+            else
+            {   
+                // 情况B：没有特定模式（默认行为），尝试从 freshConfig 读取
+                if (freshConfig != null && freshConfig.modes != null && freshConfig.modes.Count > 0)
                 {
                     // 2. 尝试读取配置文件中保存的“模式名称”
                     string savedModeName = TrOCRUtils.LoadSetting("OpenAICompatible", "SelectedMode","");
@@ -89,14 +131,9 @@ namespace TrOCR.Helper
                     if (!string.IsNullOrEmpty(savedModeName))
                     {
                         // 查找名称匹配的模式
-                        foundMode = aiConfig.modes.FirstOrDefault(m => m.mode == savedModeName);
+                        foundMode = freshConfig.modes.FirstOrDefault(m => m.mode == savedModeName);
                     }
 
-                    // 3. 赋值逻辑：
-                    // 如果找到了保存的模式 -> 使用找到的 (foundMode)
-                    // 如果【没找到】(foundMode is null) -> 使用 defaultSafeMode (内置默认)
-                    // 【关键点】：这里不再使用 aiConfig.modes[0]，没找到也不回退到第一项
-                    //currentMode = foundMode ?? defaultSafeMode;
                     if (foundMode == null)
                     {
                         // === 【直接报错】 ===
@@ -107,16 +144,17 @@ namespace TrOCR.Helper
                 }
                 else
                 {
-                    //CommonHelper.ShowHelpMsg("配置文件不存在，将使用程序内置的默认模式");
-                    Debug.WriteLine("配置文件不存在，将使用程序内置的默认模式");
+
+                    //CommonHelper.ShowHelpMsg("配置文件不存在，将使用程序内置的默认模式");                    
+                    // Debug.WriteLine("配置文件不存在或无效，将使用程序内置的默认模式");
                     // 4. 连配置文件都读不到 -> 直接用内置默认
                     currentMode = defaultSafeMode;
-                    
                 }
-
             }
+
             System.Diagnostics.Debug.WriteLine($"[Helper] 最终使用的模式名称: {currentMode.mode}");
             System.Diagnostics.Debug.WriteLine($"[Helper] 最终使用的模式详情: {JsonConvert.SerializeObject(currentMode, Formatting.Indented)}");
+            
             try
             {
                 // 3. 内存图片转 Base64 (直接使用传入的 Image 对象)
@@ -128,18 +166,21 @@ namespace TrOCR.Helper
                 // 4.1 动态构建 messages 列表
                 var messagesList = new List<object>();
 
-                // (A) System Message: 有才加
+                // === 顺序控制 ===
+                // 1. System Prompt (系统提示词) - 始终在最前
                 if (!string.IsNullOrEmpty(currentMode.system_prompt))
                 {
                     messagesList.Add(new { role = "system", content = currentMode.system_prompt });
                 }
-                // ===  (A.5) Assistant Message: 有才加 ===
+
+                // 2. Assistant Prompt (助手提示词) - 紧随 System 之后
                 // 作用：用于 Few-Shot (少样本) 示例，或者维持对话上下文
                 if (!string.IsNullOrEmpty(currentMode.assistant_prompt))
                 {
                     messagesList.Add(new { role = "assistant", content = currentMode.assistant_prompt });
                 }
-                // (B) User Message Content: 动态构建
+
+                // 3. User Prompt (用户提示词 + 图片) - 放在最后
                 var userContentList = new List<object>();
 
                 // 只有当 prompt 不为空时，才添加 text 类型的节点
@@ -166,35 +207,20 @@ namespace TrOCR.Helper
                     model = modelName,
                     messages = messagesList,
 
-                    // 利用可空类型 + Ignore Null
                     // 2. 温度 (Temperature) - 处理可空数值
-                    // currentMode.temperature 是 double? 类型 (可空)
-                    // ---------------------------------------------------------
-                    // 情况 A：如果配置文件里没写 temperature，它是 null。
-                    //         -> requestBody.temperature = null
-                    //         -> 序列化时被忽略，JSON 里完全没有 "temperature" 字段。
-                    //         -> 接口收到请求后，会使用它自己的默认值 (比如 1.0)。
-                    //
-                    // 情况 B：如果配置文件写了 0.5。
-                    //         -> requestBody.temperature = 0.5
-                    //         -> 序列化结果： "temperature": 0.5
                     temperature = currentMode.temperature,
 
                     // 3. 思考模式 (Thinking) - 处理复杂的嵌套对象逻辑
-                    // currentMode.enable_thinking 是 bool? 类型 (可空)
-                    // ---------------------------------------------------------
                     thinking = currentMode.enable_thinking.HasValue
-                    // [分支 1] 如果 HasValue 为 true (即配置文件里写了 true 或 false)
+                    // [分支 1] 如果 HasValue 为 true
                     ? new
                     {
-                        // 再进行一次判断：如果是 true -> "enabled", 如果是 false -> "disabled"
                         type = currentMode.enable_thinking.Value ? "enabled" : "disabled"
                     }
-                    // [分支 2] 如果 HasValue 为 false (即配置文件里没写，或者删了)
+                    // [分支 2] 如果 HasValue 为 false
                     : null
                 };
             
-
 
                 // 5. 发送请求
                 string endpoint = baseUrl.TrimEnd('/');
