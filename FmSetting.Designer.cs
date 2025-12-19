@@ -569,6 +569,9 @@ namespace TrOCR
             this.label63 = new System.Windows.Forms.Label();
             this.textBox38 = new System.Windows.Forms.TextBox();
             this.label64 = new System.Windows.Forms.Label();
+            this.label61 = new System.Windows.Forms.Label();
+            this.textBox37 = new System.Windows.Forms.TextBox();
+            this.label62 = new System.Windows.Forms.Label();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -4849,6 +4852,9 @@ namespace TrOCR
             // 
             // groupBox11
             // 
+            this.groupBox11.Controls.Add(this.label62);
+            this.groupBox11.Controls.Add(this.textBox37);
+            this.groupBox11.Controls.Add(this.label61);
             this.groupBox11.Controls.Add(this.cbBox_禁用隐藏原文按钮);
             this.groupBox11.Location = new System.Drawing.Point(9, 383);
             this.groupBox11.Name = "groupBox11";
@@ -6585,6 +6591,32 @@ namespace TrOCR
             this.label64.TabIndex = 2;
             this.label64.Text = "时间：";
             // 
+            // label61
+            // 
+            this.label61.AutoSize = true;
+            this.label61.Location = new System.Drawing.Point(0, 51);
+            this.label61.Name = "label61";
+            this.label61.Size = new System.Drawing.Size(120, 15);
+            this.label61.TabIndex = 3;
+            this.label61.Text = "工具栏图标放大:";
+            // 
+            // textBox37
+            // 
+            this.textBox37.Location = new System.Drawing.Point(121, 48);
+            this.textBox37.Multiline = true;
+            this.textBox37.Name = "textBox37";
+            this.textBox37.Size = new System.Drawing.Size(58, 20);
+            this.textBox37.TabIndex = 4;
+            // 
+            // label62
+            // 
+            this.label62.AutoSize = true;
+            this.label62.Location = new System.Drawing.Point(185, 51);
+            this.label62.Name = "label62";
+            this.label62.Size = new System.Drawing.Size(285, 15);
+            this.label62.TabIndex = 5;
+            this.label62.Text = "倍（1倍为不放大，修改后重启软件生效）";
+            // 
             // FmSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -7359,5 +7391,8 @@ namespace TrOCR
         private System.Windows.Forms.Label label63;
         private System.Windows.Forms.TextBox textBox38;
         private System.Windows.Forms.Label label64;
+        private System.Windows.Forms.Label label62;
+        private System.Windows.Forms.TextBox textBox37;
+        private System.Windows.Forms.Label label61;
     }
 }

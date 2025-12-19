@@ -839,6 +839,8 @@ namespace TrOCR
 			textBox_OpenAICompatible_Target.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Target", "") ;
 			//文本改变后自动翻译的延时
 			textBox38.Text=TrOCRUtils.LoadSetting("配置", "文本改变自动翻译延时", "5000");
+			//工具栏图标放大倍数
+			textBox37.Text=TrOCRUtils.LoadSetting("工具栏", "图标放大倍数", "1.0");
 		}
 
 		/// <summary>
@@ -2107,6 +2109,9 @@ namespace TrOCR
 
 			//文本改变后自动翻译的延时
 			IniHelper.SetValue("配置", "文本改变自动翻译延时",textBox38.Text );
+			//工具栏图标放大倍数
+			IniHelper.SetValue("工具栏", "图标放大倍数",textBox37.Text );
+
 
 			ResetOcrEngineOnConfigChange();
 			DialogResult = DialogResult.OK;

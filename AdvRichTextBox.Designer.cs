@@ -106,6 +106,11 @@ namespace TrOCR
             // 不过对于本项目来说，这个设计文件本来就不适合使用vs设计器设计，所以无所谓了
             //修复工具栏图标dpi缩放的代码和构造函数里的一样：if判断加不加都行,这里就不加if判断了，毕竟注释掉了，只是告诉你也可以在这里修复
             //this.toolStripToolBar.ImageScalingSize = new Size((int)(16 * Program.Factor), (int)(16 * Program.Factor));
+            //根据设置放大图标
+            if(StaticValue.ToolbarIconScaleFactor>0){
+                this.toolStripToolBar.ImageScalingSize = new Size((int)(16 * StaticValue.ToolbarIconScaleFactor), (int)(16 * StaticValue.ToolbarIconScaleFactor));
+            }
+            
             this.toolStripToolBar.RenderMode = ToolStripRenderMode.System;
             this.toolStripToolBar.Size = new Size(600, 25);
             this.toolStripToolBar.TabIndex = 1;
@@ -249,7 +254,8 @@ namespace TrOCR
             this.languagle.DropDownItems.Add(this.zh_en);
             this.languagle.DropDownItems.Add(this.zh_jp);
             this.languagle.DropDownItems.Add(this.zh_ko);
-            this.languagle.AutoSize = false;
+            //注释掉或改为true，这样此图标就跟随设置放大了
+            // this.languagle.AutoSize = false;
             ((ToolStripDropDownMenu)this.languagle.DropDown).ShowImageMargin = false;
             this.languagle.DropDown.BackColor = Color.White;
             this.languagle.DropDown.AutoSize = false;
@@ -279,7 +285,8 @@ namespace TrOCR
             this.Fontstyle.Name = "toolStripButtonclose";
             this.Fontstyle.Size = new Size(23, 22);
             this.Fontstyle.Text = "字体";
-            this.Fontstyle.AutoSize = false;
+            //注释掉或改为true，这样此图标就跟随设置放大了
+            // this.Fontstyle.AutoSize = false;
             ((ToolStripDropDownMenu)this.Fontstyle.DropDown).ShowImageMargin = false;
             this.Fontstyle.DropDown.BackColor = Color.White;
             this.Fontstyle.DropDown.AutoSize = false;

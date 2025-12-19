@@ -179,6 +179,9 @@ namespace TrOCR.Helper
         // public static int TextChangeAutotranslateDelay { get; set; }
         public static string TextChangeAutotranslateDelayRaw { get; set; }
 
+        //工具栏图标放大倍数
+        public static float ToolbarIconScaleFactor = 1.0f;
+
 
         /// <summary>
         /// 从config.ini加载配置到静态变量
@@ -232,6 +235,8 @@ namespace TrOCR.Helper
             // TextChangeAutotranslateDelay=GetIntValue("配置", "文本改变自动翻译延时", 5000);
             TextChangeAutotranslateDelayRaw=GetValue("配置", "文本改变自动翻译延时", "5000");
 
+            ToolbarIconScaleFactor = GetFloatValue("工具栏","图标放大倍数",1.0f);
+
         }
         // 1. 定义读取 Int 的辅助方法
         public static int GetIntValue(string section, string key, int defaultValue)
@@ -252,6 +257,21 @@ namespace TrOCR.Helper
             }
 
             // 如果内容是乱码或非数字，返回默认值
+            return defaultValue;
+        }
+        // 辅助方法：安全读取浮点数配置
+        public static float GetFloatValue(string section, string key, float defaultValue)
+        {
+            // 使用 TrOCRUtils.LoadSetting 读取字符串
+            string valueStr = TrOCRUtils.LoadSetting(section, key, defaultValue.ToString());
+
+            // 尝试转换为 float
+            if (float.TryParse(valueStr, out float result))
+            {
+                return result;
+            }
+
+            // 如果转换失败，返回默认值
             return defaultValue;
         }
 
