@@ -2573,8 +2573,16 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
             {
                 typeset_txt = RichBoxBody.Text;
                 // RichBoxBody_T.Visible = true;
-                WindowState = FormWindowState.Normal;
                 transtalate_fla = "开启";
+
+				// 【修复】获取当前是否为最大化状态，不要直接强制设为 Normal
+				bool isMaximized = (this.WindowState == FormWindowState.Maximized);
+
+				// 如果不是最大化，才强制设为 Normal（防止最小化时点击没反应等情况）
+				if (!isMaximized)
+				{
+					WindowState = FormWindowState.Normal;
+				}
 
                 // 解除 Dock，准备手动布局
                 RichBoxBody.Dock = DockStyle.None;
