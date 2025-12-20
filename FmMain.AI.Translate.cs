@@ -45,6 +45,10 @@ namespace TrOCR
                 if (string.IsNullOrEmpty(configPath))
                 {
                     configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "AITranslateConfig.json");
+                    if (File.Exists(configPath))
+                    {
+                        IniHelper.SetValue("OpenAICompatibleTrans", "Config", configPath);
+                    }
                 }
 
                 // 2. 如果文件不存在，直接结束（此时菜单已重置为默认的三级菜单）

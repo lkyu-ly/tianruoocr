@@ -43,6 +43,10 @@ namespace TrOCR
                 if (string.IsNullOrEmpty(configPath))
                 {
                     configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "AIOCRConfig.json");
+                    if (File.Exists(configPath))
+                    {
+                        IniHelper.SetValue("OpenAICompatible", "Config", configPath);
+                    }
                 }
 
                 if (!File.Exists(configPath)) return;
