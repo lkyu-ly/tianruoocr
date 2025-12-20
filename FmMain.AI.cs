@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text; // 确保引用
 using System.Windows.Forms;
@@ -91,7 +92,9 @@ namespace TrOCR
                             {
                                 this.currentSelectedAIMode = firstMode;
                                 // 既然自动帮你选了第一个，顺便保存一下，下次就不算"没存过"了
-                                //IniHelper.SetValue("OpenAICompatible", "SelectedMode", firstMode.mode);
+                                IniHelper.SetValue("OpenAICompatible", "SelectedMode", firstMode.mode);
+                                // CommonHelper.ShowHelpMsg("未选择模式，将使用配置文件里第一个模式");
+                                Debug.WriteLine("Fmmain.AI.cs--未选择模式，将使用配置文件里第一个模式");
                             }
                         }
                     }
