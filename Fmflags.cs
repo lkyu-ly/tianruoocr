@@ -89,7 +89,7 @@ namespace TrOCR
 			}
 		}
 
-		public void DrawStr(string str)
+		public void DrawStr(string str,uint durationMs = 600u)
 		{
 			宽度 = 50 * str.Length;
 			ClientSize = new Size(宽度, 50);
@@ -110,7 +110,7 @@ namespace TrOCR
 			SetBits(bmp);
 			g.Dispose();
 			bmp.Dispose();
-			Delay(600u);
+			Delay(durationMs);
 			Hide();
 		}
 

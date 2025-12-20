@@ -18,11 +18,17 @@ namespace TrOCR.Helper
     {
         private static readonly HttpHelper DefaultHttpHelper = new HttpHelper();  
 
-        public static void ShowHelpMsg(string msg)
+        public static void ShowHelpMsg(string msg, uint durationMs)
         {
             var fmFlags = new FmFlags();
             fmFlags.Show();
-            fmFlags.DrawStr(msg);
+            fmFlags.DrawStr(msg, durationMs); // 调用 FmFlags 中带时长的版本
+        }
+
+        
+        public static void ShowHelpMsg(string msg)
+        {
+            ShowHelpMsg(msg, 600u); // 默认 600 毫秒
         }
 
         public static void AddLog(string str)
