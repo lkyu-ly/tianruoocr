@@ -18,6 +18,13 @@ namespace TrOCR
 
         private void OCR_ai_openai_compatible_Click(object sender, EventArgs e)
 		{
+            //可选优化，不做也行，因为下面的事件解绑足够可靠.ai翻译接口也有这个可选优化
+            // 如果下拉菜单里有项目（Count > 0），说明当前处于“多模式选择”状态。
+            // 此时点击父菜单只是为了展开列表，不应该触发“清除勾选”或“运行默认OCR”的逻辑。
+            // if (this.ai_openai_compatible.DropDownItems.Count > 0)
+            // {
+            //     return;
+            // }
             // 【新增】使用默认模式，清除子菜单的勾选
             ClearAIConfigSelection();
             OCR_foreach("OpenAICompatible");

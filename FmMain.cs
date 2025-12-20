@@ -5525,8 +5525,8 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 					CommonHelper.AddLog($"释放 RapidOCR 引擎时出错: {ex.Message}");
 				}
 			}
-            // === 【新增】 如果切换到了其他接口，清除 OpenAI 菜单的勾选状态 ===
-            if (name != "OpenAICompatible")
+            // === 【修复】 如果切换到了其他接口，清除 OpenAI 菜单的勾选状态 ===
+            if (!string.IsNullOrEmpty(name) && name != "OpenAICompatible")
             {
                 // 清除openai兼容菜单的子菜单的勾选项
                 ClearAIConfigSelection();
@@ -7198,7 +7198,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			ai_openai_compatible_trans.Text="OpenAICompatible";
 
 
-			if (name != "OpenAICompatible")
+			if (!string.IsNullOrEmpty(name) && name != "OpenAICompatible")
             {
                 // 清除openai兼容菜单的子菜单的勾选项
                 ClearAITransConfigSelection();
