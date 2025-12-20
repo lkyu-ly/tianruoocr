@@ -358,5 +358,17 @@ namespace TrOCR.Helper
                 return $"发生异常: {ex.Message}";
             }
         }
+        public static void ResetCache()
+        {
+            lock (_configLock)
+            {
+                _cachedConfig = null;           // 清除强类型对象缓存
+                _cachedJsonRoot = null;         // 清除 JSON 树缓存
+                _lastConfigWriteTime = DateTime.MinValue; // 重置时间戳
+                hasnotified = false;            // 允许重新发送通知
+                Debug.WriteLine("AI 配置缓存已手动重置");
+                Debug.WriteLine("[缓存重置] 已强制清除配置缓存，下次调用将重新读取文件。");
+            }
+        }
     }
 }

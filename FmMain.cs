@@ -2291,9 +2291,12 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
             //刷新 AI 菜单，这行代码写在fmsetting里也行，写在这里也行
             LoadAIConfigMenus();
             LoadAITranConfigMenus();
-            
+			//更新AI缓存
+			OpenAICompatibleHelper.ResetCache();
+            OpenAICompatibleTranslate.ResetCache();
+
 			//更新AI接口设置后，清理ini里的AI模式
-            string newPath = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "");
+			string newPath = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "");
             if (newPath != oldPath)
             {
                 string iniFile = AppDomain.CurrentDomain.BaseDirectory + "Data\\config.ini";
