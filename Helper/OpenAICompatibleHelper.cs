@@ -28,6 +28,8 @@ namespace TrOCR.Helper
         private static DateTime _lastConfigWriteTime = DateTime.MinValue;
         //用于保留顺序的 JObject
         private static JObject _cachedJsonRoot = null; 
+        // 是否已经显示过通知
+        private static bool hasnotified = false; 
 
         /// <summary>
         /// 执行 OCR 识别
@@ -146,19 +148,29 @@ namespace TrOCR.Helper
                     {
                         // 查找名称匹配的模式
                         foundMode = freshConfig.modes.FirstOrDefault(m => m.mode == savedModeName);
-                    }
-
-                    if (foundMode == null)
+                        if (foundMode == null)
+                        {
+                            // === 【直接报错】 ===
+                            return $"配置错误：无法找到模式“{savedModeName}”。\r\n原因：该模式可能已被从配置文件中删除或重命名。\r\n解决方法：请点击菜单重新选择一个有效的模式。";
+                        }
+                        // === 【新增优化】 ===
+                        // 既然成功找到了有效模式，说明配置是好的。
+                        // 我们重置通知标记，以便下次如果用户又改坏了，能再次收到通知。
+                        hasnotified = false;
+                        currentMode = foundMode;
+                        // 只有找到了对应的 Mode，才有必要去 JSON 里找它的顺序
+                        if (freshJsonRoot != null && freshJsonRoot["modes"] is JArray modesArray)
+                        {
+                            currentModeJToken = modesArray.FirstOrDefault(m => m["mode"]?.ToString() == savedModeName);
+                        }
+                    }else
                     {
-                        // === 【直接报错】 ===
-                        return $"配置错误：无法找到模式“{savedModeName}”。\r\n原因：该模式可能已被从配置文件中删除或重命名。\r\n解决方法：请点击菜单重新选择一个有效的模式。";
-                    }
-
-                    currentMode = foundMode;
-                    // 同时查找 JToken
-                    if (freshJsonRoot != null && freshJsonRoot["modes"] is JArray modesArray)
-                    {
-                        currentModeJToken = modesArray.FirstOrDefault(m => m["mode"]?.ToString() == savedModeName);
+                        currentMode=defaultSafeMode;
+                        if (!hasnotified)
+                        {
+                            CommonHelper.ShowHelpMsg("未选择模式，将使用程序内置的默认模式");
+                        }
+                        hasnotified=true;
                     }
                 }
                 else
@@ -168,6 +180,11 @@ namespace TrOCR.Helper
                     // Debug.WriteLine("配置文件不存在或无效，将使用程序内置的默认模式");
                     // 4. 连配置文件都读不到 -> 直接用内置默认
                     currentMode = defaultSafeMode;
+                    if (!hasnotified)
+                    {
+                        CommonHelper.ShowHelpMsg("配置文件不存在，将使用程序内置的默认模式");
+                    }
+                    hasnotified=true;
                 }
             }
 

@@ -186,7 +186,7 @@ jobs:
           draft: true
           
           # 设为 false, 因为你的提交不规范，不让它自动生成
-          generateReleaseNotes: false 
+          generateReleaseNotes: true 
           
           # <--- 关键优化：使用与上面 env 中相同的逻辑 ---
           token: ${{ secrets.MY_PAT || secrets.GITHUB_TOKEN }}
