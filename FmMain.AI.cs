@@ -20,25 +20,17 @@ namespace TrOCR
         private AIMode _currentCustomMode = null;
 
         /// <summary>
-        /// 【核心方法】加载所有自定义 AI 接口到菜单
-        /// 这个方法应该在 FmMain_Load 和 设置窗口关闭后被调用
+        /// 【重构版】加载所有自定义 AI 接口到菜单，并自动恢复状态
         /// </summary>
         public void LoadCustomOpenAIMenus()
         {
             try
             {
-                // 1. 获取父级菜单
-                // 请确保你的菜单栏里有一个叫 "AI" 的项，Name 是 ai_menu
+                // ================= Step 1: 基础清理与准备 =================
                 ToolStripMenuItem parentMenu = this.ai_menu;
                 if (parentMenu == null) return;
 
-                // 2. 【关键】彻底清空 AI 菜单下的旧内容
-                // 这行代码会把 Designer 里画的那个 "OpenAICompatible" 删掉
-                // 这样 DeepSeek、GLM 就会直接显示在 AI 菜单下面
-                //parentMenu.DropDownItems.Clear();//不加这个代码，手动修改designer.cs删除AI菜单下的OpenAICompatible菜单也行
-
-                // 2. 清理旧的动态菜单
-                // 我们约定：所有动态生成的菜单 Tag 都是 "DynamicProvider"
+                // 清理旧的动态菜单
                 for (int i = parentMenu.DropDownItems.Count - 1; i >= 0; i--)
                 {
                     if (parentMenu.DropDownItems[i].Tag?.ToString() == "DynamicProvider")
@@ -47,31 +39,34 @@ namespace TrOCR
                     }
                 }
 
-                // 3. 读取厂商列表 (CustomOpenAIProviders.json)
+                // 读取厂商列表(CustomOpenAIProviders.json)
                 string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "CustomOpenAIProviders.json");
                 if (!File.Exists(jsonPath)) return;
 
                 var providers = JsonConvert.DeserializeObject<List<CustomAIProvider>>(File.ReadAllText(jsonPath));
                 if (providers == null) return;
 
-                // 添加一条分割线 (美观)
+                // 添加分割线
                 parentMenu.DropDownItems.Add(new ToolStripSeparator { Tag = "DynamicProvider" });
-                // === ★★★ 新增：读取上次保存的配置 ★★★ ===
+
+                // 读取 INI 记录 (上次选了谁)
                 string lastProviderName = IniHelper.GetValue("OpenAICompatible", "LastProvider");
                 string lastModeName = IniHelper.GetValue("OpenAICompatible", "LastMode");
-                // 标记是否已经成功恢复了状态
+
+                // 标记：是否已经成功恢复了某个选项（防止多个厂商都去恢复）
                 bool isRestored = false;
 
-                // 4. 循环生成菜单
+                // ================= Step 2: 循环构建菜单 =================
                 foreach (var provider in providers)
                 {
-                   
-                    // === 一级菜单：厂商名 (如 "DeepSeek") ===
+                    // 2.1 创建厂商菜单项 (一级)
                     ToolStripMenuItem providerItem = new ToolStripMenuItem(provider.Name);
-                    providerItem.Tag = "DynamicProvider"; // 标记，方便下次删除
+                    providerItem.Tag = "DynamicProvider";
 
-                    // 检查是否配置了 Prompt 配置文件 (例如 Data/AIOCRConfig.json)
-                    bool hasSubMenu = false;
+                    // 准备一个列表来存放这个厂商下所有的模式 (无论是配置文件里的，还是默认生成的)
+                    List<AIMode> availableModes = new List<AIMode>();
+
+                    // 2.2 尝试加载子菜单配置 (二级)
                     if (!string.IsNullOrEmpty(provider.ModelConfigPath))
                     {
                         // 处理相对路径/绝对路径
@@ -83,92 +78,106 @@ namespace TrOCR
                         {
                             try
                             {
-                                // 读取 Prompt 配置文件
-                                string configJson = File.ReadAllText(configFullPath, Encoding.UTF8);
-                                // ★ 使用您的实体类 AIConfig 进行解析
-                                var configObj = JsonConvert.DeserializeObject<AIConfig>(configJson);
-
+                                var configObj = JsonConvert.DeserializeObject<AIConfig>(File.ReadAllText(configFullPath, Encoding.UTF8));
                                 if (configObj != null && configObj.modes != null)
                                 {
-                                    foreach (var mode in configObj.modes)
-                                    {
-                                        // === 二级菜单：模式名 (如 "精确识别") ===
-                                        ToolStripMenuItem modeItem = new ToolStripMenuItem(mode.mode);
-                                        modeItem.ToolTipText = mode.description;
-
-                                        // 点击事件：切换到该厂商 + 该模式
-                                        modeItem.Click += (s, e) => SwitchToCustomAI(provider, mode);
-
-                                        providerItem.DropDownItems.Add(modeItem);
-                                        // === ★★★ 核心恢复逻辑 1 (有子菜单情况) ★★★ ===
-                                        // 如果当前遍历到的厂商和模式，等于上次保存的 -> 自动切换过去
-                                        if (!isRestored &&
-                                            provider.Name == lastProviderName &&
-                                            mode.mode == lastModeName)
-                                        {
-                                            SwitchToCustomAI(provider, mode);
-                                            isRestored = true;
-                                        }
-                                    }
-                                    hasSubMenu = true;
+                                    availableModes.AddRange(configObj.modes);
                                 }
                             }
                             catch (Exception ex)
                             {
-                                Debug.WriteLine($"加载 {provider.Name} 的子菜单失败: {ex.Message}");
+                                /* 忽略配置读取错误 */
+                                Debug.WriteLine("配置文件存在，但读取出错：" + ex.Message);
                             }
                         }
                     }
-                    // 创建一个临时的默认 mode
-                    var defaultMode = new AIMode
-                    {
-                        mode = "默认模式",
-                        prompt = "请识别图片中的文字：",
-                        temperature = 0.5 // 默认温度
-                    };
 
-                    // 如果没有子菜单配置 (或者加载失败)，添加一个默认项
-                    if (!hasSubMenu)
+                    // 2.3 如果没有加载到任何模式，添加一个“默认模式”保底
+                    if (availableModes.Count == 0)
                     {
-                       
-                        ToolStripMenuItem defaultItem = new ToolStripMenuItem(defaultMode.mode);
-                        defaultItem.Click += (s, e) =>
+                        availableModes.Add(new AIMode
                         {
-                   
-                          
-                            SwitchToCustomAI(provider, defaultMode);
-                            // 如果循环完了还没找到上次用的（可能被删了），或者第一次运行
-                            // 且当前 interface_flag 是 CustomOpenAI，则默认选第一个
-                            //if (!isRestored && this.interface_flag == "CustomOpenAI" && parentMenu.DropDownItems.Count > 0)
-                            //{
-                            //    // 这里可以写逻辑自动选中列表里的第一个，防止 _currentCustomProvider 为空
-                            //    // 简单处理：用户下次点击菜单时会生效，或者在这里强制选第一个
-                            //}
-                        };
-                        providerItem.DropDownItems.Add(defaultItem);
-                        
+                            mode = "默认模式",
+                            prompt = "请识别图片中的文字：",
+                            temperature = 0.5
+                        });
+                    }
+                
+                    // 2.4 将模式列表渲染到 UI，并检查是否匹配上次记录
+                    //成功匹配
+                    bool foundMatchInThisProvider = false; // 标记：在这个厂商里是否找到了上次的模式
+
+                    foreach (var mode in availableModes)
+                    {
+                        ToolStripMenuItem modeItem = new ToolStripMenuItem(mode.mode);
+                        modeItem.ToolTipText = mode.description;
+                        modeItem.Click += (s, e) => SwitchToCustomAI(provider, mode);
+
+                        providerItem.DropDownItems.Add(modeItem);
+
+                        // --- 判断逻辑：尝试恢复 ---
+                        // 只有当“还没恢复过” 且 “厂商名对上了” 且 “模式名对上了”
+                        if (!isRestored && provider.Name == lastProviderName && mode.mode == lastModeName)
+                        {
+                            SwitchToCustomAI(provider, mode);
+                            modeItem.Checked = true;
+                            isRestored = true;
+                            foundMatchInThisProvider = true;
+                        }
                     }
 
-                    // 将厂商菜单加入到 "AI" 菜单下
-                    parentMenu.DropDownItems.Add(providerItem);
-                    // 如果还没恢复过，且当前厂商名字匹配 INI 记录
+                    // ================= Step 3: 单个厂商内的兜底逻辑 / 厂商兜底=================
+
+                    // 场景：ini记录我是选的这个厂商，但是...
                     if (!isRestored && provider.Name == lastProviderName)
                     {
-                        
-
-                        // 只有当 INI 里的模式也是 "默认模式" (或者是空的) 时才恢复
-                        // 这样比较严谨，防止未来有其他模式时误判
-                        if (string.IsNullOrEmpty(lastModeName) || lastModeName == "默认模式")
+                        // 情况A: 我没找到具体的模式 (foundMatchInThisProvider == false)
+                        // 原因可能是：配置文件改了(模式名变了)，或者配置删了(退化成默认模式)
+                        // 解决：强制选中列表里的第一个模式
+                        if (!foundMatchInThisProvider && availableModes.Count > 0)
                         {
-                            SwitchToCustomAI(provider, defaultMode);
+                            var fallbackMode = availableModes[0];
+                            SwitchToCustomAI(provider, fallbackMode);
+
+                            // UI打钩
+                            if (providerItem.DropDownItems.Count > 0 && providerItem.DropDownItems[0] is ToolStripMenuItem firstItem)
+                                firstItem.Checked = true;
+
                             isRestored = true;
                         }
                     }
+
+                    // 将构建好的菜单项加入主菜单
+                    parentMenu.DropDownItems.Add(providerItem);
                 }
+
+                // ================= Step 4: 全局终极兜底逻辑/全局兜底 =================
+
+                // 场景：循环跑完了，isRestored 还是 false。
+                // 原因可能是：上次选的厂商直接被删了，或者这是第一次运行软件。
+                // 解决：强制选中所有菜单里的【第一个厂商】的【第一个模式】。
+                if (!isRestored && this.interface_flag == "CustomOpenAI")
+                {
+                    // 找到第一个厂商菜单项 (跳过分割线)
+                    foreach (ToolStripItem item in parentMenu.DropDownItems)
+                    {
+                        if (item is ToolStripMenuItem firstProviderItem && firstProviderItem.HasDropDownItems)
+                        {
+                            // 模拟点击第一个子项
+                            if (firstProviderItem.DropDownItems[0] is ToolStripMenuItem firstOption)
+                            {
+                                firstOption.PerformClick();
+                                isRestored = true;
+                            }
+                            break; // 处理完就退出
+                        }
+                    }
+                }
+
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("加载自定义 AI 菜单总流程失败: " + ex.Message);
+            catch (Exception ex) 
+            { 
+                Debug.WriteLine("加载自定义 AI 菜单失败: " + ex.Message);
             }
         }
 
@@ -258,7 +267,7 @@ namespace TrOCR
                 // ★★★ 如果报错，这里会弹窗告诉你原因 ★★★
                 MessageBox.Show($"切换接口时发生错误：\n{ex.Message}\n\n堆栈信息：\n{ex.StackTrace}", "错误提示");
             }
-            }
+        }
 
         /// <summary>
         /// OCR 执行入口 (需要在 Main_OCR_Thread 中调用)
