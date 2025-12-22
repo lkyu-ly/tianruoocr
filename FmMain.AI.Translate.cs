@@ -1,213 +1,350 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text; // 确保引用
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using TrOCR.Helper;
 
 namespace TrOCR
 {
     public partial class FmMain
     {
-        // 用于存储当前选中的 AI 模式，如果为 null 则使用默认逻辑
-        private AIMode currentSelectedAITransMode = null;
+        // === 全局状态变量 ===
 
-        private void Trans_ai_openai_compatible_Click(object sender, EventArgs e)
-		{
-            //使用默认翻译模式，清除子菜单的勾选
-            ClearAITransConfigSelection();
-            Trans_foreach("OpenAICompatible");
-		}
+        // 当前选中的厂商 (例如: DeepSeek)
+        private CustomAITransProvider _currentCustomTransProvider = null;
+
+        // 当前选中的模式 (例如: 精确识别，包含 Prompt/Temperature 等)
+        private AIMode _currentCustomTransMode = null;
 
         /// <summary>
-        /// 加载 AI 配置文件并初始化动态菜单
+        /// 加载 AI 翻译配置文件并初始化动态菜单
         /// </summary>
-        private void LoadAITranConfigMenus()
+        public void LoadCustomOpenAITransMenus()
         {
             try
             {
-                // === 第一步：先彻底重置菜单到默认状态（三级菜单模式） ===
-                // 1. 清空所有子菜单
-                this.ai_openai_compatible_trans.DropDownItems.Clear();
-                // 2. 移除可能存在的子菜单点击逻辑（虽然清空了Items，但习惯上解绑是个好习惯）
-                // 3. 重新绑定默认的父级点击事件（防止重复绑定，先减后加）
-                this.ai_openai_compatible_trans.Click -= new EventHandler(this.Trans_ai_openai_compatible_Click);
-                this.ai_openai_compatible_trans.Click += new EventHandler(this.Trans_ai_openai_compatible_Click);
-                // 4. 重置当前选中的模式
-                this.currentSelectedAITransMode = null;
-                // === 读取上次保存的模式名称 ===
-                string lastSelectedModeName = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "SelectedMode", "");
-                // 1. 获取配置文件路径 (假设在 Data 目录下)
-                // 这里我们优先使用 Ini 中配置的路径，如果没有则尝试默认路径
-                string configPath = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Config","");
-                if (string.IsNullOrEmpty(configPath))
+                // ================= Step 1: 基础清理与准备 =================
+                ToolStripMenuItem parentMenu = this.ai_menu_trans;
+                if (parentMenu == null) return;
+
+                // 清理旧的动态菜单
+                for (int i = parentMenu.DropDownItems.Count - 1; i >= 0; i--)
                 {
-                    configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "AITranslateConfig.json");
-                    if (File.Exists(configPath))
+                    if (parentMenu.DropDownItems[i].Tag?.ToString() == "DynamicTransProvider")
                     {
-                        IniHelper.SetValue("OpenAICompatibleTrans", "Config", configPath);
+                        parentMenu.DropDownItems.RemoveAt(i);
                     }
                 }
 
-                // 2. 如果文件不存在，直接结束（此时菜单已重置为默认的三级菜单）
-                if (!File.Exists(configPath))
+                // 读取厂商列表(CustomOpenAIProviders.json)
+                string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "CustomOpenAITransProviders.json");
+                if (!File.Exists(jsonPath)) return;
+
+                var providers = JsonConvert.DeserializeObject<List<CustomAITransProvider>>(File.ReadAllText(jsonPath));
+                if (providers == null) return;
+
+                // 添加分割线
+                parentMenu.DropDownItems.Add(new ToolStripSeparator { Tag = "DynamicTransProvider" });
+
+                // 读取 INI 记录 (上次选了谁)
+                string lastProviderName = IniHelper.GetValue("OpenAICompatibleTrans", "LastProvider");
+                string lastModeName = IniHelper.GetValue("OpenAICompatibleTrans", "LastMode");
+
+                // 标记：是否已经成功恢复了某个选项（防止多个厂商都去恢复）
+                bool isRestored = false;
+
+                // ================= Step 2: 循环构建菜单 =================
+                foreach (var provider in providers)
                 {
-                    return;
-                }
+                    // 2.1 创建厂商菜单项 (一级)
+                    ToolStripMenuItem providerItem = new ToolStripMenuItem(provider.Name);
+                    providerItem.Tag = "DynamicTransProvider";
+                    // 将构建好的菜单项加入主菜单
+                    parentMenu.DropDownItems.Add(providerItem);
+                    // 准备一个列表来存放这个厂商下所有的模式 (无论是配置文件里的，还是默认生成的)
+                    List<AIMode> availableModes = new List<AIMode>();
 
-                // 3. 读取并解析配置
-                string jsonContent = File.ReadAllText(configPath, Encoding.UTF8);
-                AIConfig aiConfig = JsonConvert.DeserializeObject<AIConfig>(jsonContent);
-
-                // 4. 如果配置有效且有 modes
-                if (aiConfig != null && aiConfig.modes != null && aiConfig.modes.Count > 0)
-                {
-                    // === 核心逻辑：转换为四级菜单 ===
-
-                    // A. 移除父级菜单原有的点击事件 (使其点击只展开子菜单)
-                    this.ai_openai_compatible_trans.Click -= new EventHandler(this.Trans_ai_openai_compatible_Click);
-                    
-                    // B. 清空可能存在的旧项
-                    this.ai_openai_compatible_trans.DropDownItems.Clear();
-
-                    // C. 动态添加子菜单项
-                    foreach (var mode in aiConfig.modes)
+                    // 2.2 尝试加载子菜单配置 (二级)
+                    if (!string.IsNullOrEmpty(provider.ModelConfigPath))
                     {
-                        ToolStripMenuItem modeItem = new ToolStripMenuItem();
-                        modeItem.Text = mode.mode; // 显示名称
-                        modeItem.Tag = mode;       // 将 mode 对象存储在 Tag 中
-                        // === 【新增】比对并恢复选中状态 ===
-                        // 如果当前遍历的模式名称 等于 上次保存的名称
-                        if (!string.IsNullOrEmpty(lastSelectedModeName) && mode.mode == lastSelectedModeName)
-                        {
-                            modeItem.Checked = true;             // 恢复UI勾选
-                            this.currentSelectedAITransMode = mode;   // 恢复内存变量
-                        }
-                        modeItem.Click += new EventHandler(this.AI_Trans_SubMenu_Click); // 绑定点击事件
+                        // 处理相对路径/绝对路径
+                        string configFullPath = provider.ModelConfigPath;
+                        if (!Path.IsPathRooted(configFullPath))
+                            configFullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configFullPath);
 
-                        // 可以根据描述添加 ToolTipText
-                        if (!string.IsNullOrEmpty(mode.description))
+                        if (File.Exists(configFullPath))
                         {
-                            modeItem.ToolTipText = mode.description;
+                            try
+                            {
+                                var configObj = JsonConvert.DeserializeObject<AIConfig>(File.ReadAllText(configFullPath, Encoding.UTF8));
+                                if (configObj != null && configObj.modes != null)
+                                {
+                                    availableModes.AddRange(configObj.modes);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                /* 忽略配置读取错误 */
+                                Debug.WriteLine("配置文件存在，但读取出错：" + ex.Message);
+                            }
                         }
-
-                        this.ai_openai_compatible_trans.DropDownItems.Add(modeItem);
                     }
-                    // === 【关键修改点】 ===
-                    // 逻辑：没存就是第一个，存的找不到就不管它
 
-                    // 只有当 lastSelectedModeName 是空字符串（从未设置过）时，才自动选第一个
-                    //    if (string.IsNullOrEmpty(lastSelectedModeName) && this.ai_openai_compatible.DropDownItems.Count > 0)
-                    //    {
-                    //        if (this.ai_openai_compatible.DropDownItems[0] is ToolStripMenuItem firstItem)
-                    //        {
-                    //            firstItem.Checked = true;
-                    //            if (firstItem.Tag is AIMode firstMode)
-                    //            {
-                    //                this.currentSelectedAITransMode = firstMode;
-                    //                // 既然自动帮你选了第一个，顺便保存一下，下次就不算"没存过"了
-                    //                IniHelper.SetValue("OpenAICompatibleTrans", "SelectedMode", firstMode.mode);
-                    //                // CommonHelper.ShowHelpMsg("未选择模式，将使用配置文件里第一个模式");
-                    //                Debug.WriteLine("Fmmain.AI.Translate.cs--未选择模式，将使用配置文件里第一个模式");
-                    //            }
-                    //        }
-                    //    }
+                    // 2.3 如果没有加载到任何模式，添加一个“默认模式”保底
+                    if (availableModes.Count == 0)
+                    {
+                        availableModes.Add(new AIMode
+                        {
+                            mode = "默认模式",
+                            prompt = "请翻译文本：",
+                            temperature = 0.5
+                        });
+                    }
+
+                    // 2.4 将模式列表渲染到 UI，并检查是否匹配上次记录
+                    //成功匹配
+                    bool foundMatchInThisProvider = false; // 标记：在这个厂商里是否找到了上次的模式
+
+                    foreach (var mode in availableModes)
+                    {
+                        ToolStripMenuItem modeItem = new ToolStripMenuItem(mode.mode);
+                        modeItem.ToolTipText = mode.description;
+                        modeItem.Click += (s, e) => SwitchToCustomTranAI(provider, mode);
+
+                        providerItem.DropDownItems.Add(modeItem);
+
+                        // --- 判断逻辑：尝试恢复 ---
+                        // 只有当“还没恢复过” 且 “厂商名对上了” 且 “模式名对上了”
+                        if (!isRestored && provider.Name == lastProviderName && mode.mode == lastModeName)
+                        {
+                            SwitchToCustomTranAI(provider, mode);
+                            modeItem.Checked = true;
+                            isRestored = true;
+                            foundMatchInThisProvider = true;
+                        }
+                    }
+
+                    // ================= Step 3: 单个厂商内的兜底逻辑 / 厂商兜底=================
+
+                    // 场景：ini记录我是选的这个厂商，但是...
+                    if (!isRestored && provider.Name == lastProviderName)
+                    {
+                        // 情况A: 我没找到具体的模式 (foundMatchInThisProvider == false)
+                        // 原因可能是：配置文件改了(模式名变了)，或者配置删了(退化成默认模式)
+                        // 解决：强制选中列表里的第一个模式
+                        if (!foundMatchInThisProvider && availableModes.Count > 0)
+                        {
+                            var fallbackMode = availableModes[0];
+                            SwitchToCustomTranAI(provider, fallbackMode);
+
+                            // UI打钩
+                            if (providerItem.DropDownItems.Count > 0 && providerItem.DropDownItems[0] is ToolStripMenuItem firstItem)
+                                firstItem.Checked = true;
+
+                            isRestored = true;
+                        }
+                    }
+
+
                 }
+
+                // ================= Step 4: 全局终极兜底逻辑/全局兜底 =================
+
+                // 场景：循环跑完了，isRestored 还是 false。
+                // 原因可能是：上次选的厂商直接被删了，或者这是第一次运行软件。
+                // 解决：强制选中所有菜单里的【第一个厂商】的【第一个模式】。
+                if (!isRestored && StaticValue.Translate_Current_API == "CustomOpenAI")
+                {
+                    // 找到第一个厂商菜单项 (跳过分割线)
+                    foreach (ToolStripItem item in parentMenu.DropDownItems)
+                    {
+                        if (item is ToolStripMenuItem firstProviderItem && firstProviderItem.HasDropDownItems)
+                        {
+                            // 模拟点击第一个子项
+                            if (firstProviderItem.DropDownItems[0] is ToolStripMenuItem firstOption)
+                            {
+                                firstOption.PerformClick();
+                                isRestored = true;
+                            }
+                            break; // 处理完就退出
+                        }
+                    }
+                }
+
             }
             catch (Exception ex)
             {
-                // 如果解析出错，不抛出异常，保持默认的三级菜单状态，但在调试窗口输出
-                System.Diagnostics.Debug.WriteLine("加载 AI翻译菜单失败: " + ex.Message);
+                Debug.WriteLine("加载自定义 AI 菜单失败: " + ex.Message);
             }
         }
-
         /// <summary>
-        /// 动态生成的四级子菜单点击事件
+        /// 切换当前使用的 AI 上下文 (点击菜单项时触发)
         /// </summary>
-        private void AI_Trans_SubMenu_Click(object sender, EventArgs e)
-        {
-            if (sender is ToolStripMenuItem clickedItem && clickedItem.Tag is AIMode mode)
-            {
-                // UI更新：实现单选效果
-                foreach (ToolStripItem item in this.ai_openai_compatible_trans.DropDownItems)
-                {
-                    if (item is ToolStripMenuItem menuItem)
-                    {
-                        // 只有当前点击的项设为 true
-                        menuItem.Checked = (menuItem == clickedItem);
-                    }
-                }
-                // 1. 记录当前选中的模式
-                this.currentSelectedAITransMode = mode;
-
-                // 2. 更新父菜单的选中状态或文本（可选，用于提示用户当前选了哪个）
-                // 比如：this.ai_openai_compatible_trans.Text = $"OpenAICompatible ({mode.mode})";
-
-                // === 【新增】保存选中状态到配置文件 ===
-                IniHelper.SetValue("OpenAICompatibleTrans", "SelectedMode", mode.mode);
-                // 3. 触发 翻译 流程
-                // 注意：这里调用 Trans_foreach 会触发 Main_OCR_Thread，最终调用 Trans_OpenAICompatible
-                Trans_foreach("OpenAICompatible");
-            }
-        }
-
-        /// <summary>
-        /// 清除 OpenAI 菜单的所有勾选状态，并重置为默认模式
-        /// </summary>
-        public void ClearAITransConfigSelection()
-        {
-            // 1. 遍历取消视觉上的勾选
-            foreach (ToolStripItem item in this.ai_openai_compatible_trans.DropDownItems)
-            {
-                if (item is ToolStripMenuItem menuItem)
-                {
-                    menuItem.Checked = false;
-                }
-            }
-
-            // 2. 重置内部状态（下次点击父菜单时，将使用默认配置）
-            this.currentSelectedAITransMode = null;
-        }
-
-        /// <summary>
-        /// OpenAICompatible Translate 执行入口 (被 Main_OCR_Thread 调用)
-        /// </summary>
-        public void Trans_OpenAICompatible(string text,string fromLang, string toLang)
+        private void SwitchToCustomTranAI(CustomAITransProvider provider, AIMode mode)
         {
             try
             {
-                // === 【日志代码】开始 ===
-                //string logModeName = this.currentSelectedAITransMode != null
-                //                     ? this.currentSelectedAITransMode.mode
-                //                     : "null (将使用程序内部硬编码默认值)";
-                string logModeName = this.currentSelectedAITransMode != null
-                                     ? JsonConvert.SerializeObject(currentSelectedAITransMode, Formatting.Indented)
-                                     : "null (将使用程序内部硬编码翻译模式默认值)";
-
-                System.Diagnostics.Debug.WriteLine("--------------------------------------------------");
-                System.Diagnostics.Debug.WriteLine($"[FmMain] 准备开始 翻译");
-                System.Diagnostics.Debug.WriteLine($"[FmMain] 当前选中的 currentSelectedAITransMode: {logModeName}");
-                // === 【日志代码】结束 ===
-                //传入当前选中的模式 (currentSelectedAITransMode)
-                // 如果是从三级菜单（默认无配置）进来的，currentSelectedAITransMode 为 null，Helper 会处理
-                googleTranslate_txt = OpenAICompatibleTranslate.Translate(
-                            text,
-                            this.currentSelectedAITransMode,
-                            toLang,
-                            fromLang
-                        );
+                // 1. 更新全局变量
+                this._currentCustomTransProvider = provider;
+                this._currentCustomTransMode = mode;
 
                 
-                // 识别完成后，建议将模式重置为空，或者保留上次选择（取决于你的需求）
-                // 如果希望每次截图都重置为默认，取消下面的注释：
-                // this.currentSelectedAITransMode = null; 
+                Trans_foreach("CustomOpenAI");
+                /// === ★★★ 新增：保存选择到配置文件 ★★★ ===
+                // 这样下次启动时，我们就能知道上次选的是谁
+                try
+                {
+                    IniHelper.SetValue("OpenAICompatibleTrans", "LastProvider", provider.Name);
+                    IniHelper.SetValue("OpenAICompatibleTrans", "LastMode", mode.mode);
+                    // 同时也把主接口设为 翻译接口 (虽然 Trans_foreach 会做，但这里双重保险)
+                    IniHelper.SetValue("配置", "翻译接口", "CustomOpenAI");
+                }
+                catch { /* 忽略保存错误 */ }
+
+                // ================== 2. UI 视觉更新 ==================
+
+                // --- A. 第一级：更新 "AI" 主菜单 ---
+                //this.ai_menu_trans.Checked = true; // 给 "AI" 大标题打勾
+                // 更新显示文本 (例如: "AI: DeepSeek - 精确识别")，直观提示用户
+                this.ai_menu_trans.Text = $"AI√: {provider.Name} - {mode.mode}";
+
+                // --- B & C. 第二级(厂商) 和 第三级(模式) 遍历更新 ---
+                foreach (ToolStripItem item in this.ai_menu_trans.DropDownItems)
+                {   // 1. 【调试明确化】如果是分割线，直接跳过 (这样断点就不会停在 null 上了)
+                    if (item is ToolStripSeparator)
+                        continue;
+                    // 跳过分割线，只处理菜单项
+                    if (item is ToolStripMenuItem providerItem)
+                    {
+                        // 判断这是否是当前选中的厂商 (例如 "DeepSeek")
+                        bool isTargetProvider = (providerItem.Text == provider.Name);
+
+                        // 勾选/取消勾选 厂商菜单
+                        providerItem.Checked = isTargetProvider;
+
+                        // 如果这个厂商有子菜单 (即模式列表)，继续深入遍历
+                        if (providerItem.HasDropDownItems)
+                        {
+                            foreach (ToolStripItem subItem in providerItem.DropDownItems)
+                            {
+                                if (subItem is ToolStripMenuItem modeItem)
+                                {
+                                    if (isTargetProvider)
+                                    {
+                                        // ★ 关键逻辑：只有在厂商匹配的情况下，才去比对模式名称
+                                        // 这样可以避免不同厂商有同名模式(如"默认模式")导致的误勾选
+                                        bool isTargetMode = (modeItem.Text == mode.mode);
+                                        modeItem.Checked = isTargetMode;
+                                    }
+                                    else
+                                    {
+                                        // 如果厂商都不是这个，那它下面的模式肯定不能勾选
+                                        modeItem.Checked = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //// 3. 更新状态栏提示
+                //if (ai_menu_trans != null)
+                //    ai_menu_trans.Text = $"AI: {provider.Name} - {mode.mode}";
+
             }
             catch (Exception ex)
             {
-                googleTranslate_txt = "OpenAICompatibleTrans 接口调用出错: " + ex.Message;
+                // ★★★ 如果报错，这里会弹窗告诉你原因 ★★★
+                MessageBox.Show($"切换接口时发生错误：\n{ex.Message}\n\n堆栈信息：\n{ex.StackTrace}", "错误提示");
             }
+        }
+
+
+
+
+
+        /// <summary>
+        /// OpenAICompatibleTrans Translate 执行入口 (被 Main_OCR_Thread 调用)
+        /// </summary>
+        // 注意返回值从 void 变成了 async Task
+        public async Task<string> Trans_OpenAICompatible(string text,string fromLang,string toLang)
+        {
+            try
+            {
+                // 1. 检查配置
+                if (this._currentCustomTransProvider == null)
+                {
+                    return "错误：未选择有效的翻译接口配置。请在菜单中重新选择";
+                }
+                string apiurl = _currentCustomTransProvider.ApiUrl.TrimEnd('/');
+                if (!apiurl.EndsWith("/chat/completions")) apiurl += "/chat/completions";
+                string system_prompt = _currentCustomTransMode.system_prompt;
+                if (!string.IsNullOrEmpty(system_prompt))
+                {
+                    system_prompt = ReplaceLangPlaceholder(_currentCustomTransMode.system_prompt, fromLang, toLang);
+                }
+                string user_prompt= _currentCustomTransMode.prompt;
+                if (!string.IsNullOrEmpty(user_prompt))
+                {
+                    user_prompt = ReplaceLangPlaceholder(_currentCustomTransMode.prompt, fromLang, toLang);
+
+                }
+                string assistant_prompt=_currentCustomTransMode.assistant_prompt;
+                if (!string.IsNullOrEmpty(assistant_prompt))
+                {
+                    assistant_prompt = ReplaceLangPlaceholder(_currentCustomTransMode.assistant_prompt, fromLang, toLang);
+
+                }
+                AIMode aIMode = new AIMode
+                {
+                    mode = _currentCustomTransMode.mode,
+                    description = _currentCustomTransMode.description,
+                    system_prompt = system_prompt,
+                    prompt = user_prompt,
+                    assistant_prompt=assistant_prompt,
+                    temperature = _currentCustomTransMode.temperature,
+                    enable_thinking= _currentCustomTransMode.enable_thinking,
+                    stream=_currentCustomTransMode.stream,
+
+                };
+                // 2. ★★★ 关键修改：使用 Task.Run 在后台执行耗时操作 ★★★
+                // 这样主线程不会卡死，而且你可以使用 await 等待它完成
+                string result = await Task.Run(() =>
+                {
+                    // 这里调用底层的同步方法（它内部用 .Result 阻塞，但阻塞的是后台线程，不影响UI）
+                    return OpenAICompatibleTranslate.Translate(
+                    text,
+                    apiurl,
+                    _currentCustomTransProvider.ApiKey,
+                    _currentCustomTransProvider.ModelName,
+                    aIMode
+                    );
+                });
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return "翻译接口调用出错: " + ex.Message;
+            }
+        }
+        // 辅助方法：安全的字符串替换
+        private string ReplaceLangPlaceholder(string template, string from, string to)
+        {
+            // 如果原字段是 null 或空，直接返回 null，保持副本结构一致
+            if (string.IsNullOrEmpty(template)) return null;
+
+            // 处理默认语言参数
+            string f = string.IsNullOrEmpty(from) || from == "auto" ? "Auto Detect" : from;
+            string t = string.IsNullOrEmpty(to) ? "Simplified Chinese" : to;
+
+            // 执行替换
+            return template.Replace("${fromlang}", f).Replace("${tolang}", t);
         }
     }
 }

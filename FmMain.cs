@@ -857,7 +857,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
                     break;
             }
 
-            // 尝试获取翻译配置，如果不存在则使用默认配置
+            // 尝试获取翻译配置，如果不存在则使用默认配置（非ai接口）
             if (!StaticValue.Translate_Configs.TryGetValue(sectionName, out var config))
             {
                 config = new StaticValue.TranslateConfig { Source = "auto", Target = "自动判断" };
@@ -866,13 +866,13 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
             string toLang;
 			string fromLang;
             //如果临时源语言(overrideSource)不为空，则使用它，否则才用配置文件中的
-            if (sectionName != "OpenAICompatible")
+            if (sectionName != "CustomOpenAI")
 			{
                 fromLang = overrideSource ?? config.Source;
 			}
 			else
 			{
-				fromLang= overrideSource ?? StaticValue.OpenAICompatible_Trans_Source;
+				fromLang= overrideSource ?? _currentCustomTransProvider.Source;
 
             }
 
@@ -882,7 +882,7 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
                 toLang = overrideTarget;
             }
             // 根据目标语言配置自动判断需要翻译成的语言
-            else if ((sectionName!= "OpenAICompatible" && config.Target == "自动判断")||((sectionName == "OpenAICompatible" && StaticValue.OpenAICompatible_Trans_Target == "自动判断")) )
+            else if ((sectionName!= "CustomOpenAI" && config.Target == "自动判断")||((sectionName == "CustomOpenAI" && _currentCustomTransProvider.Target == "自动判断")) )
             {
                 toLang = "en"; // 默认翻译为英文
                 if (StaticValue.ZH2EN)
@@ -944,9 +944,9 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
             else
             {
                 // 使用配置中指定的目标语言
-                    if (sectionName == "OpenAICompatible")
+                    if (sectionName == "CustomOpenAI")
 					{	
-						toLang = StaticValue.OpenAICompatible_Trans_Target;
+						toLang = _currentCustomTransProvider.Target;
 					}
                     else
                     {
@@ -1013,27 +1013,8 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
                 case "百度2":
                     googleTranslate_txt = await BaiduTranslator2Helper.TranslateAsync(textToTranslate, fromLang, toLang);
                     break;
-                case "OpenAICompatible": // 注意：这个名字要和 Trans_foreach 里设置的一致
-                                         // 调用 OpenAICompatibleTranslate.Translate
-                                         // textToTranslate: 原文
-                                         // currentSelectedAITransMode: 当前选中的模式 (定义在 FmMain.AI.Translate.cs 中)
-                                         // toLang: 目标语言
-                                         // fromLang: 源语言
-                                         // 注意：这里通常不需要 await，因为 Translate 内部用了 .Result (同步等待)，除非你改造 Helper 为异步
-                                         //await System.Threading.Tasks.Task.Run(() =>
-                                         //{
-                                         //	googleTranslate_txt = OpenAICompatibleTranslate.Translate(
-                                         //	 textToTranslate,
-                                         //						 this.currentSelectedAITransMode,
-                                         //						 toLang,
-                                         //						 fromLang
-                                         //					 );
-                                         //});
-                    await System.Threading.Tasks.Task.Run(() =>
-                    {
-                        Trans_OpenAICompatible(textToTranslate, fromLang, toLang);
-
-                    });
+                case "CustomOpenAI":
+                    googleTranslate_txt = await Trans_OpenAICompatible(textToTranslate, fromLang, toLang);
                     break;
                 // =============== 【新增代码结束】 ===============
                 default:
@@ -2128,7 +2109,8 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			// 【新增】加载 AI 动态菜单
     		//LoadAIConfigMenus();
 			LoadCustomOpenAIMenus();
-			LoadAITranConfigMenus();
+			//LoadAITranConfigMenus();
+			LoadCustomOpenAITransMenus();
 			
 			// 初始化OCR接口配置
 			interface_flag = GetConfigValueSafely("配置", "接口", "搜狗");
@@ -2272,8 +2254,6 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		/// <param name="e">事件参数</param>
 		public void tray_Set_Click(object sender, EventArgs e)
 		{
-            string oldPath = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "");
-            string oldPath2 = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Config", "");
             // 取消注册所有热键
             HelpWin32.UnregisterHotKey(Handle, 200);
 			HelpWin32.UnregisterHotKey(Handle, 205);
@@ -2290,27 +2270,13 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			fmSetting.ShowDialog();
             //设置窗口关闭后
            
-			//更新AI缓存
-            OpenAICompatibleTranslate.ResetCache();
 
-			//更新AI接口设置后，清理ini里的AI模式
-			string newPath = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "");
-            if (newPath != oldPath)
-            {
-                string iniFile = AppDomain.CurrentDomain.BaseDirectory + "Data\\config.ini";
-                IniHelper.RemoveKey("OpenAICompatible", "SelectedMode", iniFile);
-            }
-
-			string newPath2 = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Config", "");
-            if (newPath2 != oldPath2)
-            {
-                string iniFile = AppDomain.CurrentDomain.BaseDirectory + "Data\\config.ini";
-                IniHelper.RemoveKey("OpenAICompatibleTrans", "SelectedMode", iniFile);
-            }
+			
 			 //刷新 AI 菜单，这行代码写在fmsetting里也行，写在这里也行
             //LoadAIConfigMenus();
 			LoadCustomOpenAIMenus();
-            LoadAITranConfigMenus();
+            //LoadAITranConfigMenus();
+			LoadCustomOpenAITransMenus();
 			if (fmSetting.DialogResult == DialogResult.OK)
 			{
 				// 在重新加载配置前，保存旧的百度密钥
@@ -7251,17 +7217,49 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			trans_caiyun2.Text = "彩云2";
 			trans_baidu2.Text = "百度2";
 			ai_menu_trans.Text = "AI";
-			ai_openai_compatible_trans.Text="OpenAICompatible";
+            //ai_openai_compatible_trans.Text="OpenAICompatible";
 
 
-			if (!string.IsNullOrEmpty(name) && name != "OpenAICompatible")
+            //if (!string.IsNullOrEmpty(name) && name != "OpenAICompatible")
+            //         {
+            //             // 清除openai兼容菜单的子菜单的勾选项
+            //             //ClearAITransConfigSelection();
+            //         }
+            if (!string.IsNullOrEmpty(name) && name != "CustomOpenAI") // 只要不是点 AI
             {
-                // 清除openai兼容菜单的子菜单的勾选项
-                ClearAITransConfigSelection();
+                // 1. 清除 AI 主菜单的勾选和文字
+                if (ai_menu_trans != null)
+                {
+                    //ai_menu_trans.Checked = false;
+                    ai_menu_trans.Text = "AI"; // 恢复默认文字，去掉 "√" 或 "DeepSeek..."
+
+                    // 2. 清除 AI 子菜单的勾选 (可选，保持子菜单选中状态也不错，看你习惯
+                    // 遍历所有AI接口(厂商) (第二级)
+                    foreach (ToolStripItem item in ai_menu_trans.DropDownItems)
+                    {
+                        if (item is ToolStripMenuItem providerItem)
+                        {
+                            // 清除厂商勾选
+                            providerItem.Checked = false;
+
+                            // 3. ★★★ 关键：深入遍历模式 (第三级) 并清除勾选 ★★★
+                            if (providerItem.HasDropDownItems)
+                            {
+                                foreach (ToolStripItem subItem in providerItem.DropDownItems)
+                                {
+                                    if (subItem is ToolStripMenuItem modeItem)
+                                    {
+                                        modeItem.Checked = false; // 清除模式勾选
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
-			// 根据选择的翻译接口设置对应按钮文本
-			if (name == "百度")
+            // 根据选择的翻译接口设置对应按钮文本
+            if (name == "百度")
 			{
 				trans_baidu.Text = "百度√";
 			}
@@ -7309,14 +7307,19 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			{
 				trans_baidu2.Text = "百度2√";
 			}
-			if (name == "OpenAICompatible")
+			//if (name == "OpenAICompatible")
+			//{
+			//	ai_menu_trans.Text = "AI√";
+			//	ai_openai_compatible_trans.Text = "OpenAICompatible√";
+			//}
+			if (name == "CustomOpenAI")
 			{
 				ai_menu_trans.Text = "AI√";
-				ai_openai_compatible_trans.Text = "OpenAICompatible√";
 			}
 
 
-			
+
+
 			// 保存翻译接口配置
 			IniHelper.SetValue("配置", "翻译接口", name);
 			
