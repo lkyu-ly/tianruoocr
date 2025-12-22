@@ -62,7 +62,8 @@ namespace TrOCR
                     // 2.1 创建厂商菜单项 (一级)
                     ToolStripMenuItem providerItem = new ToolStripMenuItem(provider.Name);
                     providerItem.Tag = "DynamicProvider";
-
+                    // 将构建好的菜单项加入主菜单
+                    parentMenu.DropDownItems.Add(providerItem);
                     // 准备一个列表来存放这个厂商下所有的模式 (无论是配置文件里的，还是默认生成的)
                     List<AIMode> availableModes = new List<AIMode>();
 
@@ -147,8 +148,7 @@ namespace TrOCR
                         }
                     }
 
-                    // 将构建好的菜单项加入主菜单
-                    parentMenu.DropDownItems.Add(providerItem);
+                    
                 }
 
                 // ================= Step 4: 全局终极兜底逻辑/全局兜底 =================
