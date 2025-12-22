@@ -34,6 +34,15 @@ namespace TrOCR
         // 防抖标志：防止代码赋值 Text 属性时触发 TextChanged 事件导致死循环
         private bool _isUserAction = true;
 
+        // 使用 BindingList 可以在数据修改时自动通知 UI 刷新
+        private BindingList<CustomAITransProvider> _customTransProviders;
+
+        // 当前正在编辑的对象引用
+        private CustomAITransProvider _currentEditingTransProvider = null;
+
+        // 防抖标志：防止代码赋值 Text 属性时触发 TextChanged 事件导致死循环
+        private bool _isUserActionTrans = true;
+
         private Dictionary<Control, Point> _originalControlLocations;
 
 		private readonly Dictionary<string, string> shortcutMappings = new Dictionary<string, string>
@@ -236,6 +245,193 @@ namespace TrOCR
                 else
                 {
                     txt_ConfigPath.Text = fullPath;
+                }
+            }
+        }
+        private void LoadCustomAITransProviders()
+        {
+            string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "CustomOpenAITransProviders.json");
+            List<CustomAITransProvider> list = null;
+
+            // 1. 读取 JSON
+            if (File.Exists(jsonPath))
+            {
+                try
+                {
+                    string json = File.ReadAllText(jsonPath);
+                    list = JsonConvert.DeserializeObject<List<CustomAITransProvider>>(json);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("读取自定义翻译接口配置失败: " + ex.Message);
+                }
+            }
+
+            // 如果为空，创建一个空列表
+            if (list == null) list = new List<CustomAITransProvider>();
+
+            // 2. 转换为 BindingList 并绑定到 ListBox
+            _customTransProviders = new BindingList<CustomAITransProvider>(list);
+
+            lb_CustomTransProviders.DataSource = _customTransProviders;
+            lb_CustomTransProviders.DisplayMember = "Name"; // ListBox 显示 "Name" 属性
+            lb_CustomTransProviders.ValueMember = "Id";
+
+            // 3. 绑定选中事件
+            lb_CustomTransProviders.SelectedIndexChanged += lb_CustomTransProviders_SelectedIndexChanged;
+
+            // 4. 触发一次选中逻辑以初始化界面状态
+            lb_CustomTransProviders_SelectedIndexChanged(null, null);
+        }
+        private void lb_CustomTransProviders_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // 获取当前选中的项
+            if (lb_CustomTransProviders.SelectedItem is CustomAITransProvider item)
+            {
+                _currentEditingTransProvider = item;
+                _isUserActionTrans = false; // ★ 暂停事件触发，防止 TextChanged 误伤
+
+                // 填充右侧 TextBoxes
+                txt_Trans_Name.Text = item.Name;
+                txt_Trans_ApiUrl.Text = item.ApiUrl;
+                txt_Trans_ApiKey.Text = item.ApiKey;
+                txt_Trans_ModelName.Text = item.ModelName;
+                txt_Trans_ConfigPath.Text = item.ModelConfigPath;
+				txt_Trans_Source.Text = item.Source;
+				txt_Trans_Target.Text = item.Target;
+
+                // 启用右侧控件
+                ToggleTransDetailPanel(true);
+
+                _isUserActionTrans = true; // ★ 恢复事件
+            }
+            else
+            {
+                _currentEditingTransProvider = null;
+                _isUserActionTrans = false;
+
+                // 清空右侧
+                txt_Trans_Name.Clear();
+                txt_Trans_ApiUrl.Clear();
+                txt_Trans_ApiKey.Clear();
+                txt_Trans_ModelName.Clear();
+                txt_Trans_ConfigPath.Clear();
+				txt_Trans_Source.Clear();
+				txt_Trans_Target.Clear();
+
+                // 禁用右侧控件
+                ToggleTransDetailPanel(false);
+
+                _isUserActionTrans = true;
+            }
+        }
+
+        // 辅助方法：控制右侧是否可编辑
+        private void ToggleTransDetailPanel(bool enable)
+        {
+            txt_Trans_Name.Enabled = enable;
+            txt_Trans_ApiUrl.Enabled = enable;
+            txt_Trans_ApiKey.Enabled = enable;
+            txt_Trans_ModelName.Enabled = enable;
+            txt_Trans_ConfigPath.Enabled = enable;
+            btn_Trans_BrowseConfig.Enabled = enable;
+            txt_Trans_Source.Enabled = enable;
+            txt_Trans_Target.Enabled = enable;
+        }
+        // 1. 名称修改 (特殊处理：需要刷新 ListBox 显示)
+        private void txt_Trans_Name_TextChanged(object sender, EventArgs e)
+        {
+            if (!_isUserActionTrans || _currentEditingTransProvider == null) return;
+
+            _currentEditingTransProvider.Name = txt_Trans_Name.Text;
+
+            // 强制 ListBox 刷新显示的文字
+            _customTransProviders.ResetBindings();
+        }
+
+        // 2. 其他字段修改
+        private void txt_Trans_ApiUrl_TextChanged(object sender, EventArgs e)
+        {
+			if (!_isUserActionTrans || _currentEditingTransProvider == null) return;
+            _currentEditingTransProvider.ApiUrl = txt_Trans_ApiUrl.Text;
+        }
+
+        private void txt_Trans_ApiKey_TextChanged(object sender, EventArgs e)
+        {
+            if (!_isUserActionTrans || _currentEditingTransProvider == null) return;
+            _currentEditingTransProvider.ApiKey = txt_Trans_ApiKey.Text;
+        }
+
+        private void txt_Trans_ModelName_TextChanged(object sender, EventArgs e)
+        {
+            if (!_isUserActionTrans || _currentEditingTransProvider == null) return;
+            _currentEditingTransProvider.ModelName = txt_Trans_ModelName.Text;
+        }
+
+        private void txt_Trans_ConfigPath_TextChanged(object sender, EventArgs e)
+        {
+            if (!_isUserActionTrans || _currentEditingTransProvider == null) return;
+            _currentEditingTransProvider.ModelConfigPath = txt_Trans_ConfigPath.Text;
+        }
+        private void txt_Trans_Source_TextChanged(object sender, EventArgs e)
+        {
+            if (!_isUserActionTrans || _currentEditingTransProvider == null) return;
+            _currentEditingTransProvider.Source = txt_Trans_Source.Text;
+        }
+        private void txt_Trans_Target_TextChanged(object sender, EventArgs e)
+        {
+            if (!_isUserActionTrans || _currentEditingTransProvider == null) return;
+            _currentEditingTransProvider.Target = txt_Trans_Target.Text;
+        }
+        // 添加按钮
+        private void btn_Trans_Add_Provider_Click(object sender, EventArgs e)
+        {
+            var newItem = new CustomAITransProvider
+            {
+                Name = "OpenAI兼容 " + (_customTransProviders.Count + 1),
+                ApiUrl = "https://api.openai.com/v1",
+                ModelName = "gpt-4o"
+            };
+
+            _customTransProviders.Add(newItem);
+
+            // 自动选中新加的这一项
+            lb_CustomTransProviders.SelectedItem = newItem;
+        }
+
+        // 删除按钮
+        private void btn_Trans_Del_Provider_Click(object sender, EventArgs e)
+        {
+            if (lb_CustomTransProviders.SelectedItem is CustomAITransProvider item)
+            {
+                if (MessageBox.Show($"确定删除接口“{item.Name}”吗？", "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    _customTransProviders.Remove(item);
+                }
+            }
+        }
+
+        // 浏览配置文件按钮
+        private void btn_Trans_BrowseConfig_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Title = "选择模型配置文件 (JSON)";
+            dlg.Filter = "JSON Files|*.json|All Files|*.*";
+            dlg.InitialDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                string fullPath = dlg.FileName;
+                string appPath = AppDomain.CurrentDomain.BaseDirectory;
+
+                // 如果文件在程序目录下，转为相对路径（更美观，便携）
+                if (fullPath.StartsWith(appPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    txt_Trans_ConfigPath.Text = fullPath.Substring(appPath.Length).TrimStart('\\', '/');
+                }
+                else
+                {
+                    txt_Trans_ConfigPath.Text = fullPath;
                 }
             }
         }
@@ -1013,12 +1209,12 @@ namespace TrOCR
 			//txtOpenAICompatibleKey.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "APIKey", "") ;
 			//txtOpenAICompatibleConfig.Text = TrOCRUtils.LoadSetting("OpenAICompatible", "Config", "") ;
 			// 读取OpenAICompatible 翻译配置
-			txtOpenAICompatibleTransBaseUrl.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "BaseUrl","") ;
-			txtOpenAICompatibleTransModel.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Model", "") ;
-			txtOpenAICompatibleTransKey.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "APIKey", "") ;
-			txtOpenAICompatibleTransConfig.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Config", "") ;
-			textBox_OpenAICompatible_Source.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Source", "Auto Detect") ;
-			textBox_OpenAICompatible_Target.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Target", "自动判断") ;
+			//txtOpenAICompatibleTransBaseUrl.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "BaseUrl","") ;
+			//txtOpenAICompatibleTransModel.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Model", "") ;
+			//txtOpenAICompatibleTransKey.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "APIKey", "") ;
+			//txtOpenAICompatibleTransConfig.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Config", "") ;
+			//textBox_OpenAICompatible_Source.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Source", "Auto Detect") ;
+			//textBox_OpenAICompatible_Target.Text = TrOCRUtils.LoadSetting("OpenAICompatibleTrans", "Target", "自动判断") ;
 			//文本改变后自动翻译的延时
 			textBox38.Text=TrOCRUtils.LoadSetting("配置", "文本改变自动翻译延时", "5000");
 			//工具栏图标放大倍数
@@ -1198,6 +1394,7 @@ namespace TrOCR
 			textBox7.TextChanged += TextBox_RapidOCR_TextChanged;
 
             LoadCustomAIProviders();
+			LoadCustomAITransProviders();
         }
 
 		/// <summary>
@@ -2295,15 +2492,26 @@ namespace TrOCR
                 MessageBox.Show("保存自定义接口失败: " + ex.Message);
             }
             // 保存OpenAICompatible 翻译配置
-            IniHelper.SetValue("OpenAICompatibleTrans", "BaseUrl", txtOpenAICompatibleTransBaseUrl.Text);
-			IniHelper.SetValue("OpenAICompatibleTrans", "Model", txtOpenAICompatibleTransModel.Text);
-			IniHelper.SetValue("OpenAICompatibleTrans", "APIKey", txtOpenAICompatibleTransKey.Text);
-			IniHelper.SetValue("OpenAICompatibleTrans", "Config", txtOpenAICompatibleTransConfig.Text);
-			IniHelper.SetValue("OpenAICompatibleTrans", "Source", textBox_OpenAICompatible_Source.Text);
-			IniHelper.SetValue("OpenAICompatibleTrans", "Target", textBox_OpenAICompatible_Target.Text);
+            // IniHelper.SetValue("OpenAICompatibleTrans", "BaseUrl", txtOpenAICompatibleTransBaseUrl.Text);
+            //IniHelper.SetValue("OpenAICompatibleTrans", "Model", txtOpenAICompatibleTransModel.Text);
+            //IniHelper.SetValue("OpenAICompatibleTrans", "APIKey", txtOpenAICompatibleTransKey.Text);
+            //IniHelper.SetValue("OpenAICompatibleTrans", "Config", txtOpenAICompatibleTransConfig.Text);
+            //IniHelper.SetValue("OpenAICompatibleTrans", "Source", textBox_OpenAICompatible_Source.Text);
+            //IniHelper.SetValue("OpenAICompatibleTrans", "Target", textBox_OpenAICompatible_Target.Text);
+            // === 新增：保存自定义 AI 接口列表 ===
+            try
+            {
+                string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "CustomOpenAITransProviders.json");
+                string json = JsonConvert.SerializeObject(_customTransProviders, Formatting.Indented);
+                File.WriteAllText(jsonPath, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("保存自定义翻译接口失败: " + ex.Message);
+            }
 
-			//文本改变后自动翻译的延时
-			IniHelper.SetValue("配置", "文本改变自动翻译延时",textBox38.Text );
+            //文本改变后自动翻译的延时
+            IniHelper.SetValue("配置", "文本改变自动翻译延时",textBox38.Text );
 			//工具栏图标放大倍数
 			IniHelper.SetValue("工具栏", "图标放大倍数",textBox37.Text );
 
@@ -3025,10 +3233,10 @@ namespace TrOCR
             label_OcrApiHelpText.Text = helpText;
         }
 
-        private void btn_OpenAICompatible_Trans_Config_Browse_Click(object sender, EventArgs e)
-        {
-            BrowseAdvancedConfigModelFile(txtOpenAICompatibleTransConfig, "OpenAICompatible翻译配置文件");
-        }
+        //private void btn_OpenAICompatible_Trans_Config_Browse_Click(object sender, EventArgs e)
+        //{
+        //    BrowseAdvancedConfigModelFile(txtOpenAICompatibleTransConfig, "OpenAICompatible翻译配置文件");
+        //}
 
        
     }

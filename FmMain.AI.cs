@@ -192,11 +192,9 @@ namespace TrOCR
                 this._currentCustomProvider = provider;
                 this._currentCustomMode = mode;
 
-                // 重要：告诉程序当前选的是自定义类型
+                // 告诉程序当前选的是自定义类型
                 //StaticValue.OCR_Current_API = "CustomOpenAI";
-                // 2. ★★★ 关键修改：设置主窗体的接口标志 ★★★
-                // 告诉 Main_OCR_Thread，现在要用“自定义接口”了
-                //this.interface_flag = "CustomOpenAI";
+       
                 // 2. ★★★ 调用标准切换流程 ★★★
                 // 这会自动设置 interface_flag = "CustomOpenAI" 并调用 Refresh() 重置菜单
                 OCR_foreach("CustomOpenAI");
