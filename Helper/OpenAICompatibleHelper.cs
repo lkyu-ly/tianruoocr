@@ -18,14 +18,7 @@ namespace TrOCR.Helper
 {
     internal class OpenAICompatibleHelper
     {
-        //private static string last_hash = "";
-        //private static string last_result = "";
-
-        //public static void ResetCache()
-        //{
-        //    last_hash = "";
-        //    last_result = "";
-        //}
+        
 
         /// <summary>
         /// 新版 OCR 接口 (V3)，支持多接口切换和高级参数
@@ -45,26 +38,22 @@ namespace TrOCR.Helper
             string apiUrl,
             string apiKey,
             string modelName,
-            string systemPrompt,
-            string userPrompt,
-            string assistantPrompt,
-            double? temperature,
-            bool? enableThinking)
+            AIMode mode)
         {
             // 1. 基础校验
             if (image == null) return "错误：图片为空";
             if (string.IsNullOrEmpty(apiUrl)) return "错误：API 地址未配置";
             if (string.IsNullOrEmpty(apiKey)) return "错误：API Key 未配置";
+            if (string.IsNullOrEmpty(modelName)) return "错误：模型未配置";
+            if (mode == null) return "错误：模式配置为空";
 
-            // 2. 图片哈希缓存检查 (防止重复请求)
-            //string img_hash = GetImageHash((Bitmap)image);
-            //if (img_hash == last_hash && !string.IsNullOrEmpty(last_result))
-            //{
-            //    return last_result;
-            //}
 
             try
             {
+                string systemPrompt = mode.system_prompt;
+                string userPrompt = mode.prompt;
+                string assistantPrompt = mode.assistant_prompt;
+
                 // 3. 图片转 Base64
                 string base64Image = ImageToBase64(image);
 
@@ -79,10 +68,15 @@ namespace TrOCR.Helper
 
                 // (2) User Prompt (混合图文)
                 // 标准 OpenAI Vision 格式
-                var userContent = new List<object>
+                var userContent = new List<object>();
+                if (!string.IsNullOrEmpty(userPrompt))
                 {
-                    new { type = "text", text = userPrompt }
-                };
+                    userContent.Add(new
+                    { 
+                        type = "text", 
+                        text = userPrompt 
+                    });
+                }
 
                 // 添加图片
                 userContent.Add(new
@@ -100,28 +94,23 @@ namespace TrOCR.Helper
                 }
 
                 // 5. 构造请求体 (Request Body)
-                var requestBody = new Dictionary<string, object>
+                // 5.1. 直接定义包含所有字段的匿名对象 (哪怕是 null 也没关系)
+                var requestBody = new
                 {
-                    { "model", modelName },
-                    { "messages", messages },
-                    { "stream", true } // 强制流式，体验更好
+                    model = modelName,
+                    messages = messages,         
+                    temperature = mode.temperature,   
+                    enable_thinking = mode.enable_thinking,
+                    stream = mode.stream
                 };
 
-                // (可选参数) 温度
-                if (temperature.HasValue)
-                {
-                    requestBody["temperature"] = temperature.Value;
-                }
-
-                // (可选参数) 思考模式 / 某些特定 API 的参数
-                // 注意：这里假设厂商 API 支持 enable_thinking 字段
-                if (enableThinking.HasValue)
-                {
-                    requestBody["enable_thinking"] = enableThinking.Value;
-                }
-
                 // 序列化 JSON
-                string jsonPostData = JsonConvert.SerializeObject(requestBody);
+                // 5.2配置序列化设置：忽略 Null 值，过滤掉所有 value 为 null 的字段
+                var jsonSettings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                };
+                string jsonPostData = JsonConvert.SerializeObject(requestBody,jsonSettings);
                 byte[] byteArray = Encoding.UTF8.GetBytes(jsonPostData);
 
                 // 6. 发起 HTTP 请求
@@ -131,67 +120,99 @@ namespace TrOCR.Helper
                 request.ContentType = "application/json";
                 request.Headers.Add("Authorization", "Bearer " + apiKey);
                 request.ContentLength = byteArray.Length;
-                request.Timeout = 30000; // 30秒超时
+                request.Timeout = 60000; // 60秒超时
 
                 using (Stream dataStream = request.GetRequestStream())
                 {
                     dataStream.Write(byteArray, 0, byteArray.Length);
                 }
 
-                // 7. 读取流式响应 (SSE)
+                // 7. ★★★ 智能响应处理 ★★★
                 StringBuilder sb = new StringBuilder();
-                // 如果有 assistant prompt，通常意味着要在结果前拼上它（除非 API 返回包含了它）
-                // 大多数情况 API 不会在 completion 里重复 input 的 assistant 内容，所以我们手动拼上
-                if (!string.IsNullOrEmpty(assistantPrompt))
-                {
-                    sb.Append(assistantPrompt);
-                }
 
-                using (WebResponse response = request.GetResponse())
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) // 强转为 HttpWebResponse 以方便获取 Headers
                 using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream))
+                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
                 {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        line = line.Trim();
-                        if (string.IsNullOrEmpty(line)) continue;
-                        if (line == "data: [DONE]") break; // 结束标志
+                    // A. 获取 Content-Type
+                    string contentType = response.ContentType?.ToLower() ?? "";
 
-                        if (line.StartsWith("data: "))
+                    // B. 判断是否为流式响应 (SSE)
+                    bool isEventStream = contentType.Contains("text/event-stream");
+
+                    // === 分支 1：处理流式响应 ===
+                    if (isEventStream)
+                    {
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
                         {
-                            string json = line.Substring(6); // 去掉 "data: "
-                            try
+                            line = line.Trim();
+                            if (string.IsNullOrEmpty(line)) continue;
+                            if (line == "data: [DONE]") break;
+
+                            if (line.StartsWith("data: "))
                             {
-                                JObject obj = JObject.Parse(json);
-                                // 解析 content
-                                var choices = obj["choices"];
-                                if (choices != null && choices.HasValues)
+                                string json = line.Substring(6);
+                                try
                                 {
-                                    var delta = choices[0]["delta"];
-                                    if (delta != null)
+                                    JObject obj = JObject.Parse(json);
+                                    // 流式格式：choices[0].delta.content
+                                    var content = obj["choices"]?[0]?["delta"]?["content"]?.ToString();
+                                    if (!string.IsNullOrEmpty(content))
                                     {
-                                        string content = delta["content"]?.ToString();
-                                        if (!string.IsNullOrEmpty(content))
-                                        {
-                                            sb.Append(content);
-                                        }
-                                        // 兼容 DeepSeek 等返回 reason/thinking 的情况 (可选)
-                                        // string reason = delta["reasoning_content"]?.ToString();
+                                        sb.Append(content);
                                     }
                                 }
+                                catch { /* 忽略流式解析中的单行错误 */ }
                             }
-                            catch { /* 忽略单行解析错误 */ }
+                        }
+                    }
+                    // === 分支 2：处理普通 JSON 响应 ===
+                    else
+                    {
+                        // 一次性读取所有内容
+                        string jsonResponse = reader.ReadToEnd();
+                        try
+                        {
+                            JObject obj = JObject.Parse(jsonResponse);
+
+                            // 1. 检查是否有错误信息
+                            if (obj["error"] != null)
+                            {
+                                return $"API 报错: {obj["error"]["message"]}";
+                            }
+
+                            // 2. 普通格式：choices[0].message.content
+                            // 注意：这里是 message，不是 delta
+                            var content = obj["choices"]?[0]?["message"]?["content"]?.ToString();
+
+                            if (!string.IsNullOrEmpty(content))
+                            {
+                                sb.Append(content);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // 如果解析失败，返回原始文本方便调试
+                            return $"解析响应失败: {ex.Message} \n原始内容: {jsonResponse}";
                         }
                     }
                 }
 
-                // 8. 缓存并返回结果
-                string finalResult = sb.ToString().Trim();
-                //last_hash = img_hash;
-                //last_result = finalResult;
-
-                return finalResult;
+                return sb.ToString().Trim();
+            }
+            catch (WebException webEx)
+            {
+                // 增加对 WebException 的详细处理，读取服务器返回的错误文本
+                if (webEx.Response != null)
+                {
+                    using (var errStream = webEx.Response.GetResponseStream())
+                    using (var reader = new StreamReader(errStream))
+                    {
+                        return $"请求被拒绝: {reader.ReadToEnd()}";
+                    }
+                }
+                return $"网络错误: {webEx.Message}";
             }
             catch (Exception ex)
             {
@@ -597,15 +618,16 @@ namespace TrOCR.Helper
     public class AIMode
     {
         public string mode { get; set; }
-        public string description { get; set; }
-        public string system_prompt { get; set; }
+        public string? description { get; set; }
+        public string? system_prompt { get; set; }
         //user_prompt
-        public string prompt { get; set; }
-        public string assistant_prompt { get; set; }
+        public string? prompt { get; set; }
+        public string? assistant_prompt { get; set; }
         // 改为可空类型 (double?)，如果 json 里没填，值为 null
         public double? temperature { get; set; }
 
         // 改为可空类型 (bool?)，如果 json 里没填，值为 null
         public bool? enable_thinking { get; set; }
+        public bool? stream { get;set; }
     }
 }

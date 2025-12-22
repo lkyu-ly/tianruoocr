@@ -341,28 +341,21 @@ namespace TrOCR
 
             try
             {
-                // 2. 准备 Prompt 参数 (如果模式为空，就给默认值)
-                string sysPrompt = _currentCustomMode?.system_prompt ?? "";
-                string userPrompt = _currentCustomMode?.prompt ?? "请识别图片中的文字";
-                string assistPrompt = _currentCustomMode?.assistant_prompt;
-                double? temp = _currentCustomMode?.temperature;
-                bool? thinking = _currentCustomMode?.enable_thinking;
-                string baseUrl = _currentCustomProvider.ApiUrl;
-                string apiurl = baseUrl.TrimEnd('/');
+                // 2. 准备 模式 参数 (如果模式为空，就给默认值)，这里就不处理了，想处理可以在OpenAICompatibleHelper的ocr方法里处理
+                //string userPrompt = _currentCustomMode?.prompt ?? "请识别图片中的文字，只说识别结果";
+                string apiurl = _currentCustomProvider.ApiUrl.TrimEnd('/');
                 if (!apiurl.EndsWith("/chat/completions")) apiurl += "/chat/completions";
+
+
 
                 // 3. ★★★ 直接调用 V3 接口 ★★★
                 // 这里不需要 switch 判断，直接把参数传给 OpenAICompatibleHelper
                 string result = OpenAICompatibleHelper.OCR_V3(
                     image_screen,
-                    apiurl,   // URL
-                    _currentCustomProvider.ApiKey,   // Key
-                    _currentCustomProvider.ModelName,// Model
-                    sysPrompt,
-                    userPrompt,
-                    assistPrompt,
-                    temp,
-                    thinking
+                    apiurl,
+                    _currentCustomProvider.ApiKey,
+                    _currentCustomProvider.ModelName,
+                   _currentCustomMode
                 );
 
                 // 4. 处理结果
@@ -437,17 +430,17 @@ namespace TrOCR
                         double? temp = _currentCustomMode?.temperature;
                         bool? thinking = _currentCustomMode?.enable_thinking;
 
-                        result = OpenAICompatibleHelper.OCR_V3(
-                            image_screen,
-                            _currentCustomProvider.ApiUrl,
-                            _currentCustomProvider.ApiKey,
-                            _currentCustomProvider.ModelName,
-                            sysPrompt,
-                            userPrompt,
-                            _currentCustomMode?.assistant_prompt,
-                            temp,
-                            thinking
-                        );
+                        //result = OpenAICompatibleHelper.OCR_V3(
+                        //    image_screen,
+                        //    _currentCustomProvider.ApiUrl,
+                        //    _currentCustomProvider.ApiKey,
+                        //    _currentCustomProvider.ModelName,
+                        //    sysPrompt,
+                        //    userPrompt,
+                        //    _currentCustomMode?.assistant_prompt,
+                        //    temp,
+                        //    thinking
+                        //);
                         break;
                 }
 
