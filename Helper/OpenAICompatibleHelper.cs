@@ -18,14 +18,14 @@ namespace TrOCR.Helper
 {
     internal class OpenAICompatibleHelper
     {
-        private static string last_hash = "";
-        private static string last_result = "";
+        //private static string last_hash = "";
+        //private static string last_result = "";
 
-        public static void ResetCache()
-        {
-            last_hash = "";
-            last_result = "";
-        }
+        //public static void ResetCache()
+        //{
+        //    last_hash = "";
+        //    last_result = "";
+        //}
 
         /// <summary>
         /// 新版 OCR 接口 (V3)，支持多接口切换和高级参数
@@ -57,11 +57,11 @@ namespace TrOCR.Helper
             if (string.IsNullOrEmpty(apiKey)) return "错误：API Key 未配置";
 
             // 2. 图片哈希缓存检查 (防止重复请求)
-            string img_hash = GetImageHash((Bitmap)image);
-            if (img_hash == last_hash && !string.IsNullOrEmpty(last_result))
-            {
-                return last_result;
-            }
+            //string img_hash = GetImageHash((Bitmap)image);
+            //if (img_hash == last_hash && !string.IsNullOrEmpty(last_result))
+            //{
+            //    return last_result;
+            //}
 
             try
             {
@@ -188,8 +188,8 @@ namespace TrOCR.Helper
 
                 // 8. 缓存并返回结果
                 string finalResult = sb.ToString().Trim();
-                last_hash = img_hash;
-                last_result = finalResult;
+                //last_hash = img_hash;
+                //last_result = finalResult;
 
                 return finalResult;
             }
@@ -200,26 +200,26 @@ namespace TrOCR.Helper
         }
 
         // --- 辅助方法：计算图片哈希 ---
-        private static string GetImageHash(Bitmap bmp)
-        {
-            try
-            {
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    byte[] bytes = ms.ToArray();
-                    using (MD5 md5 = MD5.Create())
-                    {
-                        byte[] hash = md5.ComputeHash(bytes);
-                        return BitConverter.ToString(hash).Replace("-", "").ToLower();
-                    }
-                }
-            }
-            catch
-            {
-                return DateTime.Now.Ticks.ToString(); // 降级处理
-            }
-        }
+        // private static string GetImageHash(Bitmap bmp)
+        // {
+        //     try
+        //     {
+        //         using (MemoryStream ms = new MemoryStream())
+        //         {
+        //             bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+        //             byte[] bytes = ms.ToArray();
+        //             using (MD5 md5 = MD5.Create())
+        //             {
+        //                 byte[] hash = md5.ComputeHash(bytes);
+        //                 return BitConverter.ToString(hash).Replace("-", "").ToLower();
+        //             }
+        //         }
+        //     }
+        //     catch
+        //     {
+        //         return DateTime.Now.Ticks.ToString(); // 降级处理
+        //     }
+        // }
         private static readonly HttpClient httpClient = new HttpClient();
 
         // ===  缓存相关的静态变量 ===

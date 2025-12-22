@@ -2291,7 +2291,6 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
             //设置窗口关闭后
            
 			//更新AI缓存
-			OpenAICompatibleHelper.ResetCache();
             OpenAICompatibleTranslate.ResetCache();
 
 			//更新AI接口设置后，清理ini里的AI模式
