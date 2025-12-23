@@ -45,14 +45,32 @@ namespace TrOCR
 
                 // 读取厂商列表(CustomOpenAITransProviders.json)
                 string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "CustomOpenAITransProviders.json");
-                if (!File.Exists(jsonPath)) return;
+                if (!File.Exists(jsonPath))
+                {
+                    // 没文件 -> 绑定报错
+                    parentMenu.MouseDown -= ShowConfigWarning_MouseDown;
+                    parentMenu.MouseDown += ShowConfigWarning_MouseDown;
+                    return;
+                }
 
                 var providers = JsonConvert.DeserializeObject<List<CustomAITransProvider>>(File.ReadAllText(jsonPath));
-                if (providers == null) return;
+                if (providers == null || providers.Count == 0)
+                {
+                    // 空配置 -> 绑定报错
+                    parentMenu.MouseDown -= ShowConfigWarning_MouseDown;
+                    parentMenu.MouseDown += ShowConfigWarning_MouseDown;
+                    return;
+                }
+                // 有配置 -> 解绑报错，恢复正常
+                parentMenu.MouseDown -= ShowConfigWarning_MouseDown;
 
+                //if (providers.Count > 0)
+                //{
+                //    添加分割线
+                //    parentMenu.DropDownItems.Add(new ToolStripSeparator { Tag = "DynamicTransProvider" });
+                //}
                 // 添加分割线
                 parentMenu.DropDownItems.Add(new ToolStripSeparator { Tag = "DynamicTransProvider" });
-
                 // 读取 INI 记录 (上次选了谁)
                 string lastProviderName = IniHelper.GetValue("OpenAICompatibleTrans", "LastProvider");
                 string lastModeName = IniHelper.GetValue("OpenAICompatibleTrans", "LastMode");

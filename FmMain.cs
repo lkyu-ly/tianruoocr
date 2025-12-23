@@ -149,8 +149,11 @@ namespace TrOCR
 			// 加载并应用记忆的窗口大小
 			LoadWindowState();
 			LogState("Constructor End (Initial State)"); // <--- 添加这一行
-            // ====================【新增代码结束】====================
-         
+                                                         // ====================【新增代码结束】====================
+            // 默认给 AI 菜单绑定“未设置ai接口报错事件”
+            // 稍后在 Load 方法里，如果发现有配置，会把它们解绑的
+            this.ai_menu.MouseDown += ShowConfigWarning_MouseDown;
+            this.ai_menu_trans.MouseDown += ShowConfigWarning_MouseDown;
             if (translationTimer == null)
             {
                 translationTimer = new Timer();
@@ -237,6 +240,20 @@ namespace TrOCR
 			this.RichBoxBody_T.TemporaryTranslateRequested += RichBoxBody_T_OnTemporaryTranslateRequested;
 	
 			
+        }
+        // FmMain.cs
+
+        // 这是一个专门用来“拦截并报错”的事件
+        private void ShowConfigWarning_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+
+            // 判断是哪个菜单触发的，显示对应的提示
+            string msg = "检测到您尚未配置 AI 接口。\n\n请先去设置里配置";
+            if (sender == ai_menu_trans) msg = "检测到您尚未配置 AI 翻译接口。\n\n请先去设置里配置";
+
+            MessageBox.Show(msg, "配置提示", MessageBoxButtons.OK, MessageBoxIcon.None);
+
         }
 
         /// <summary>

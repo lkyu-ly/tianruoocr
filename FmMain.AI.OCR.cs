@@ -42,11 +42,34 @@ namespace TrOCR
 
                 // 读取厂商列表(CustomOpenAIProviders.json)
                 string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "CustomOpenAIProviders.json");
-                if (!File.Exists(jsonPath)) return;
+                // 情况 A: 文件不存在
+                if (!File.Exists(jsonPath))
+                {
+                    // 确保“报错事件”是绑定状态
+                    // (先减一次防止重复绑定，再加一次)
+                    parentMenu.MouseDown -= ShowConfigWarning_MouseDown;
+                    parentMenu.MouseDown += ShowConfigWarning_MouseDown;
+                    return;
+                }
 
                 var providers = JsonConvert.DeserializeObject<List<CustomAIProvider>>(File.ReadAllText(jsonPath));
-                if (providers == null) return;
-
+                // 情况 B: 文件存在但内容为空
+                if (providers == null || providers.Count == 0)
+                {
+                    // 依然需要报错
+                    parentMenu.MouseDown -= ShowConfigWarning_MouseDown;
+                    parentMenu.MouseDown += ShowConfigWarning_MouseDown;
+                    return;
+                }
+                // 情况 C: 成功加载了数据
+                // 既然有数据了，就【解绑】报错事件，让菜单恢复“展开”功能
+                parentMenu.MouseDown -= ShowConfigWarning_MouseDown;
+                //if有点多余了
+                //if (providers.Count > 0)
+                //{
+                //    // 添加分割线
+                //    parentMenu.DropDownItems.Add(new ToolStripSeparator { Tag = "DynamicProvider" });
+                //}
                 // 添加分割线
                 parentMenu.DropDownItems.Add(new ToolStripSeparator { Tag = "DynamicProvider" });
 
