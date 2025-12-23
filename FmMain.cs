@@ -2572,6 +2572,15 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
         public void TransClick(bool hideOriginalDefault =false)
         {
             LogState("TransClick Start");
+            // ====================【修复代码】开始 ====================
+            // 用户手动点击了翻译，说明用户希望立即看到结果。
+            // 此时必须停止自动翻译的倒计时，防止稍后定时器触发导致重复翻译。
+            if (translationTimer != null)
+            {
+                translationTimer.Stop();
+                System.Diagnostics.Debug.WriteLine("用户手动触发翻译，已停止自动翻译定时器");
+            }
+            // ====================【修复代码】结束 ====================
 
             // 【优化1】立即暂停布局，阻止任何中间状态的绘制
             this.SuspendLayout();
@@ -6518,7 +6527,10 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			// 检查是否启用了快速翻译功能
 			if (IniHelper.GetValue("配置", "快速翻译") == "True")
 			{
-				var data = "";
+                // 在这里也停止定时器，防止用户触发textchange启动翻译定时器后又选中文字后按F9，
+                // 为了保险起见，手动介入时最好都停掉自动逻辑
+                if (translationTimer != null) translationTimer.Stop();
+                var data = "";
 				try
 				{
 					// 根据焦点位置获取待翻译文本
