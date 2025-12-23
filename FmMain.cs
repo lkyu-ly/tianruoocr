@@ -1042,8 +1042,11 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 			isContentFromOcr = false;
 			isFromClipboardListener = false;
 
-			// 1. 重置翻译界面，确保只显示主输入窗口			
-			RichBoxBody_T.Visible = false;
+            // 【新增】重置界面时，确保没有残留的自动翻译任务
+            if (translationTimer != null) translationTimer.Stop();
+
+            // 1. 重置翻译界面，确保只显示主输入窗口			
+            RichBoxBody_T.Visible = false;
 			PictureBox1.Visible = false;
 			RichBoxBody_T.Text = "";
 
@@ -1133,22 +1136,45 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 				TransClick();
 			}
 		}
-		/// <summary>
-		/// 托盘菜单"监听翻译"选项点击事件处理函数
-		/// 用于开启或关闭监听剪贴板进行翻译的功能
-		/// </summary>
-		/// <param name="sender">事件发送者</param>
-		/// <param name="e">事件参数</param>
-		private void trayClipListenTranslateClick(object sender, EventArgs e)
+        /// <summary>
+        /// 停止所有正在运行的逻辑定时器 (用于重置状态、关闭窗口或切换模式时)，暂时不使用.手动处理了
+		/// 最核心的原则是：只要发生了“模式切换”或“窗口状态改变”，都应该注意是否停止 translationTimer等定时器。
+        /// </summary>
+        private void StopAllActiveTimers()
+        {
+            if (translationTimer != null)
+                translationTimer.Stop();
+
+            if (clipboardDebounceTimer != null)
+                clipboardDebounceTimer.Stop();
+
+            // autoCopyLockTimer 一般不需要强制停止，因为它负责释放锁，强制停止可能导致锁死。
+            // trayClickTimer 处理托盘点击，也不建议随意停止。
+        }
+        /// <summary>
+        /// 托盘菜单"监听翻译"选项点击事件处理函数
+        /// 用于开启或关闭监听剪贴板进行翻译的功能
+        /// </summary>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">事件参数</param>
+        private void trayClipListenTranslateClick(object sender, EventArgs e)
 		{
 			// 1. 切换核心功能状态 (将 StaticValue 中的布尔值取反)
 			StaticValue.ListenClipboardTranslation = !StaticValue.ListenClipboardTranslation;
 
 			// 2. 持久化设置：将新的状态保存到 config.ini 文件
 			IniHelper.SetValue("配置", "ListenClipboard", StaticValue.ListenClipboardTranslation.ToString());
+            // 【新增】如果用户选择关闭监听，立即停止正在等待的防抖定时器
+            if (!StaticValue.ListenClipboardTranslation)
+            {
+                if (clipboardDebounceTimer != null)
+                {
+                    clipboardDebounceTimer.Stop();
+                }
+            }
 
-			// 3. 给用户一个明确的反馈提示
-			if (StaticValue.ListenClipboardTranslation)
+            // 3. 给用户一个明确的反馈提示
+            if (StaticValue.ListenClipboardTranslation)
 			{
 				CommonHelper.ShowHelpMsg("监听剪贴板翻译已开启");
 			}
@@ -4092,7 +4118,9 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
 		{
 			// 如果正在截图则直接返回
 			if (StaticValue.IsCapture) return;
-			try
+            // 【新增】进入截图模式前，停止所有翻译定时器
+            if (translationTimer != null) translationTimer.Stop();
+            try
 			{
 				// 隐藏主窗口并准备截图
 				change_QQ_screenshot = false;
