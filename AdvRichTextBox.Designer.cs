@@ -44,6 +44,67 @@ namespace TrOCR
     {
         // 【新增】定义一个携带语言数据的公共事件
         public event EventHandler<TempTranslateEventArgs> TemporaryTranslateRequested;
+        // 【新增】定义状态变量：是否正在程序内部修改字体/格式
+        // public 属性，以便 FmMain 也能读取到
+        public bool IsFontChanging { get; private set; } = false;
+        // 【新增】通用字体切换辅助方法
+        // 作用：统一管理状态锁、颜色切换、配置文件保存
+        private void ChangeFontInternal(string fontName, ToolStripItem activeIcon)
+        {
+            // 1. 上锁：告诉外界（FmMain）现在正在改字体，别触发翻译
+            this.IsFontChanging = true;
+
+            try
+            {
+                // 2. 切换图标颜色 UI
+                this.font_宋体.ForeColor = Color.Black;
+                this.font_黑体.ForeColor = Color.Black;
+                this.font_楷体.ForeColor = Color.Black;
+                this.font_微软雅黑.ForeColor = Color.Black;
+                this.font_新罗马.ForeColor = Color.Black;
+
+                if (activeIcon != null)
+                {
+                    activeIcon.ForeColor = Color.Red;
+                }
+
+                // 3. 核心字体切换逻辑
+                // ------------------------------------------------------------
+                // 先暂停重绘，防止闪烁
+                this.richTextBox1.SuspendLayout();
+                string text = this.richTextBox1.Text;
+                this.richTextBox1.Text = ""; // 这步会触发 TextChanged，但因为锁住了，所以安全
+
+                // 特殊处理：这里未来可以添加切换字体时的emojie渲染问题的修复代码
+
+                Font font = new Font(fontName, 16f * Program.Factor, GraphicsUnit.Pixel);
+
+
+                this.richTextBox1.Font = font;
+                this.richTextBox1.Text = text; // 这步也会触发 TextChanged
+
+                // 恢复重绘
+                this.richTextBox1.ResumeLayout();
+
+                // 4. 保存配置
+                // 映射一下显示名和保存名
+                string saveName = fontName;
+                if (fontName == "STKaiti") saveName = "楷体";
+                if (fontName == "Times New Roman") saveName = "新罗马";
+
+                IniHelper.SetValue("工具栏", "字体", saveName);
+            }
+            catch (Exception ex)
+            {
+                // 简单的错误捕获，防止字体不存在导致崩溃
+                System.Diagnostics.Debug.WriteLine("切换字体失败: " + ex.Message);
+            }
+            finally
+            {
+                // 5. 解锁：无论如何都要恢复，防止死锁
+                this.IsFontChanging = false;
+            }
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing && this.components != null)
@@ -812,87 +873,27 @@ namespace TrOCR
 
         public void font_宋体c(object sender, EventArgs e)
         {
-            this.font_宋体.ForeColor = Color.Red;
-            this.font_黑体.ForeColor = Color.Black;
-            this.font_楷体.ForeColor = Color.Black;
-            this.font_微软雅黑.ForeColor = Color.Black;
-            this.font_新罗马.ForeColor = Color.Black;
-            string text = this.richTextBox1.Text;
-            this.richTextBox1.Text = "";
-            Font font = new Font("宋体", 16f * Program.Factor, GraphicsUnit.Pixel);
-            this.richTextBox1.Font = font;
-            this.richTextBox1.Text = text;
-            
-            // 保存字体设置到配置文件
-            IniHelper.SetValue("工具栏", "字体", "宋体");
+            ChangeFontInternal("宋体", this.font_宋体);
         }
 
         public void font_黑体c(object sender, EventArgs e)
         {
-            this.font_宋体.ForeColor = Color.Black;
-            this.font_黑体.ForeColor = Color.Red;
-            this.font_楷体.ForeColor = Color.Black;
-            this.font_微软雅黑.ForeColor = Color.Black;
-            this.font_新罗马.ForeColor = Color.Black;
-            string text = this.richTextBox1.Text;
-            this.richTextBox1.Text = "";
-            Font font = new Font("黑体", 16f * Program.Factor, GraphicsUnit.Pixel);
-            this.richTextBox1.Font = font;
-            this.richTextBox1.Text = text;
-            
-            // 保存字体设置到配置文件
-            IniHelper.SetValue("工具栏", "字体", "黑体");
+            ChangeFontInternal("黑体", this.font_黑体);
         }
 
         public void font_楷体c(object sender, EventArgs e)
         {
-            this.font_宋体.ForeColor = Color.Black;
-            this.font_黑体.ForeColor = Color.Black;
-            this.font_楷体.ForeColor = Color.Red;
-            this.font_微软雅黑.ForeColor = Color.Black;
-            this.font_新罗马.ForeColor = Color.Black;
-            string text = this.richTextBox1.Text;
-            this.richTextBox1.Text = "";
-            Font font = new Font("STKaiti", 16f * Program.Factor, GraphicsUnit.Pixel);
-            this.richTextBox1.Font = font;
-            this.richTextBox1.Text = text;
-            
-            // 保存字体设置到配置文件
-            IniHelper.SetValue("工具栏", "字体", "楷体");
+            ChangeFontInternal("STKaiti", this.font_楷体);
         }
 
         public void font_微软雅黑c(object sender, EventArgs e)
         {
-            this.font_宋体.ForeColor = Color.Black;
-            this.font_黑体.ForeColor = Color.Black;
-            this.font_楷体.ForeColor = Color.Black;
-            this.font_微软雅黑.ForeColor = Color.Red;
-            this.font_新罗马.ForeColor = Color.Black;
-            string text = this.richTextBox1.Text;
-            this.richTextBox1.Text = "";
-            Font font = new Font("微软雅黑", 16f * Program.Factor, GraphicsUnit.Pixel);
-            this.richTextBox1.Font = font;
-            this.richTextBox1.Text = text;
-            
-            // 保存字体设置到配置文件
-            IniHelper.SetValue("工具栏", "字体", "微软雅黑");
+            ChangeFontInternal("微软雅黑", this.font_微软雅黑);
         }
 
         public void font_新罗马c(object sender, EventArgs e)
         {
-            this.font_宋体.ForeColor = Color.Black;
-            this.font_黑体.ForeColor = Color.Black;
-            this.font_楷体.ForeColor = Color.Black;
-            this.font_微软雅黑.ForeColor = Color.Black;
-            this.font_新罗马.ForeColor = Color.Red;
-            string text = this.richTextBox1.Text;
-            this.richTextBox1.Text = "";
-            Font font = new Font("Times New Roman", 16f * Program.Factor, GraphicsUnit.Pixel);
-            this.richTextBox1.Font = font;
-            this.richTextBox1.Text = text;
-            
-            // 保存字体设置到配置文件
-            IniHelper.SetValue("工具栏", "字体", "新罗马");
+            ChangeFontInternal("Times New Roman", this.font_新罗马);
         }
 
         public void indent_two(int fla)
@@ -1346,47 +1347,57 @@ namespace TrOCR
         /// <param name="fontName">字体名称</param>
         private void ApplyFontSetting(string fontName)
         {
-            // 重置所有字体菜单项颜色
-            this.font_宋体.ForeColor = Color.Black;
-            this.font_黑体.ForeColor = Color.Black;
-            this.font_楷体.ForeColor = Color.Black;
-            this.font_微软雅黑.ForeColor = Color.Black;
-            this.font_新罗马.ForeColor = Color.Black;
-            
-            string text = this.richTextBox1.Text;
-            this.richTextBox1.Text = "";
-            
-            Font font;
-            switch (fontName)
+            // 1. 上锁：告诉外界（FmMain）现在正在改字体，别触发翻译
+            this.IsFontChanging = true;
+            try
+            { // 重置所有字体菜单项颜色
+                this.font_宋体.ForeColor = Color.Black;
+                this.font_黑体.ForeColor = Color.Black;
+                this.font_楷体.ForeColor = Color.Black;
+                this.font_微软雅黑.ForeColor = Color.Black;
+                this.font_新罗马.ForeColor = Color.Black;
+
+                string text = this.richTextBox1.Text;
+                this.richTextBox1.Text = "";
+
+                Font font;
+                switch (fontName)
+                {
+                    case "宋体":
+                        this.font_宋体.ForeColor = Color.Red;
+                        font = new Font("宋体", 16f * Program.Factor, GraphicsUnit.Pixel);
+                        break;
+                    case "黑体":
+                        this.font_黑体.ForeColor = Color.Red;
+                        font = new Font("黑体", 16f * Program.Factor, GraphicsUnit.Pixel);
+                        break;
+                    case "楷体":
+                        this.font_楷体.ForeColor = Color.Red;
+                        font = new Font("STKaiti", 16f * Program.Factor, GraphicsUnit.Pixel);
+                        break;
+                    case "微软雅黑":
+                        this.font_微软雅黑.ForeColor = Color.Red;
+                        font = new Font("微软雅黑", 16f * Program.Factor, GraphicsUnit.Pixel);
+                        break;
+                    case "新罗马":
+                        this.font_新罗马.ForeColor = Color.Red;
+                        font = new Font("Times New Roman", 16f * Program.Factor, GraphicsUnit.Pixel);
+                        break;
+                    default:
+                        this.font_宋体.ForeColor = Color.Red;
+                        font = new Font("宋体", 16f * Program.Factor, GraphicsUnit.Pixel);
+                        break;
+                }
+
+                this.richTextBox1.Font = font;
+                this.richTextBox1.Text = text;
+            }
+            finally
             {
-                case "宋体":
-                    this.font_宋体.ForeColor = Color.Red;
-                    font = new Font("宋体", 16f * Program.Factor, GraphicsUnit.Pixel);
-                    break;
-                case "黑体":
-                    this.font_黑体.ForeColor = Color.Red;
-                    font = new Font("黑体", 16f * Program.Factor, GraphicsUnit.Pixel);
-                    break;
-                case "楷体":
-                    this.font_楷体.ForeColor = Color.Red;
-                    font = new Font("STKaiti", 16f * Program.Factor, GraphicsUnit.Pixel);
-                    break;
-                case "微软雅黑":
-                    this.font_微软雅黑.ForeColor = Color.Red;
-                    font = new Font("微软雅黑", 16f * Program.Factor, GraphicsUnit.Pixel);
-                    break;
-                case "新罗马":
-                    this.font_新罗马.ForeColor = Color.Red;
-                    font = new Font("Times New Roman", 16f * Program.Factor, GraphicsUnit.Pixel);
-                    break;
-                default:
-                    this.font_宋体.ForeColor = Color.Red;
-                    font = new Font("宋体", 16f * Program.Factor, GraphicsUnit.Pixel);
-                    break;
+                //解锁：无论如何都要恢复，防止死锁
+                this.IsFontChanging = false;
             }
             
-            this.richTextBox1.Font = font;
-            this.richTextBox1.Text = text;
         }
 
         public void saveIniFile()

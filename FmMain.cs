@@ -3103,6 +3103,14 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
         /// </summary>
         private void RichBoxBody_TextChanged(object sender, EventArgs e)
 		{
+            // 【新增】拦截逻辑
+            // 如果 RichBoxBody 正在进行字体切换，直接返回，不启动翻译倒计时
+            if (RichBoxBody.IsFontChanging)
+            {
+                // 可选：打印日志确认拦截成功
+                 System.Diagnostics.Debug.WriteLine("字体切换中，忽略 TextChanged 事件");
+                return;
+            }
             // === 【修改步骤 1】读取原始配置字符串 ===
             string rawConfig = StaticValue.TextChangeAutotranslateDelayRaw;
             // === 【修改步骤 2】调用解析方法 ===
