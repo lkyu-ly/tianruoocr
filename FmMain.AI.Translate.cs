@@ -103,10 +103,10 @@ namespace TrOCR
                         availableModes.Add(new AIMode
                         {
                             mode = "默认模式_内置",
-                            prompt = "请翻译下面的文本到${tolang}，只说最终结果，不说其他的：",
+                            system_prompt= "You are a professional translator. Translate the user input directly, without any explanations",
+                            prompt = "Please translate the following text into ${tolang}, only stating the final result, without any explanations:",
                             temperature = 1.0,
                             PromptOrder = new List<string> { "system_prompt", "assistant_prompt", "prompt" }
-                            //PromptOrder = new List<string> {  "prompt" }//默认模式只有prompt，只保留prompt也行，我全部保留更健壮吧
 
                         });
                     }
