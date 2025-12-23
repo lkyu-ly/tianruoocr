@@ -422,6 +422,27 @@ namespace TrOCR
             this.label60 = new System.Windows.Forms.Label();
             this.tabControl_AI_Trans = new System.Windows.Forms.TabControl();
             this.tabPage_Trans_OpenAICompatible = new System.Windows.Forms.TabPage();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.btn_Trans_Del_Provider = new System.Windows.Forms.Button();
+            this.btn_Trans_Add_Provider = new System.Windows.Forms.Button();
+            this.lb_CustomTransProviders = new System.Windows.Forms.ListBox();
+            this.groupBox52 = new System.Windows.Forms.GroupBox();
+            this.txt_Trans_Target = new System.Windows.Forms.TextBox();
+            this.txt_Trans_Source = new System.Windows.Forms.TextBox();
+            this.label70 = new System.Windows.Forms.Label();
+            this.label59 = new System.Windows.Forms.Label();
+            this.txt_Trans_ConfigPath = new System.Windows.Forms.TextBox();
+            this.txt_Trans_ModelName = new System.Windows.Forms.TextBox();
+            this.txt_Trans_ApiKey = new System.Windows.Forms.TextBox();
+            this.txt_Trans_ApiUrl = new System.Windows.Forms.TextBox();
+            this.txt_Trans_Name = new System.Windows.Forms.TextBox();
+            this.btn_Trans_BrowseConfig = new System.Windows.Forms.Button();
+            this.label54 = new System.Windows.Forms.Label();
+            this.label55 = new System.Windows.Forms.Label();
+            this.label56 = new System.Windows.Forms.Label();
+            this.label57 = new System.Windows.Forms.Label();
+            this.label58 = new System.Windows.Forms.Label();
             this.Page_工具栏 = new System.Windows.Forms.TabPage();
             this.groupBox_拆分文本 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel_拆分文本 = new System.Windows.Forms.TableLayoutPanel();
@@ -565,27 +586,6 @@ namespace TrOCR
             this.button5 = new System.Windows.Forms.Button();
             this.groupBox14 = new System.Windows.Forms.GroupBox();
             this.label32 = new System.Windows.Forms.Label();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.btn_Trans_Del_Provider = new System.Windows.Forms.Button();
-            this.btn_Trans_Add_Provider = new System.Windows.Forms.Button();
-            this.lb_CustomTransProviders = new System.Windows.Forms.ListBox();
-            this.groupBox52 = new System.Windows.Forms.GroupBox();
-            this.txt_Trans_ConfigPath = new System.Windows.Forms.TextBox();
-            this.txt_Trans_ModelName = new System.Windows.Forms.TextBox();
-            this.txt_Trans_ApiKey = new System.Windows.Forms.TextBox();
-            this.txt_Trans_ApiUrl = new System.Windows.Forms.TextBox();
-            this.txt_Trans_Name = new System.Windows.Forms.TextBox();
-            this.btn_Trans_BrowseConfig = new System.Windows.Forms.Button();
-            this.label54 = new System.Windows.Forms.Label();
-            this.label55 = new System.Windows.Forms.Label();
-            this.label56 = new System.Windows.Forms.Label();
-            this.label57 = new System.Windows.Forms.Label();
-            this.label58 = new System.Windows.Forms.Label();
-            this.label59 = new System.Windows.Forms.Label();
-            this.label70 = new System.Windows.Forms.Label();
-            this.txt_Trans_Source = new System.Windows.Forms.TextBox();
-            this.txt_Trans_Target = new System.Windows.Forms.TextBox();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -701,6 +701,12 @@ namespace TrOCR
             this.groupBox_AI_Trans_Help.SuspendLayout();
             this.tabControl_AI_Trans.SuspendLayout();
             this.tabPage_Trans_OpenAICompatible.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
+            this.panel2.SuspendLayout();
+            this.groupBox52.SuspendLayout();
             this.Page_工具栏.SuspendLayout();
             this.groupBox_拆分文本.SuspendLayout();
             this.tableLayoutPanel_拆分文本.SuspendLayout();
@@ -711,12 +717,6 @@ namespace TrOCR
             ((System.ComponentModel.ISupportInitialize)(this.numbox_间隔时间)).BeginInit();
             this.Page_反馈.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
-            this.splitContainer2.Panel1.SuspendLayout();
-            this.splitContainer2.Panel2.SuspendLayout();
-            this.splitContainer2.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.groupBox52.SuspendLayout();
             this.SuspendLayout();
             // 
             // Page_翻译接口
@@ -2086,7 +2086,7 @@ namespace TrOCR
             this.groupBox_AI_Help.Controls.Add(this.label_AI_Help);
             this.groupBox_AI_Help.Location = new System.Drawing.Point(0, 274);
             this.groupBox_AI_Help.Name = "groupBox_AI_Help";
-            this.groupBox_AI_Help.Size = new System.Drawing.Size(492, 264);
+            this.groupBox_AI_Help.Size = new System.Drawing.Size(369, 264);
             this.groupBox_AI_Help.TabIndex = 1;
             this.groupBox_AI_Help.TabStop = false;
             this.groupBox_AI_Help.Text = "说明";
@@ -2098,11 +2098,11 @@ namespace TrOCR
             this.label_AI_Help.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label_AI_Help.Location = new System.Drawing.Point(3, 21);
             this.label_AI_Help.Name = "label_AI_Help";
-            this.label_AI_Help.Size = new System.Drawing.Size(486, 240);
+            this.label_AI_Help.Size = new System.Drawing.Size(363, 240);
             this.label_AI_Help.TabIndex = 0;
-            this.label_AI_Help.Text = "配置文件不设置时，将使用程序内置的提示词\r\n\r\n通过修改配置文件(.json)里的提示词(Prompt)，可以使 AI 接口识别多种\r\n格式，比如：\r\n\r\n1. " +
-    "公式识别\r\n2. 表格识别（支持 Markdown 表格、Excel 表格等）\r\n3. 图片翻译\r\n4. 物体识别\r\n......\r\n\r\n注意：具体效果取决于所" +
-    "选模型的能力。";
+            this.label_AI_Help.Text = "模式文件允许用户自定义提示词和请求参数。\r\n若不选择模式文件，将使用程序内置提示词和参数\r\n通过模式文件，可以使 AI 接口识别多种格式，比如：\r\n\r\n1. 公式" +
+    "识别\r\n2. 表格识别（支持 Markdown 表格、Excel 表格等）\r\n3. 图片翻译\r\n4. 物体识别\r\n5. 总结图片内容\r\n......\r\n\r\n注意" +
+    "：具体效果取决于所选模型的能力。";
             // 
             // tabControl_AI
             // 
@@ -2208,7 +2208,7 @@ namespace TrOCR
             // 
             this.txt_ConfigPath.Location = new System.Drawing.Point(131, 161);
             this.txt_ConfigPath.Name = "txt_ConfigPath";
-            this.txt_ConfigPath.Size = new System.Drawing.Size(100, 25);
+            this.txt_ConfigPath.Size = new System.Drawing.Size(150, 25);
             this.txt_ConfigPath.TabIndex = 9;
             this.txt_ConfigPath.TextChanged += new System.EventHandler(this.txt_ConfigPath_TextChanged);
             // 
@@ -2224,7 +2224,7 @@ namespace TrOCR
             // 
             this.txt_ApiKey.Location = new System.Drawing.Point(131, 93);
             this.txt_ApiKey.Name = "txt_ApiKey";
-            this.txt_ApiKey.Size = new System.Drawing.Size(100, 25);
+            this.txt_ApiKey.Size = new System.Drawing.Size(170, 25);
             this.txt_ApiKey.TabIndex = 7;
             this.txt_ApiKey.TextChanged += new System.EventHandler(this.txt_ApiKey_TextChanged);
             // 
@@ -2232,7 +2232,7 @@ namespace TrOCR
             // 
             this.txt_ApiUrl.Location = new System.Drawing.Point(131, 60);
             this.txt_ApiUrl.Name = "txt_ApiUrl";
-            this.txt_ApiUrl.Size = new System.Drawing.Size(100, 25);
+            this.txt_ApiUrl.Size = new System.Drawing.Size(170, 25);
             this.txt_ApiUrl.TabIndex = 6;
             this.txt_ApiUrl.TextChanged += new System.EventHandler(this.txt_ApiUrl_TextChanged);
             // 
@@ -2261,7 +2261,7 @@ namespace TrOCR
             this.label69.Name = "label69";
             this.label69.Size = new System.Drawing.Size(97, 15);
             this.label69.TabIndex = 4;
-            this.label69.Text = "配置文件路径";
+            this.label69.Text = "模式文件路径";
             // 
             // label68
             // 
@@ -5144,7 +5144,7 @@ namespace TrOCR
             this.groupBox_AI_Trans_Help.Controls.Add(this.label60);
             this.groupBox_AI_Trans_Help.Location = new System.Drawing.Point(6, 304);
             this.groupBox_AI_Trans_Help.Name = "groupBox_AI_Trans_Help";
-            this.groupBox_AI_Trans_Help.Size = new System.Drawing.Size(514, 344);
+            this.groupBox_AI_Trans_Help.Size = new System.Drawing.Size(458, 324);
             this.groupBox_AI_Trans_Help.TabIndex = 2;
             this.groupBox_AI_Trans_Help.TabStop = false;
             this.groupBox_AI_Trans_Help.Text = "说明";
@@ -5156,7 +5156,7 @@ namespace TrOCR
             this.label60.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.label60.Location = new System.Drawing.Point(3, 21);
             this.label60.Name = "label60";
-            this.label60.Size = new System.Drawing.Size(508, 320);
+            this.label60.Size = new System.Drawing.Size(452, 300);
             this.label60.TabIndex = 0;
             this.label60.Text = resources.GetString("label60.Text");
             // 
@@ -5180,6 +5180,219 @@ namespace TrOCR
             this.tabPage_Trans_OpenAICompatible.TabIndex = 1;
             this.tabPage_Trans_OpenAICompatible.Text = "OpenAICompatible";
             this.tabPage_Trans_OpenAICompatible.UseVisualStyleBackColor = true;
+            // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.panel2);
+            this.splitContainer2.Panel1.Controls.Add(this.lb_CustomTransProviders);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.groupBox52);
+            this.splitContainer2.Size = new System.Drawing.Size(503, 259);
+            this.splitContainer2.SplitterDistance = 167;
+            this.splitContainer2.TabIndex = 1;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.btn_Trans_Del_Provider);
+            this.panel2.Controls.Add(this.btn_Trans_Add_Provider);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel2.Location = new System.Drawing.Point(0, 219);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(167, 40);
+            this.panel2.TabIndex = 1;
+            // 
+            // btn_Trans_Del_Provider
+            // 
+            this.btn_Trans_Del_Provider.Location = new System.Drawing.Point(89, 4);
+            this.btn_Trans_Del_Provider.Name = "btn_Trans_Del_Provider";
+            this.btn_Trans_Del_Provider.Size = new System.Drawing.Size(75, 23);
+            this.btn_Trans_Del_Provider.TabIndex = 1;
+            this.btn_Trans_Del_Provider.Text = "删除接口";
+            this.btn_Trans_Del_Provider.UseVisualStyleBackColor = true;
+            this.btn_Trans_Del_Provider.Click += new System.EventHandler(this.btn_Trans_Del_Provider_Click);
+            // 
+            // btn_Trans_Add_Provider
+            // 
+            this.btn_Trans_Add_Provider.Location = new System.Drawing.Point(8, 4);
+            this.btn_Trans_Add_Provider.Name = "btn_Trans_Add_Provider";
+            this.btn_Trans_Add_Provider.Size = new System.Drawing.Size(75, 23);
+            this.btn_Trans_Add_Provider.TabIndex = 0;
+            this.btn_Trans_Add_Provider.Text = "添加接口";
+            this.btn_Trans_Add_Provider.UseVisualStyleBackColor = true;
+            this.btn_Trans_Add_Provider.Click += new System.EventHandler(this.btn_Trans_Add_Provider_Click);
+            // 
+            // lb_CustomTransProviders
+            // 
+            this.lb_CustomTransProviders.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lb_CustomTransProviders.FormattingEnabled = true;
+            this.lb_CustomTransProviders.ItemHeight = 15;
+            this.lb_CustomTransProviders.Location = new System.Drawing.Point(0, 0);
+            this.lb_CustomTransProviders.Name = "lb_CustomTransProviders";
+            this.lb_CustomTransProviders.Size = new System.Drawing.Size(167, 259);
+            this.lb_CustomTransProviders.TabIndex = 0;
+            this.lb_CustomTransProviders.SelectedIndexChanged += new System.EventHandler(this.lb_CustomTransProviders_SelectedIndexChanged);
+            // 
+            // groupBox52
+            // 
+            this.groupBox52.Controls.Add(this.txt_Trans_Target);
+            this.groupBox52.Controls.Add(this.txt_Trans_Source);
+            this.groupBox52.Controls.Add(this.label70);
+            this.groupBox52.Controls.Add(this.label59);
+            this.groupBox52.Controls.Add(this.txt_Trans_ConfigPath);
+            this.groupBox52.Controls.Add(this.txt_Trans_ModelName);
+            this.groupBox52.Controls.Add(this.txt_Trans_ApiKey);
+            this.groupBox52.Controls.Add(this.txt_Trans_ApiUrl);
+            this.groupBox52.Controls.Add(this.txt_Trans_Name);
+            this.groupBox52.Controls.Add(this.btn_Trans_BrowseConfig);
+            this.groupBox52.Controls.Add(this.label54);
+            this.groupBox52.Controls.Add(this.label55);
+            this.groupBox52.Controls.Add(this.label56);
+            this.groupBox52.Controls.Add(this.label57);
+            this.groupBox52.Controls.Add(this.label58);
+            this.groupBox52.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox52.Location = new System.Drawing.Point(0, 0);
+            this.groupBox52.Name = "groupBox52";
+            this.groupBox52.Size = new System.Drawing.Size(332, 259);
+            this.groupBox52.TabIndex = 0;
+            this.groupBox52.TabStop = false;
+            this.groupBox52.Text = "参数设置";
+            // 
+            // txt_Trans_Target
+            // 
+            this.txt_Trans_Target.Location = new System.Drawing.Point(131, 223);
+            this.txt_Trans_Target.Name = "txt_Trans_Target";
+            this.txt_Trans_Target.Size = new System.Drawing.Size(100, 25);
+            this.txt_Trans_Target.TabIndex = 13;
+            this.txt_Trans_Target.TextChanged += new System.EventHandler(this.txt_Trans_Target_TextChanged);
+            // 
+            // txt_Trans_Source
+            // 
+            this.txt_Trans_Source.Location = new System.Drawing.Point(131, 192);
+            this.txt_Trans_Source.Name = "txt_Trans_Source";
+            this.txt_Trans_Source.Size = new System.Drawing.Size(100, 25);
+            this.txt_Trans_Source.TabIndex = 12;
+            this.txt_Trans_Source.TextChanged += new System.EventHandler(this.txt_Trans_Source_TextChanged);
+            // 
+            // label70
+            // 
+            this.label70.AutoSize = true;
+            this.label70.Location = new System.Drawing.Point(6, 227);
+            this.label70.Name = "label70";
+            this.label70.Size = new System.Drawing.Size(67, 15);
+            this.label70.TabIndex = 11;
+            this.label70.Text = "目标语言";
+            // 
+            // label59
+            // 
+            this.label59.AutoSize = true;
+            this.label59.Location = new System.Drawing.Point(7, 196);
+            this.label59.Name = "label59";
+            this.label59.Size = new System.Drawing.Size(52, 15);
+            this.label59.TabIndex = 10;
+            this.label59.Text = "源语言";
+            // 
+            // txt_Trans_ConfigPath
+            // 
+            this.txt_Trans_ConfigPath.Location = new System.Drawing.Point(131, 161);
+            this.txt_Trans_ConfigPath.Name = "txt_Trans_ConfigPath";
+            this.txt_Trans_ConfigPath.Size = new System.Drawing.Size(150, 25);
+            this.txt_Trans_ConfigPath.TabIndex = 9;
+            this.txt_Trans_ConfigPath.TextChanged += new System.EventHandler(this.txt_Trans_ConfigPath_TextChanged);
+            // 
+            // txt_Trans_ModelName
+            // 
+            this.txt_Trans_ModelName.Location = new System.Drawing.Point(131, 129);
+            this.txt_Trans_ModelName.Name = "txt_Trans_ModelName";
+            this.txt_Trans_ModelName.Size = new System.Drawing.Size(100, 25);
+            this.txt_Trans_ModelName.TabIndex = 8;
+            this.txt_Trans_ModelName.TextChanged += new System.EventHandler(this.txt_Trans_ModelName_TextChanged);
+            // 
+            // txt_Trans_ApiKey
+            // 
+            this.txt_Trans_ApiKey.Location = new System.Drawing.Point(131, 93);
+            this.txt_Trans_ApiKey.Name = "txt_Trans_ApiKey";
+            this.txt_Trans_ApiKey.Size = new System.Drawing.Size(170, 25);
+            this.txt_Trans_ApiKey.TabIndex = 7;
+            this.txt_Trans_ApiKey.TextChanged += new System.EventHandler(this.txt_Trans_ApiKey_TextChanged);
+            // 
+            // txt_Trans_ApiUrl
+            // 
+            this.txt_Trans_ApiUrl.Location = new System.Drawing.Point(131, 60);
+            this.txt_Trans_ApiUrl.Name = "txt_Trans_ApiUrl";
+            this.txt_Trans_ApiUrl.Size = new System.Drawing.Size(170, 25);
+            this.txt_Trans_ApiUrl.TabIndex = 6;
+            this.txt_Trans_ApiUrl.TextChanged += new System.EventHandler(this.txt_Trans_ApiUrl_TextChanged);
+            // 
+            // txt_Trans_Name
+            // 
+            this.txt_Trans_Name.Location = new System.Drawing.Point(131, 24);
+            this.txt_Trans_Name.Name = "txt_Trans_Name";
+            this.txt_Trans_Name.Size = new System.Drawing.Size(100, 25);
+            this.txt_Trans_Name.TabIndex = 5;
+            this.txt_Trans_Name.TextChanged += new System.EventHandler(this.txt_Trans_Name_TextChanged);
+            // 
+            // btn_Trans_BrowseConfig
+            // 
+            this.btn_Trans_BrowseConfig.Location = new System.Drawing.Point(287, 160);
+            this.btn_Trans_BrowseConfig.Name = "btn_Trans_BrowseConfig";
+            this.btn_Trans_BrowseConfig.Size = new System.Drawing.Size(37, 23);
+            this.btn_Trans_BrowseConfig.TabIndex = 2;
+            this.btn_Trans_BrowseConfig.Text = "...";
+            this.btn_Trans_BrowseConfig.UseVisualStyleBackColor = true;
+            this.btn_Trans_BrowseConfig.Click += new System.EventHandler(this.btn_Trans_BrowseConfig_Click);
+            // 
+            // label54
+            // 
+            this.label54.AutoSize = true;
+            this.label54.Location = new System.Drawing.Point(7, 164);
+            this.label54.Name = "label54";
+            this.label54.Size = new System.Drawing.Size(97, 15);
+            this.label54.TabIndex = 4;
+            this.label54.Text = "模式文件路径";
+            // 
+            // label55
+            // 
+            this.label55.AutoSize = true;
+            this.label55.Location = new System.Drawing.Point(7, 132);
+            this.label55.Name = "label55";
+            this.label55.Size = new System.Drawing.Size(67, 15);
+            this.label55.TabIndex = 3;
+            this.label55.Text = "模型名称";
+            // 
+            // label56
+            // 
+            this.label56.AutoSize = true;
+            this.label56.Location = new System.Drawing.Point(7, 93);
+            this.label56.Name = "label56";
+            this.label56.Size = new System.Drawing.Size(117, 15);
+            this.label56.TabIndex = 2;
+            this.label56.Text = "API 密钥 (Key)";
+            // 
+            // label57
+            // 
+            this.label57.AutoSize = true;
+            this.label57.Location = new System.Drawing.Point(7, 63);
+            this.label57.Name = "label57";
+            this.label57.Size = new System.Drawing.Size(117, 15);
+            this.label57.TabIndex = 1;
+            this.label57.Text = "API 地址 (URL)";
+            // 
+            // label58
+            // 
+            this.label58.AutoSize = true;
+            this.label58.Location = new System.Drawing.Point(7, 34);
+            this.label58.Name = "label58";
+            this.label58.Size = new System.Drawing.Size(67, 15);
+            this.label58.TabIndex = 0;
+            this.label58.Text = "显示名称";
             // 
             // Page_工具栏
             // 
@@ -6594,219 +6807,6 @@ namespace TrOCR
             this.label32.Size = new System.Drawing.Size(67, 15);
             this.label32.TabIndex = 0;
             // 
-            // splitContainer2
-            // 
-            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.Location = new System.Drawing.Point(3, 3);
-            this.splitContainer2.Name = "splitContainer2";
-            // 
-            // splitContainer2.Panel1
-            // 
-            this.splitContainer2.Panel1.Controls.Add(this.panel2);
-            this.splitContainer2.Panel1.Controls.Add(this.lb_CustomTransProviders);
-            // 
-            // splitContainer2.Panel2
-            // 
-            this.splitContainer2.Panel2.Controls.Add(this.groupBox52);
-            this.splitContainer2.Size = new System.Drawing.Size(503, 259);
-            this.splitContainer2.SplitterDistance = 167;
-            this.splitContainer2.TabIndex = 1;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.btn_Trans_Del_Provider);
-            this.panel2.Controls.Add(this.btn_Trans_Add_Provider);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 219);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(167, 40);
-            this.panel2.TabIndex = 1;
-            // 
-            // btn_Trans_Del_Provider
-            // 
-            this.btn_Trans_Del_Provider.Location = new System.Drawing.Point(89, 4);
-            this.btn_Trans_Del_Provider.Name = "btn_Trans_Del_Provider";
-            this.btn_Trans_Del_Provider.Size = new System.Drawing.Size(75, 23);
-            this.btn_Trans_Del_Provider.TabIndex = 1;
-            this.btn_Trans_Del_Provider.Text = "删除接口";
-            this.btn_Trans_Del_Provider.UseVisualStyleBackColor = true;
-            this.btn_Trans_Del_Provider.Click += new System.EventHandler(this.btn_Trans_Del_Provider_Click);
-            // 
-            // btn_Trans_Add_Provider
-            // 
-            this.btn_Trans_Add_Provider.Location = new System.Drawing.Point(8, 4);
-            this.btn_Trans_Add_Provider.Name = "btn_Trans_Add_Provider";
-            this.btn_Trans_Add_Provider.Size = new System.Drawing.Size(75, 23);
-            this.btn_Trans_Add_Provider.TabIndex = 0;
-            this.btn_Trans_Add_Provider.Text = "添加接口";
-            this.btn_Trans_Add_Provider.UseVisualStyleBackColor = true;
-            this.btn_Trans_Add_Provider.Click += new System.EventHandler(this.btn_Trans_Add_Provider_Click);
-            // 
-            // lb_CustomTransProviders
-            // 
-            this.lb_CustomTransProviders.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lb_CustomTransProviders.FormattingEnabled = true;
-            this.lb_CustomTransProviders.ItemHeight = 15;
-            this.lb_CustomTransProviders.Location = new System.Drawing.Point(0, 0);
-            this.lb_CustomTransProviders.Name = "lb_CustomTransProviders";
-            this.lb_CustomTransProviders.Size = new System.Drawing.Size(167, 259);
-            this.lb_CustomTransProviders.TabIndex = 0;
-            this.lb_CustomTransProviders.SelectedIndexChanged += new System.EventHandler(this.lb_CustomTransProviders_SelectedIndexChanged);
-            // 
-            // groupBox52
-            // 
-            this.groupBox52.Controls.Add(this.txt_Trans_Target);
-            this.groupBox52.Controls.Add(this.txt_Trans_Source);
-            this.groupBox52.Controls.Add(this.label70);
-            this.groupBox52.Controls.Add(this.label59);
-            this.groupBox52.Controls.Add(this.txt_Trans_ConfigPath);
-            this.groupBox52.Controls.Add(this.txt_Trans_ModelName);
-            this.groupBox52.Controls.Add(this.txt_Trans_ApiKey);
-            this.groupBox52.Controls.Add(this.txt_Trans_ApiUrl);
-            this.groupBox52.Controls.Add(this.txt_Trans_Name);
-            this.groupBox52.Controls.Add(this.btn_Trans_BrowseConfig);
-            this.groupBox52.Controls.Add(this.label54);
-            this.groupBox52.Controls.Add(this.label55);
-            this.groupBox52.Controls.Add(this.label56);
-            this.groupBox52.Controls.Add(this.label57);
-            this.groupBox52.Controls.Add(this.label58);
-            this.groupBox52.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox52.Location = new System.Drawing.Point(0, 0);
-            this.groupBox52.Name = "groupBox52";
-            this.groupBox52.Size = new System.Drawing.Size(332, 259);
-            this.groupBox52.TabIndex = 0;
-            this.groupBox52.TabStop = false;
-            this.groupBox52.Text = "参数设置";
-            // 
-            // txt_Trans_ConfigPath
-            // 
-            this.txt_Trans_ConfigPath.Location = new System.Drawing.Point(131, 161);
-            this.txt_Trans_ConfigPath.Name = "txt_Trans_ConfigPath";
-            this.txt_Trans_ConfigPath.Size = new System.Drawing.Size(100, 25);
-            this.txt_Trans_ConfigPath.TabIndex = 9;
-            this.txt_Trans_ConfigPath.TextChanged += new System.EventHandler(this.txt_Trans_ConfigPath_TextChanged);
-            // 
-            // txt_Trans_ModelName
-            // 
-            this.txt_Trans_ModelName.Location = new System.Drawing.Point(131, 129);
-            this.txt_Trans_ModelName.Name = "txt_Trans_ModelName";
-            this.txt_Trans_ModelName.Size = new System.Drawing.Size(100, 25);
-            this.txt_Trans_ModelName.TabIndex = 8;
-            this.txt_Trans_ModelName.TextChanged += new System.EventHandler(this.txt_Trans_ModelName_TextChanged);
-            // 
-            // txt_Trans_ApiKey
-            // 
-            this.txt_Trans_ApiKey.Location = new System.Drawing.Point(131, 93);
-            this.txt_Trans_ApiKey.Name = "txt_Trans_ApiKey";
-            this.txt_Trans_ApiKey.Size = new System.Drawing.Size(100, 25);
-            this.txt_Trans_ApiKey.TabIndex = 7;
-            this.txt_Trans_ApiKey.TextChanged += new System.EventHandler(this.txt_Trans_ApiKey_TextChanged);
-            // 
-            // txt_Trans_ApiUrl
-            // 
-            this.txt_Trans_ApiUrl.Location = new System.Drawing.Point(131, 60);
-            this.txt_Trans_ApiUrl.Name = "txt_Trans_ApiUrl";
-            this.txt_Trans_ApiUrl.Size = new System.Drawing.Size(100, 25);
-            this.txt_Trans_ApiUrl.TabIndex = 6;
-            this.txt_Trans_ApiUrl.TextChanged += new System.EventHandler(this.txt_Trans_ApiUrl_TextChanged);
-            // 
-            // txt_Trans_Name
-            // 
-            this.txt_Trans_Name.Location = new System.Drawing.Point(131, 24);
-            this.txt_Trans_Name.Name = "txt_Trans_Name";
-            this.txt_Trans_Name.Size = new System.Drawing.Size(100, 25);
-            this.txt_Trans_Name.TabIndex = 5;
-            this.txt_Trans_Name.TextChanged += new System.EventHandler(this.txt_Trans_Name_TextChanged);
-            // 
-            // btn_Trans_BrowseConfig
-            // 
-            this.btn_Trans_BrowseConfig.Location = new System.Drawing.Point(287, 160);
-            this.btn_Trans_BrowseConfig.Name = "btn_Trans_BrowseConfig";
-            this.btn_Trans_BrowseConfig.Size = new System.Drawing.Size(37, 23);
-            this.btn_Trans_BrowseConfig.TabIndex = 2;
-            this.btn_Trans_BrowseConfig.Text = "...";
-            this.btn_Trans_BrowseConfig.UseVisualStyleBackColor = true;
-            this.btn_Trans_BrowseConfig.Click += new System.EventHandler(this.btn_Trans_BrowseConfig_Click);
-            // 
-            // label54
-            // 
-            this.label54.AutoSize = true;
-            this.label54.Location = new System.Drawing.Point(7, 164);
-            this.label54.Name = "label54";
-            this.label54.Size = new System.Drawing.Size(97, 15);
-            this.label54.TabIndex = 4;
-            this.label54.Text = "配置文件路径";
-            // 
-            // label55
-            // 
-            this.label55.AutoSize = true;
-            this.label55.Location = new System.Drawing.Point(7, 132);
-            this.label55.Name = "label55";
-            this.label55.Size = new System.Drawing.Size(67, 15);
-            this.label55.TabIndex = 3;
-            this.label55.Text = "模型名称";
-            // 
-            // label56
-            // 
-            this.label56.AutoSize = true;
-            this.label56.Location = new System.Drawing.Point(7, 93);
-            this.label56.Name = "label56";
-            this.label56.Size = new System.Drawing.Size(117, 15);
-            this.label56.TabIndex = 2;
-            this.label56.Text = "API 密钥 (Key)";
-            // 
-            // label57
-            // 
-            this.label57.AutoSize = true;
-            this.label57.Location = new System.Drawing.Point(7, 63);
-            this.label57.Name = "label57";
-            this.label57.Size = new System.Drawing.Size(117, 15);
-            this.label57.TabIndex = 1;
-            this.label57.Text = "API 地址 (URL)";
-            // 
-            // label58
-            // 
-            this.label58.AutoSize = true;
-            this.label58.Location = new System.Drawing.Point(7, 34);
-            this.label58.Name = "label58";
-            this.label58.Size = new System.Drawing.Size(67, 15);
-            this.label58.TabIndex = 0;
-            this.label58.Text = "显示名称";
-            // 
-            // label59
-            // 
-            this.label59.AutoSize = true;
-            this.label59.Location = new System.Drawing.Point(7, 196);
-            this.label59.Name = "label59";
-            this.label59.Size = new System.Drawing.Size(52, 15);
-            this.label59.TabIndex = 10;
-            this.label59.Text = "源语言";
-            // 
-            // label70
-            // 
-            this.label70.AutoSize = true;
-            this.label70.Location = new System.Drawing.Point(6, 227);
-            this.label70.Name = "label70";
-            this.label70.Size = new System.Drawing.Size(67, 15);
-            this.label70.TabIndex = 11;
-            this.label70.Text = "目标语言";
-            // 
-            // txt_Trans_Source
-            // 
-            this.txt_Trans_Source.Location = new System.Drawing.Point(131, 192);
-            this.txt_Trans_Source.Name = "txt_Trans_Source";
-            this.txt_Trans_Source.Size = new System.Drawing.Size(100, 25);
-            this.txt_Trans_Source.TabIndex = 12;
-            this.txt_Trans_Source.TextChanged += new System.EventHandler(this.txt_Trans_Source_TextChanged);
-            // 
-            // txt_Trans_Target
-            // 
-            this.txt_Trans_Target.Location = new System.Drawing.Point(131, 223);
-            this.txt_Trans_Target.Name = "txt_Trans_Target";
-            this.txt_Trans_Target.Size = new System.Drawing.Size(100, 25);
-            this.txt_Trans_Target.TabIndex = 13;
-            this.txt_Trans_Target.TextChanged += new System.EventHandler(this.txt_Trans_Target_TextChanged);
-            // 
             // FmSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -7008,6 +7008,13 @@ namespace TrOCR
             this.groupBox_AI_Trans_Help.PerformLayout();
             this.tabControl_AI_Trans.ResumeLayout(false);
             this.tabPage_Trans_OpenAICompatible.ResumeLayout(false);
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
+            this.splitContainer2.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.groupBox52.ResumeLayout(false);
+            this.groupBox52.PerformLayout();
             this.Page_工具栏.ResumeLayout(false);
             this.groupBox_拆分文本.ResumeLayout(false);
             this.tableLayoutPanel_拆分文本.ResumeLayout(false);
@@ -7022,13 +7029,6 @@ namespace TrOCR
             this.Page_反馈.ResumeLayout(false);
             this.Page_反馈.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
-            this.splitContainer2.Panel1.ResumeLayout(false);
-            this.splitContainer2.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
-            this.splitContainer2.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.groupBox52.ResumeLayout(false);
-            this.groupBox52.PerformLayout();
             this.ResumeLayout(false);
 
         }

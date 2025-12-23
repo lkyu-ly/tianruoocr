@@ -159,22 +159,7 @@ namespace TrOCR.Helper
         // 【新增】用于控制是否使用无窗口截图
          public static bool NoWindowScreenshotTranslation { get; set; }
 
-        // ======================================================
-        // 【新增】OpenAI 兼容接口配置缓存
-        // ======================================================
-
-        //  [OpenAICompatible]
-        public static string OpenAICompatible_OCR_BASE_URL { get; set; }
-        public static string OpenAICompatible_OCR_API_KEY { get; set; }
-        public static string OpenAICompatible_OCR_MODEL { get; set; }
-        public static string OpenAICompatible_OCR_CONFIG_PATH { get; set; }
-        //  [OpenAICompatibleTrans]
-        public static string OpenAICompatible_Trans_BASE_URL { get; set; }
-        public static string OpenAICompatible_Trans_API_KEY { get; set; }
-        public static string OpenAICompatible_Trans_MODEL { get; set; }
-        public static string OpenAICompatible_Trans_CONFIG_PATH { get; set; }
-        public static string OpenAICompatible_Trans_Source { get; set; }
-        public static string OpenAICompatible_Trans_Target { get; set; }
+       
         //文本改变自动翻译延时
         // public static int TextChangeAutotranslateDelay { get; set; }
         public static string TextChangeAutotranslateDelayRaw { get; set; }
@@ -252,17 +237,7 @@ namespace TrOCR.Helper
             // BD_TABLE_API_ID = GetValue("密钥_百度表格", "secret_id", "");
             // BD_TABLE_API_KEY = GetValue("密钥_百度表格", "secret_key", "");
 
-            OpenAICompatible_OCR_BASE_URL = GetValue("OpenAICompatible", "BaseUrl", "");
-            OpenAICompatible_OCR_API_KEY = GetValue("OpenAICompatible", "APIKey", "");
-            OpenAICompatible_OCR_MODEL = GetValue("OpenAICompatible", "Model", "");
-            OpenAICompatible_OCR_CONFIG_PATH = GetValue("OpenAICompatible", "Config", "");
-
-            OpenAICompatible_Trans_BASE_URL = GetValue("OpenAICompatibleTrans", "BaseUrl", "");
-            OpenAICompatible_Trans_API_KEY = GetValue("OpenAICompatibleTrans", "APIKey", "");
-            OpenAICompatible_Trans_MODEL = GetValue("OpenAICompatibleTrans", "Model", "");
-            OpenAICompatible_Trans_CONFIG_PATH = GetValue("OpenAICompatibleTrans", "Config", "");
-            OpenAICompatible_Trans_Source= GetValue("OpenAICompatibleTrans", "Source", "Auto Detect");
-            OpenAICompatible_Trans_Target= GetValue("OpenAICompatibleTrans", "Target", "自动判断");
+           
 
             // TextChangeAutotranslateDelay=GetIntValue("配置", "文本改变自动翻译延时", 5000);
             TextChangeAutotranslateDelayRaw=GetValue("配置", "文本改变自动翻译延时", "5000");

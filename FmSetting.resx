@@ -118,16 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="label60.Text" xml:space="preserve">
-    <value>AI 翻译接口说明：
+    <value>模式文件允许用户自定义提示词和请求参数。
+若不选择模式文件，将使用程序内置提示词和参数
 
-配置文件不设置时，将使用系统内置提示词
-
-语言设置：源语言和目标语言支持使用自然语言名称（如“简体中文”）
+源语言和目标语言支持使用自然语言名称（如“简体中文”）
 或标准语言代码（如“zh-CN”、“en”）。
-系统会自动将这些参数注入到程序内置及配置文件里提示词的占位符中。
+系统会自动将这些参数注入到模式文件里提示词的占位符中。
 
-功能高度可配：本接口不仅限于翻译。通过修改配置文件（.json）中的提示
-词（Prompt）模板，你可以利用 AI 实现多种文本处理，例如：
+通过修改模式文件，可以利用 AI 实现多种文本处理，不只是翻译，
+例如：
 1. 翻译
 2. 润色
 3. 总结
