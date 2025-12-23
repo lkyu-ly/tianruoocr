@@ -969,6 +969,13 @@ private void RichBoxBody_T_OnTemporaryTranslateRequested(object sender, TempTran
                 if (fromLang == "zh-CN") fromLang = "zh";
                 if (toLang == "zh-CN") toLang = "zh";
             }
+            if (transService == "CustomOpenAI")
+            {
+                if (fromLang == "en") fromLang = "英文";
+                if (toLang == "en") toLang = "英文";
+                if (fromLang == "zh-CN") fromLang = "简体中文";
+                if (toLang == "zh-CN") toLang = "简体中文";
+            }
 
             // 根据翻译服务调用相应的翻译方法
             switch (transService)

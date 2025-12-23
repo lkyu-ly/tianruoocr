@@ -318,7 +318,7 @@
     <Compile Include="FmMain.AI.Translate.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FmMain.AI.cs">
+    <Compile Include="FmMain.AI.OCR.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FmMain.cs">
