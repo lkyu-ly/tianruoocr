@@ -8,9 +8,28 @@ namespace TrOCR
 {
 
 	public class RichTextBoxEx : HelpRepaint.AdvRichTextBox
-	{
+    {
+        // // 1. 加入这个构造函数
+        // public RichTextBoxEx()
+        // {
+        //     // 如果程序运行起来没有弹窗，说明你运行的根本不是这份代码！
+        //     // 请检查上述“第1点：编译失败”
+        //     MessageBox.Show("当前 RichTextBoxEx 代码已加载！", "代码验证");
+        // }
 
-		protected override void Dispose(bool disposing)
+        // // 2. 加入这个重写方法
+        // protected override CreateParams CreateParams
+        // {
+        //     get
+        //     {
+        //         CreateParams cp = base.CreateParams;
+        //         // 弹窗显示当前实际请求的类名
+        //         MessageBox.Show("当前请求的内核 ClassName 是: " + cp.ClassName, "内核验证");
+        //         return cp;
+        //     }
+        // }
+
+        protected override void Dispose(bool disposing)
 		{
 			if (disposing && components != null)
 			{
@@ -26,33 +45,6 @@ namespace TrOCR
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern IntPtr LoadLibrary(string path);
-        // ====================【升级 RichEdit 内核】开始 ====================
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                // 获取基类的参数
-                CreateParams cp = base.CreateParams;
-                try
-                {
-                    // 尝试加载 Windows 自带的高级 RichEdit 内核 (msftedit.dll)
-                    // 该文件在 XP SP1 及以上系统均存在
-                    if (LoadLibrary("msftedit.dll") != IntPtr.Zero)
-                    {
-                        // 强行将类名修改为 RichEdit50W
-                        // 这将启用高级排版功能（包括彩色 Emoji 支持和更好的字体回退机制）
-                        cp.ClassName = "RichEdit50W";
-                    }
-                }
-                catch
-                {
-					// 如果加载失败（极少见），什么都不做，使用默认内核防止崩溃
-					CommonHelper.ShowHelpMsg("RichEdit加载内核失败,使用默认内核",10000);
-                }
-                return cp;
-            }
-        }
-        // ====================【升级 RichEdit 内核】结束 ====================
 
 
         [Bindable(true)]
