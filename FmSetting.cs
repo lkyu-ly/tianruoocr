@@ -1424,6 +1424,25 @@ namespace TrOCR
 			textBox_RapidOCR_Keys.TextChanged += TextBox_RapidOCR_TextChanged;
 			textBox7.TextChanged += TextBox_RapidOCR_TextChanged;
 
+            // 批量绑定事件
+            textBox_PaddleOCR_Det.Leave += PathTextBox_Leave;
+            textBox_PaddleOCR_Cls.Leave += PathTextBox_Leave;
+            textBox_PaddleOCR_Rec.Leave += PathTextBox_Leave;
+            textBox_PaddleOCR_Keys.Leave += PathTextBox_Leave;
+            textBox5.Leave += PathTextBox_Leave;
+            textBox_PaddleOCR2_Det.Leave += PathTextBox_Leave;
+            textBox_PaddleOCR2_Cls.Leave += PathTextBox_Leave;
+            textBox_PaddleOCR2_Rec.Leave += PathTextBox_Leave;
+            textBox_PaddleOCR2_Keys.Leave += PathTextBox_Leave;
+            textBox6.Leave += PathTextBox_Leave;
+            textBox_RapidOCR_Det.Leave += PathTextBox_Leave;
+            textBox_RapidOCR_Cls.Leave += PathTextBox_Leave;
+            textBox_RapidOCR_Rec.Leave += PathTextBox_Leave;
+            textBox_RapidOCR_Keys.Leave += PathTextBox_Leave;
+            textBox7.Leave += PathTextBox_Leave;
+			
+			txt_ConfigPath.Leave += PathTextBox_Leave;
+			txt_Trans_ConfigPath.Leave += PathTextBox_Leave;
             
            
         }
@@ -3114,6 +3133,37 @@ namespace TrOCR
                 button.Text = "button1";
             }
         }
+        // 通用的“失去焦点时尝试转相对路径”事件处理器
+        private void PathTextBox_Leave(object sender, EventArgs e)
+        {
+            if (sender is TextBox tb)
+            {
+                // 1. 去除首尾空格 AND 去除首尾双引号
+                // Windows "复制为路径" 会带引号，必须去掉
+                string inputPath = tb.Text.Trim().Trim('"');
+
+                // 如果用户粘贴了带引号的路径，我们顺手帮他在 UI 上也修正过来
+                if (inputPath != tb.Text)
+                {
+                    tb.Text = inputPath;
+                }
+
+                // 2. 如果内容为空，或者已经是相对路径，直接跳过
+                if (string.IsNullOrEmpty(inputPath) || !Path.IsPathRooted(inputPath))
+                {
+                    return;
+                }
+
+                // 3. 调用转换方法
+                string newPath = TrOCRUtils.ConvertToRelativePathIfPossible(inputPath);
+
+                // 4. 更新 UI
+                if (newPath != inputPath)
+                {
+                    tb.Text = newPath;
+                }
+            }
+        }
 		/// <summary>
 		/// 读取OCR模型配置
 		/// </summary>
@@ -3174,7 +3224,7 @@ namespace TrOCR
         		// 3. 显示对话框并获取结果
         		if (vistaFolderDialog.ShowDialog() == DialogResult.OK)
         		{
-        		    textBox.Text = vistaFolderDialog.SelectedPath;
+                    textBox.Text = TrOCRUtils.ConvertToRelativePathIfPossible(vistaFolderDialog.SelectedPath); 
         		}
     		}
         }
@@ -3191,7 +3241,7 @@ namespace TrOCR
                 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    textBox.Text = openFileDialog.FileName;
+                    textBox.Text = TrOCRUtils.ConvertToRelativePathIfPossible(openFileDialog.FileName);
                 }
             }
         }
@@ -3209,7 +3259,7 @@ namespace TrOCR
 
 				if (openFileDialog.ShowDialog() == DialogResult.OK)
 				{
-					textBox.Text = openFileDialog.FileName;
+					textBox.Text = TrOCRUtils.ConvertToRelativePathIfPossible(openFileDialog.FileName);
 				}
 			}
 		}
@@ -3226,7 +3276,7 @@ namespace TrOCR
                 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    textBox.Text = openFileDialog.FileName;
+                    textBox.Text = TrOCRUtils.ConvertToRelativePathIfPossible(openFileDialog.FileName);
                 }
             }
         }

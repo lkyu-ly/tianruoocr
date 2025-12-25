@@ -84,6 +84,47 @@ namespace TrOCR.Helper
             // 如果是相对路径，与程序运行目录拼接
             return Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path));
         }
+        /// <summary>
+        /// 尝试将绝对路径转换为相对于程序运行目录的相对路径
+        /// </summary>
+        /// <param name="fullPath">选择的完整路径</param>
+        /// <returns>如果是程序目录下的文件，返回相对路径；否则返回原路径</returns>
+        public static string ConvertToRelativePathIfPossible(string fullPath)
+        {
+            if (string.IsNullOrEmpty(fullPath)) return "";
+            fullPath = fullPath.Trim().Trim('"'); // 去掉可能存在的双引号
+            //如果是相对路径，直接返回
+            if (!Path.IsPathRooted(fullPath))
+            {
+                return fullPath;
+            }
+
+            try
+            {
+                string appPath = AppDomain.CurrentDomain.BaseDirectory;
+                // 确保以反斜杠结尾，防止类似 "C:\App" 匹配 "C:\App2" 的误判
+                if (!appPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                {
+                    appPath += Path.DirectorySeparatorChar;
+                }
+
+                // 获取完整路径的标准形式
+                string standardFullPath = Path.GetFullPath(fullPath);
+
+                // 判断是否包含在程序目录内 (忽略大小写)
+                if (standardFullPath.StartsWith(appPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    // 截取掉前面的程序路径部分，得到相对路径
+                    return standardFullPath.Substring(appPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                }
+            }
+            catch
+            {
+                // 路径格式异常等情况，不做处理，返回原值
+            }
+
+            return fullPath;
+        }
 
     }
 }
