@@ -1209,6 +1209,10 @@ namespace TrOCR
 			textBox38.Text=TrOCRUtils.LoadSetting("配置", "文本改变自动翻译延时", "5000");
 			//工具栏图标放大倍数
 			textBox37.Text=TrOCRUtils.LoadSetting("工具栏", "图标放大倍数", "1.0");
+
+            LoadCustomAIProviders();
+            LoadCustomAITransProviders();
+
 		}
 
 		/// <summary>
@@ -1383,8 +1387,8 @@ namespace TrOCR
 			textBox_RapidOCR_Keys.TextChanged += TextBox_RapidOCR_TextChanged;
 			textBox7.TextChanged += TextBox_RapidOCR_TextChanged;
 
-            LoadCustomAIProviders();
-			LoadCustomAITransProviders();
+            
+           
         }
 
 		/// <summary>
@@ -2241,6 +2245,10 @@ namespace TrOCR
 
 		// 窗口关闭事件处理函数，保存所有设置到配置文件
 		private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+		{
+			saveSettings();
+        }
+		public void saveSettings()
 		{
 			// 保存基本配置
 			IniHelper.SetValue("配置", "开机自启", cbBox_开机.Checked.ToString());
