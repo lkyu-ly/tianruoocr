@@ -239,6 +239,12 @@ namespace TrOCR
             {
                 string fullPath = dlg.FileName;
                 string appPath = AppDomain.CurrentDomain.BaseDirectory;
+				// 确保 appPath 以斜杠结尾 (防御前缀误判)
+				string separator = Path.DirectorySeparatorChar.ToString();
+				if (!appPath.EndsWith(separator))
+				{
+					appPath += separator;
+				}
 
                 // 如果文件在程序目录下，转为相对路径（更美观，便携）
                 if (fullPath.StartsWith(appPath, StringComparison.OrdinalIgnoreCase))
@@ -426,6 +432,12 @@ namespace TrOCR
             {
                 string fullPath = dlg.FileName;
                 string appPath = AppDomain.CurrentDomain.BaseDirectory;
+				// 确保 appPath 以斜杠结尾 (防御前缀误判)
+				string separator = Path.DirectorySeparatorChar.ToString();
+				if (!appPath.EndsWith(separator))
+				{
+					appPath += separator;
+				}
 
                 // 如果文件在程序目录下，转为相对路径（更美观，便携）
                 if (fullPath.StartsWith(appPath, StringComparison.OrdinalIgnoreCase))
