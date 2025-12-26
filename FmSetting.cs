@@ -129,43 +129,70 @@ namespace TrOCR
             // 2. 绑定自动聚焦 (为了让滚轮能直接生效)
             // 这里用 Lambda 表达式直接捕获当前的 tc 变量
             tc.MouseEnter += (s, e) => { tc.Focus(); };
-        }
+
+			//可选：
+			// 新增：鼠标离开时，把积攒的“能量”清零，防止误触
+			//防抖，移出时清空“积攒”的滚动量，避免下次回来瞬间切换
+			tc.MouseLeave += (s, e) =>
+			{
+				if (_scrollAccumulators.ContainsKey(tc))
+					_scrollAccumulators[tc] = 0;
+			};
+		}
+        // 用一个字典来记录每个 TabControl 当前积攒的滚动值
+        private Dictionary<object, int> _scrollAccumulators = new Dictionary<object, int>();
+
+        // 设定阈值：值越大，切换越慢/越难
+        // 标准鼠标滚动一格通常是 120。
+        // 设为 120 = 滚1格切一次（太快）
+        // 设为 240 = 滚2格切一次（适中）
+        // 设为 360 = 滚3格切一次（比较稳）
+        private const int SCROLL_THRESHOLD = 240;
 
         /// <summary>
         /// 【核心逻辑】通用的滚轮处理事件
         /// </summary>
         private void Shared_TabControl_MouseWheel(object sender, MouseEventArgs e)
         {
-            // 关键点：使用 sender 拿到当前正在滚动的那个控件，而不是写死 tabControl1
-            if (sender is TabControl tc)
-            {
-                // 1. 判断鼠标是否在标题栏区域
-                // (获取控件自身的矩形，判断鼠标Y坐标是否在顶部区域)
-                Rectangle headerRect = tc.DisplayRectangle;
+			// 关键点：使用 sender 拿到当前正在滚动的那个控件，而不是写死 tabControl1
+			if (sender is TabControl tc)
+			{
+				// 1. 区域判断（鼠标必须在标题栏）
+				Rectangle headerRect = tc.DisplayRectangle;
+				if (e.Location.Y >= headerRect.Y) return; // 如果在内容区，直接退出，保持默认滚动
 
-                // 简单判断：DisplayRectangle 是内容区，如果鼠标 Y 小于内容区顶部，就是在标题栏
-                // 注意：e.Location 是相对于控件的坐标
-                if (e.Location.Y < headerRect.Y)
-                {
-                    int index = tc.SelectedIndex;
+				// 2. 初始化该控件的计数器
+				if (!_scrollAccumulators.ContainsKey(tc))
+				{
+					_scrollAccumulators[tc] = 0;
+				}
 
-                    // 向上滚 -> 上一页
-                    if (e.Delta > 0)
-                    {
-                        if (index > 0)
-                            tc.SelectedIndex = index - 1;
-                    }
-                    // 向下滚 -> 下一页
-                    else
-                    {
-                        if (index < tc.TabCount - 1)
-                            tc.SelectedIndex = index + 1;
-                    }
+				// 3. 累加滚动值 (e.Delta 通常是 +120 或 -120)
+				_scrollAccumulators[tc] += e.Delta;
 
-                    // 阻止事件冒泡 (防止滚轮同时触发父容器滚动)
-                    if (e is HandledMouseEventArgs he) he.Handled = true;
-                }
-            }
+				// 4. 判断是否达到阈值
+				// 使用 Abs 绝对值判断，不管向上滚还是向下滚
+				if (Math.Abs(_scrollAccumulators[tc]) >= SCROLL_THRESHOLD)
+				{
+					int index = tc.SelectedIndex;
+
+					// 判定方向：累加值大于0是向上/前，小于0是向下/后
+					if (_scrollAccumulators[tc] > 0)
+					{
+						if (index > 0) tc.SelectedIndex = index - 1;
+					}
+					else
+					{
+						if (index < tc.TabCount - 1) tc.SelectedIndex = index + 1;
+					}
+
+					// 5. 【关键】触发切换后，清零计数器，准备下一次积累
+					_scrollAccumulators[tc] = 0;
+				}
+
+				// 6. 阻止冒泡
+				if (e is HandledMouseEventArgs he) he.Handled = true;
+			}
         }
         private void checkbox_AutoCopyScreenshotTranslation_CheckedChanged(object sender, EventArgs e)
 		{
