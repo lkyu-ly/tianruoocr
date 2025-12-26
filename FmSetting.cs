@@ -69,8 +69,105 @@ namespace TrOCR
 		{
 			Font = new Font(Font.Name, 9f / StaticValue.DpiFactor, Font.Style, Font.Unit, Font.GdiCharSet, Font.GdiVerticalFont);
 			InitializeComponent();
-		}
-		private void checkbox_AutoCopyScreenshotTranslation_CheckedChanged(object sender, EventArgs e)
+
+            EnableTabScroll(this.tab_标签);
+            EnableTabScroll(this.tabControl_Trans);
+            // 1. 绑定滚轮事件
+            //this.tab_标签.MouseWheel += tab_标签_MouseWheel;
+
+            // 2. 关键优化：鼠标移入 TabControl 时自动获取焦点
+            // 如果不加这句，你必须先点一下 TabControl，滚轮才生效，体验很差
+            //this.tab_标签.MouseEnter += (s, e) => { this.tab_标签.Focus(); };
+
+            // 3. 离开时（可选）：把焦点还给别的控件，或者不做处理
+
+        }
+        // 滚轮事件处理逻辑
+        //private void tab_标签_MouseWheel(object sender, MouseEventArgs e)
+        //{
+        //    // 获取当前鼠标位置，判断是否在“标签头”区域
+        //    // 如果你不加这个判断，当你在 TabPage 内容里滚动（比如看长文本）时，也会触发切页，会把人气死
+        //    Rectangle headerRect = this.tab_标签.DisplayRectangle;
+        //    // DisplayRectangle 是内容区，我们判断鼠标如果不在内容区，那就在标题区
+        //    // 或者简单粗暴判断鼠标 Y 坐标小于 30 (假设标签高度是30)
+
+        //    // 这里使用更严谨的判断：只当鼠标在组件顶部范围时才切页
+        //    bool isOverHeader = e.Location.Y < headerRect.Y;
+
+        //    if (isOverHeader)
+        //    {
+        //        // 获取当前选中索引
+        //        int index = this.tab_标签.SelectedIndex;
+
+        //        // e.Delta > 0 代表滚轮向上推 (向前翻)
+        //        if (e.Delta > 0)
+        //        {
+        //            if (index > 0)
+        //                this.tab_标签.SelectedIndex = index - 1;
+        //        }
+        //        // e.Delta < 0 代表滚轮向下滚 (向后翻)
+        //        else
+        //        {
+        //            if (index < this.tab_标签.TabCount - 1)
+        //                this.tab_标签.SelectedIndex = index + 1;
+        //        }
+
+        //        // 标记事件已处理，防止冒泡
+        //        if (e is HandledMouseEventArgs he) he.Handled = true;
+        //    }
+        //}
+        /// <summary>
+        /// 【通用方法】给指定的 TabControl 启用滚轮切换功能
+        /// </summary>
+        private void EnableTabScroll(TabControl tc)
+        {
+            if (tc == null) return;
+
+            // 1. 绑定滚轮事件 (复用同一个处理方法)
+            tc.MouseWheel += Shared_TabControl_MouseWheel;
+
+            // 2. 绑定自动聚焦 (为了让滚轮能直接生效)
+            // 这里用 Lambda 表达式直接捕获当前的 tc 变量
+            tc.MouseEnter += (s, e) => { tc.Focus(); };
+        }
+
+        /// <summary>
+        /// 【核心逻辑】通用的滚轮处理事件
+        /// </summary>
+        private void Shared_TabControl_MouseWheel(object sender, MouseEventArgs e)
+        {
+            // 关键点：使用 sender 拿到当前正在滚动的那个控件，而不是写死 tabControl1
+            if (sender is TabControl tc)
+            {
+                // 1. 判断鼠标是否在标题栏区域
+                // (获取控件自身的矩形，判断鼠标Y坐标是否在顶部区域)
+                Rectangle headerRect = tc.DisplayRectangle;
+
+                // 简单判断：DisplayRectangle 是内容区，如果鼠标 Y 小于内容区顶部，就是在标题栏
+                // 注意：e.Location 是相对于控件的坐标
+                if (e.Location.Y < headerRect.Y)
+                {
+                    int index = tc.SelectedIndex;
+
+                    // 向上滚 -> 上一页
+                    if (e.Delta > 0)
+                    {
+                        if (index > 0)
+                            tc.SelectedIndex = index - 1;
+                    }
+                    // 向下滚 -> 下一页
+                    else
+                    {
+                        if (index < tc.TabCount - 1)
+                            tc.SelectedIndex = index + 1;
+                    }
+
+                    // 阻止事件冒泡 (防止滚轮同时触发父容器滚动)
+                    if (e is HandledMouseEventArgs he) he.Handled = true;
+                }
+            }
+        }
+        private void checkbox_AutoCopyScreenshotTranslation_CheckedChanged(object sender, EventArgs e)
 		{
 		    // 联动逻辑：只有当“自动复制”被勾选时，“不显示窗口”选项才可用
 		    checkbox_NoWindowScreenshotTranslation.Enabled = checkbox_AutoCopyScreenshotTranslation.Checked;
