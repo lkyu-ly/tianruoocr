@@ -395,6 +395,7 @@ namespace TrOCR
             this.tab_标签 = new System.Windows.Forms.TabControl();
             this.Page_常规2 = new System.Windows.Forms.TabPage();
             this.groupBox50 = new System.Windows.Forms.GroupBox();
+            this.label76 = new System.Windows.Forms.Label();
             this.label63 = new System.Windows.Forms.Label();
             this.textBox38 = new System.Windows.Forms.TextBox();
             this.label64 = new System.Windows.Forms.Label();
@@ -597,6 +598,8 @@ namespace TrOCR
             this.button5 = new System.Windows.Forms.Button();
             this.groupBox14 = new System.Windows.Forms.GroupBox();
             this.label32 = new System.Windows.Forms.Label();
+            this.label77 = new System.Windows.Forms.Label();
+            this.label78 = new System.Windows.Forms.Label();
             this.Page_翻译接口.SuspendLayout();
             this.tabControl_Trans.SuspendLayout();
             this.tabPage_Google.SuspendLayout();
@@ -2723,6 +2726,8 @@ namespace TrOCR
             // Page_About
             // 
             this.Page_About.BackColor = System.Drawing.Color.White;
+            this.Page_About.Controls.Add(this.label78);
+            this.Page_About.Controls.Add(this.label77);
             this.Page_About.Controls.Add(this.label_AuthorInfo);
             this.Page_About.Controls.Add(this.label_VersionInfo);
             this.Page_About.Location = new System.Drawing.Point(4, 25);
@@ -4867,7 +4872,7 @@ namespace TrOCR
             this.tab_标签.Controls.Add(this.Page_代理);
             this.tab_标签.Controls.Add(this.Page_更新);
             this.tab_标签.Controls.Add(this.Page_webdav);
-            this.tab_标签.Controls.Add(this.Page_反馈);
+            // this.tab_标签.Controls.Add(this.Page_反馈);
             this.tab_标签.Controls.Add(this.Page_About);
             this.tab_标签.Location = new System.Drawing.Point(13, 2);
             this.tab_标签.Margin = new System.Windows.Forms.Padding(4);
@@ -4894,6 +4899,7 @@ namespace TrOCR
             // 
             // groupBox50
             // 
+            this.groupBox50.Controls.Add(this.label76);
             this.groupBox50.Controls.Add(this.label63);
             this.groupBox50.Controls.Add(this.textBox38);
             this.groupBox50.Controls.Add(this.label64);
@@ -4903,6 +4909,15 @@ namespace TrOCR
             this.groupBox50.TabIndex = 5;
             this.groupBox50.TabStop = false;
             this.groupBox50.Text = "文本改变后自动翻译";
+            // 
+            // label76
+            // 
+            this.label76.AutoSize = true;
+            this.label76.Location = new System.Drawing.Point(6, 59);
+            this.label76.Name = "label76";
+            this.label76.Size = new System.Drawing.Size(487, 15);
+            this.label76.TabIndex = 5;
+            this.label76.Text = "另外，使用高级语法可控制哪些接口开启和关闭此功能，具体看仓库文档";
             // 
             // label63
             // 
@@ -6938,6 +6953,24 @@ namespace TrOCR
             this.label32.Size = new System.Drawing.Size(67, 15);
             this.label32.TabIndex = 0;
             // 
+            // label77
+            // 
+            this.label77.AutoSize = true;
+            this.label77.Location = new System.Drawing.Point(30, 99);
+            this.label77.Name = "label77";
+            this.label77.Size = new System.Drawing.Size(378, 15);
+            this.label77.TabIndex = 2;
+            this.label77.Text = "开源地址：https://github.com/Topkill/tianruoocr";
+            // 
+            // label78
+            // 
+            this.label78.AutoSize = true;
+            this.label78.Location = new System.Drawing.Point(30, 136);
+            this.label78.Name = "label78";
+            this.label78.Size = new System.Drawing.Size(297, 45);
+            this.label78.TabIndex = 3;
+            this.label78.Text = "如果遇到问题，请到Github仓库反馈。\r\n\r\n如果能帮到你，可以到Github仓库给个star";
+            // 
             // FmSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -7752,5 +7785,8 @@ namespace TrOCR
         private System.Windows.Forms.Label label73;
         private System.Windows.Forms.Label label72;
         private System.Windows.Forms.Label label75;
+        private System.Windows.Forms.Label label76;
+        private System.Windows.Forms.Label label77;
+        private System.Windows.Forms.Label label78;
     }
 }
