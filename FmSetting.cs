@@ -174,17 +174,24 @@ namespace TrOCR
 				// 使用 Abs 绝对值判断，不管向上滚还是向下滚
 				if (Math.Abs(_scrollAccumulators[tc]) >= SCROLL_THRESHOLD)
 				{
-					int index = tc.SelectedIndex;
+                    int index = tc.SelectedIndex;
+                    int count = tc.TabCount;
 
-					// 判定方向：累加值大于0是向上/前，小于0是向下/后
-					if (_scrollAccumulators[tc] > 0)
+                    // 判定方向：累加值大于0是向上/前，小于0是向下/后
+                    if (_scrollAccumulators[tc] > 0)
 					{
-						if (index > 0) tc.SelectedIndex = index - 1;
-					}
+                        if (index > 0)
+                            tc.SelectedIndex = index - 1; // 正常：往前切
+                        else
+                            tc.SelectedIndex = count - 1; // 循环：开头 -> 跳到结尾
+                    }
 					else
 					{
-						if (index < tc.TabCount - 1) tc.SelectedIndex = index + 1;
-					}
+                        if (index < count - 1)
+                            tc.SelectedIndex = index + 1; // 正常：往后切
+                        else
+                            tc.SelectedIndex = 0;         // 循环：结尾 -> 跳到开头
+                    }
 
 					// 5. 【关键】触发切换后，清零计数器，准备下一次积累
 					_scrollAccumulators[tc] = 0;
