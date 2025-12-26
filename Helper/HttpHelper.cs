@@ -169,14 +169,14 @@ namespace TrOCR.Helper
             var responseByte = new byte[0];
             using (var stream = new MemoryStream())
             {
-                // ★★★ 1. 将 GetResponseStream() 也放入 using 块中 ★★★
+                //  1. 将 GetResponseStream() 也放入 using 块中 
                 using (var responseStream = response.GetResponseStream())
                 {
                     if (responseStream == null) return responseByte;
 
                     if (response.ContentEncoding != null && response.ContentEncoding.ToLower().Contains("gzip"))
                     {
-                        // ★★★ 2. 将 GZipStream 也放入 using 块中 ★★★
+                        //  2. 将 GZipStream 也放入 using 块中 
                         using (var gzipStream = new GZipStream(responseStream, CompressionMode.Decompress))
                         {
                             gzipStream.CopyTo(stream, 10240);

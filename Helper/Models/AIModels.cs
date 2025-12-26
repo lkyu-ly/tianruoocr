@@ -57,7 +57,7 @@ namespace TrOCR.Helper.Models
             }
         }
     }
-    // 3. ★★★ 核心：自定义转换器 ★★★
+    // 3.  核心：自定义转换器 
     public class AIModeConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
@@ -80,7 +80,7 @@ namespace TrOCR.Helper.Models
                 serializer.Populate(subReader, mode);
             }
 
-            // 4. ★★★ 关键步骤：遍历 JObject 的属性顺序，记录提示词的顺序 ★★★
+            // 4.  关键步骤：遍历 JObject 的属性顺序，记录提示词的顺序 
             mode.PromptOrder = new List<string>();
             foreach (var prop in obj.Properties())
             {
@@ -90,7 +90,7 @@ namespace TrOCR.Helper.Models
                 // {
                 //     mode.PromptOrder.Add(name);
                 // }
-                // ★★★ 修改后：忽略大小写匹配 (推荐) ★★★
+                //  修改后：忽略大小写匹配 (推荐) 
                 // 使用 StringComparison.OrdinalIgnoreCase
                 if (string.Equals(name, "system_prompt", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(name, "prompt", StringComparison.OrdinalIgnoreCase) ||

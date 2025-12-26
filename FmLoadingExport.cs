@@ -20,7 +20,7 @@ namespace TrOCR
             InitializeComponent();
 
             // 设置所有控件的样式
-             // --- ★★★★★ 在这里用代码设置所有新样式 ★★★★★ ---
+             // ---  在这里用代码设置所有新样式  ---
             // 1. 设置边框为固定的对话框样式
             this.FormBorderStyle = FormBorderStyle.FixedDialog; 
             

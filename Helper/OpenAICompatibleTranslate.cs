@@ -104,7 +104,7 @@ namespace TrOCR.Helper
                     }
                 }
 
-                // 4. ★★★ 最终兜底检查 ★★★
+                // 4.  最终兜底检查 
                 // 如果用户 JSON 里没写 "prompt"，我们必须把 inputContent 发出去
                 if (!hasUserMessage)
                 {
@@ -148,7 +148,7 @@ namespace TrOCR.Helper
                     dataStream.Write(byteArray, 0, byteArray.Length);
                 }
 
-                // 7. ★★★ 智能响应处理 ★★★
+                // 7.  智能响应处理 
                 StringBuilder sb = new StringBuilder();
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) // 强转为 HttpWebResponse 以方便获取 Headers

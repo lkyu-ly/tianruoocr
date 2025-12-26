@@ -185,7 +185,7 @@ namespace TrOCR.Helper
                 // 更新私有变量
                 _interface_flag = value;
                 
-                // ★★★ 核心逻辑：自动同步到静态变量 ★★★
+                //  核心逻辑：自动同步到静态变量 
                 // 无论你在哪里写 interface_flag = "xxx"，这行代码都会自动执行！
                 StaticValue.OCR_Current_API = value;
                 

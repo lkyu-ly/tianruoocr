@@ -91,7 +91,7 @@ namespace TrOCR.Helper
                                 userContent.Add(new { type = "text", text = mode.prompt });
                             }
 
-                            // B. ★★★ 保底图片 (必须添加) ★★★
+                            // B.  保底图片 (必须添加) 
                             userContent.Add(new
                             {
                                 type = "image_url",
@@ -103,7 +103,7 @@ namespace TrOCR.Helper
                     }
                 }
 
-                // 5. ★★★ 最终兜底检查 ★★★
+                // 5.  最终兜底检查 
                 // 如果循环跑完了，PromptOrder 里竟然没有 "prompt" 这个键 (用户配置漏写了)，
                 // 我们必须手动补发图片，否则 OCR 无法进行。
                 if (!hasUserMessage)
@@ -157,7 +157,7 @@ namespace TrOCR.Helper
                     dataStream.Write(byteArray, 0, byteArray.Length);
                 }
 
-                // 7. ★★★ 智能响应处理 ★★★
+                // 7.  智能响应处理 
                 StringBuilder sb = new StringBuilder();
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) // 强转为 HttpWebResponse 以方便获取 Headers

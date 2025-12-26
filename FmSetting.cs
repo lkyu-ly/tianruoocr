@@ -261,7 +261,7 @@ namespace TrOCR
             if (lb_CustomProviders.SelectedItem is CustomAIProvider item)
             {
                 _currentEditingProvider = item;
-                _isUserAction = false; // ★ 暂停事件触发，防止 TextChanged 误伤
+                _isUserAction = false; //  暂停事件触发，防止 TextChanged 误伤
 
                 // 填充右侧 TextBoxes
                 txt_Name.Text = item.Name;
@@ -273,7 +273,7 @@ namespace TrOCR
                 // 启用右侧控件
                 ToggleDetailPanel(true);
 
-                _isUserAction = true; // ★ 恢复事件
+                _isUserAction = true; //  恢复事件
             }
             else
             {
@@ -438,7 +438,7 @@ namespace TrOCR
             if (lb_CustomTransProviders.SelectedItem is CustomAITransProvider item)
             {
                 _currentEditingTransProvider = item;
-                _isUserActionTrans = false; // ★ 暂停事件触发，防止 TextChanged 误伤
+                _isUserActionTrans = false; //  暂停事件触发，防止 TextChanged 误伤
 
                 // 填充右侧 TextBoxes
                 txt_Trans_Name.Text = item.Name;
@@ -452,7 +452,7 @@ namespace TrOCR
                 // 启用右侧控件
                 ToggleTransDetailPanel(true);
 
-                _isUserActionTrans = true; // ★ 恢复事件
+                _isUserActionTrans = true; //  恢复事件
             }
             else
             {

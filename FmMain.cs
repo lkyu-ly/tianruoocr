@@ -638,17 +638,17 @@ namespace TrOCR
                     // 如果原文隐藏，则恢复到【硬编码的单栏】默认大小
                     // 计算单栏的默认尺寸
         			newSize = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
-        			newLastNormalSize = newSize; // ★ 关键：在这里手动计算出正确的基准尺寸
+        			newLastNormalSize = newSize; //  关键：在这里手动计算出正确的基准尺寸
                 }
                 else
                 {
                     // 如果原文可见（双栏），则恢复到【硬编码的双栏】默认大小
                     // 计算双栏的默认尺寸
         			newSize = new Size((int)font_base.Width * 23 * 2, (int)font_base.Height * 24);
-        			newLastNormalSize = new Size(newSize.Width / 2, newSize.Height); // ★ 关键：在这里手动计算出正确的基准尺寸
+        			newLastNormalSize = new Size(newSize.Width / 2, newSize.Height); //  关键：在这里手动计算出正确的基准尺寸
                 }
 				this.Size = newSize; // 更新视觉
-				this.lastNormalSize = newLastNormalSize; // ★ 关键：同步更新数据状态
+				this.lastNormalSize = newLastNormalSize; //  关键：同步更新数据状态
 				Location = (Point)new Size(Screen.PrimaryScreen.Bounds.Width / 2 - Screen.PrimaryScreen.Bounds.Width / 10 * 2, Screen.PrimaryScreen.Bounds.Height / 2 - Screen.PrimaryScreen.Bounds.Height / 6);
 				isProgrammaticResize = false;
 				return;
@@ -701,7 +701,7 @@ namespace TrOCR
 			{
 				return;
 			}
-            // ★★★ 核心修正：在所有操作之前，立刻更新状态 ★★★
+            //  核心修正：在所有操作之前，立刻更新状态 
             isOriginalTextHidden = !isOriginalTextHidden;
             // 暂停窗体的布局逻辑，防止在调整多个控件时发生闪烁
             this.SuspendLayout();
@@ -2822,7 +2822,7 @@ namespace TrOCR
             // --- 步骤 2: 布局主容器（文本框和分隔条）---
             // 当RichBoxBody未设置停靠样式时调整大小. Dock != Fill 意味着处于双栏翻译模式
             if (RichBoxBody.Dock != DockStyle.Fill)
-            {//  核心修正：在此处添加对 isOriginalTextHidden 状态的判断 ★★★★★
+            {//  核心修正：在此处添加对 isOriginalTextHidden 状态的判断 
                 if (isOriginalTextHidden)
                 {
                     // 特殊状态：翻译模式已开启，但原文被隐藏了
@@ -5592,7 +5592,7 @@ namespace TrOCR
                             // 清除厂商勾选
                             providerItem.Checked = false;
 
-                            // 3. ★★★ 关键：深入遍历模式 (第三级) 并清除勾选 ★★★
+                            // 3.  关键：深入遍历模式 (第三级) 并清除勾选 
                             if (providerItem.HasDropDownItems)
                             {
                                 foreach (ToolStripItem subItem in providerItem.DropDownItems)
@@ -7294,7 +7294,7 @@ namespace TrOCR
                             // 清除厂商勾选
                             providerItem.Checked = false;
 
-                            // 3. ★★★ 关键：深入遍历模式 (第三级) 并清除勾选 ★★★
+                            // 3.  关键：深入遍历模式 (第三级) 并清除勾选 
                             if (providerItem.HasDropDownItems)
                             {
                                 foreach (ToolStripItem subItem in providerItem.DropDownItems)
