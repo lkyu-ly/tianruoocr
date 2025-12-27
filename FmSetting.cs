@@ -2917,7 +2917,7 @@ namespace TrOCR
                 return;
             }
 
-            if (MessageBox.Show(this, "确定要从云端恢复配置吗？\n这将覆盖当前的本地设置！", "确认恢复", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            if (MessageBox.Show(this, "确定要从云端恢复配置吗？\n这将覆盖当前的本地设置！\n如果恢复成功需要重启软件！", "确认恢复", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
             {
                 return;
             }
@@ -2933,17 +2933,8 @@ namespace TrOCR
                 bool success = await WebDavHelper.RestoreLatestConfigAsync(url, user, pass, dataDir);
                 if (success)
                 {
-                    MessageBox.Show(this, "配置恢复成功！界面将重新加载。", "成功",MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    // 刷新界面设置
-                    readIniFile();
-                    // 刷新自定义AI列表 (如果有)
-                    LoadCustomAIProviders();
-                    LoadCustomAITransProviders();
-					//  可选：设置 DialogResult 为 OK
-					// 这会产生两个效果：
-					// A. 自动关闭当前设置窗口，触发Form1_FormClosed
-					// B. 通知主程序设置已完成
-					this.DialogResult = DialogResult.OK;
+                    MessageBox.Show(this, "配置恢复成功！软件即将重启刷新状态。", "成功",MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Application.Restart();
                 }
             }
             catch (Exception ex)
