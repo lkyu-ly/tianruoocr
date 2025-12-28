@@ -22,7 +22,7 @@ namespace TrOCR
         // 导入 Windows API 函数
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         //关键修改: 在这里添加 LoadLibrary 的声明，废弃，也无用了
-         private static extern IntPtr LoadLibrary(string lpFileName);
+         public static extern IntPtr LoadLibrary(string lpFileName);
         // 无用：private static extern bool SetDllDirectory(string lpPathName);
         /// <summary>
         /// DPI缩放因子
@@ -71,6 +71,59 @@ namespace TrOCR
             //}
             try
             {
+                // ====================【核心修复开始】====================
+                // 在调用 SetDefaultDllDirectories 锁定 DLL 搜索路径之前，
+                // 强制访问一次 System.Drawing，触发 GDI+ 的加载。
+                // 解决 Win7 下 "无法找到字体“?”" 的崩溃问题。
+                // Win7 兼容性补丁
+                // 必须在 SetDefaultDllDirectories 之前执行！
+                // 作用：强制触发 .NET 加载并初始化 GDI+ 及其字体缓存。
+                // 如果不加这句，在打过安全补丁的 Win7 上，后续锁定 DLL 路径会导致
+                // GDI+ 无法加载字体依赖，引发 "ArgumentException: 无法找到字体" 崩溃。
+                // =======================================================================
+                try
+                {
+                    //变量无意义，只是为了强制访问一次
+                    var _ = System.Drawing.SystemFonts.DefaultFont;
+                }
+                catch
+                {
+                    // 即使失败也不要阻断程序启动，这只是一个预热操作
+                }
+                //或者变一下变量名：
+                /*try
+                {
+                   //变量无意义，只是为了强制访问一次
+                   var forceLoad = System.Drawing.SystemFonts.DefaultFont;
+                }
+                catch
+                {
+                   // 即使出错也不要阻断，但这通常能成功预加载 gdiplus.dll
+                }*/
+                // -------------------------------------------------------------------------
+                // 2.  开启 TLS 1.2 (解决win7系统 OpenAI等接口报错,
+                // 经过测试，解决失败，win7的加密套件太老了，即使win7开启tls1.2，目标网站还是不认
+                //目前只找到一个办法在win7，使用nginx反向代理目标网站(api地址)，然后软件设置接口填入nginx,这样能使用nginx的加密套件，跳过win7旧的加密套件
+                //不知道clash这类代理软件行不行，解决原理是能跳过使用win7系统的老旧的加密套件，使用目标网站支持的新加密套件，满足这个原理的软件应该都行，不只nginx)
+                // -------------------------------------------------------------------------
+                // 下面代码写不写都行，写一下吧。
+                // 注意ServicePointManager是全局的，只要有一处地方更改就行了。ServicePointManager.SecurityProtocol 是一个 静态（Static） 的全局属性
+                // 我发现有些helper类里又设置了ServicePointManager，会覆盖掉program.cs里设置的。
+                // 所以其实项目里有一处设置ServicePointManager的就行了，可以删掉helper类里的或者删掉program里的，我懒得改了。其实保留program里的删掉其他类里的更好一点
+                try
+                {
+                    System.Net.ServicePointManager.SecurityProtocol =
+                        System.Net.SecurityProtocolType.Tls12 |
+                        System.Net.SecurityProtocolType.Tls11 |
+                        System.Net.SecurityProtocolType.Tls;
+                }
+                catch
+                {
+                    /// 兼容写法，防止老版 .NET 编译报错
+                    System.Net.ServicePointManager.SecurityProtocol = (System.Net.SecurityProtocolType)3072;
+                }
+
+                // ====================【核心修复结束】====================
                 // 在程序启动的最开始告诉 Debug 和 Trace 将所有输出写入到 "debug_log.txt" 文件中
                 // 1. 先确保 Data 文件夹存在
                 string dataDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
