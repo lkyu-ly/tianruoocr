@@ -339,6 +339,8 @@ namespace TrOCR
                                     // 注意：这里不需要清空文本，因为我们要追加，但需要确保文本框可见
                                     this.RichBoxBody.Visible = true;
                                     this.RichBoxBody.Text = ""; // 清空之前的占位符
+                                     // 【新增】禁用 OCR 结果框的工具栏
+                                    this.RichBoxBody.SetToolbarEnabled(false);
                                     // 【新增】锁定文本框，禁止用户在生成期间乱按
                                     this.RichBoxBody.richTextBox1.ReadOnly = true;
 

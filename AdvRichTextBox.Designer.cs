@@ -451,7 +451,17 @@ namespace TrOCR
         
             this.richTextBox1.LanguageOption = RichTextBoxLanguageOptions.UIFonts;
         }
-        
+        /// <summary>
+        /// 设置工具栏的可用状态（用于流式输出时禁用，防止误触）
+        /// </summary>
+        public void SetToolbarEnabled(bool enabled)
+        {
+            if (this.toolStripToolBar != null)
+            {
+                this.toolStripToolBar.Enabled = enabled;
+            }
+        }
+
         public override string Text
         {
             get

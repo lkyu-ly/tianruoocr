@@ -3355,6 +3355,7 @@ namespace TrOCR
                 isTransStreaming = false;
                 if (RichBoxBody_T != null && RichBoxBody_T.richTextBox1 != null)
                 {
+                    RichBoxBody_T.SetToolbarEnabled(true);//恢复翻译框的工具栏
                     RichBoxBody_T.richTextBox1.ReadOnly = false;
                 }
             }
@@ -5045,7 +5046,9 @@ namespace TrOCR
 				// 即使是静默模式，解锁一下也无害
 				if (RichBoxBody != null && RichBoxBody.richTextBox1 != null)
 				{
-					RichBoxBody.richTextBox1.ReadOnly = false;
+					//恢复ocr结果框的工具栏
+                    RichBoxBody.SetToolbarEnabled(true);
+                    RichBoxBody.richTextBox1.ReadOnly = false;
 				}
 
 				// 3. 截图翻译模式重置 (如果之前是在 return 前做的，也可以移到这里)

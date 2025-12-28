@@ -360,6 +360,8 @@ namespace TrOCR
                                    
                                     // 4. 确保翻译框可见
                                     this.RichBoxBody_T.Visible = true;
+                                    // 【新增】禁用翻译框的工具栏
+                                    RichBoxBody_T.SetToolbarEnabled(false);
                                     //禁用编辑
                                     this.RichBoxBody_T.richTextBox1.ReadOnly = true;
 
