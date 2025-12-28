@@ -1,10 +1,11 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using TrOCR.Helper;
 using TrOCR.Helper.Models;
 
@@ -303,13 +304,71 @@ namespace TrOCR
                 string apiurl = _currentCustomProvider.ApiUrl.TrimEnd('/');
                 if (!apiurl.EndsWith("/chat/completions")) apiurl += "/chat/completions";
 
+                // ==================== 【新增代码：定义流式回调】 ====================
+                Action<string> streamCallback = null;
+                bool isFirstToken = true; // 标记是否是第一个字
+
+                // 只有当开启流式输出时，才实例化回调
+                if (_currentCustomMode != null && _currentCustomMode.stream==true)
+                {
+                    streamCallback = (token) =>
+                    {
+                        // 【关键防御】检查窗口是否已销毁
+                        if (this.IsDisposed || !this.IsHandleCreated) return;
+                        try
+                        {
+                            // 必须使用 Invoke 回到 UI 线程操作控件
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                // 二次检查（防止排队期间窗口被关）
+                                if (this.IsDisposed || this.RichBoxBody.IsDisposed) return;
+                                // ---如果是第一个字，执行“早产”逻辑---
+                                if (isFirstToken)
+                                {
+                                    // 1. 关闭加载窗口 (模拟 Main_OCR_Thread_last 的部分逻辑)
+                                    if (fmloading != null) fmloading.FmlClose = "窗体已关闭";
+
+                                    // 2. 强制显示主窗口
+                                    this.Visible = true;
+                                    this.Show();
+                                    this.WindowState = FormWindowState.Normal;
+                                    this.TopMost = true; // 暂时置顶确保可见
+                                    if (IniHelper.GetValue("工具栏", "顶置") == "False") this.TopMost = false;
+
+                                    // 3. 准备界面布局 (调用 TransClick 确保双栏布局正确)
+                                    // 注意：这里不需要清空文本，因为我们要追加，但需要确保文本框可见
+                                    this.RichBoxBody.Visible = true;
+                                    this.RichBoxBody.Text = ""; // 清空之前的占位符
+                                    // 【新增】锁定文本框，禁止用户在生成期间乱按
+                                    this.RichBoxBody.richTextBox1.ReadOnly = true;
+
+                                    // 标记流式开始，防止 TextChanged 触发定时器
+                                    this.isStreaming = true;
+                                    isFirstToken = false;
+                                    
+                                }
+
+                                // ---追加文本---
+                                this.RichBoxBody.richTextBox1.AppendText(token);
+
+                                // 滚动到最后
+                                this.RichBoxBody.richTextBox1.SelectionStart = this.RichBoxBody.Text.Length;
+                                this.RichBoxBody.richTextBox1.ScrollToCaret();
+                            });
+                        }
+                        catch (ObjectDisposedException) { /* 忽略，线程安全退出 */ }
+                        catch (InvalidOperationException) { /* 忽略 */ }
+                    };
+                }
+
                 // 3.  直接调用接口 
                 string result = OpenAICompatibleHelper.OCR(
                     image_screen,
                     apiurl,
                     _currentCustomProvider.ApiKey,
                     _currentCustomProvider.ModelName,
-                   _currentCustomMode
+                   _currentCustomMode,
+                   streamCallback // <--- 传入回调
                 );
 
                 // 4. 处理结果

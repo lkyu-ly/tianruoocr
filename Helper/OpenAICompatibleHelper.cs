@@ -35,7 +35,8 @@ namespace TrOCR.Helper
             string apiUrl,
             string apiKey,
             string modelName,
-            AIMode mode)
+            AIMode mode,
+            Action<string> onTokenUpdate = null)
         {
             // 1. 基础校验
             if (image == null) return "错误：图片为空";
@@ -191,6 +192,8 @@ namespace TrOCR.Helper
                                     if (!string.IsNullOrEmpty(content))
                                     {
                                         sb.Append(content);
+                                        // 触发回调，通知 UI 线程更新
+                                        onTokenUpdate?.Invoke(content);
                                     }
                                 }
                                 catch { /* 忽略流式解析中的单行错误 */ }
