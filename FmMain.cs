@@ -76,6 +76,8 @@ namespace TrOCR
 
         // 定义是否在流式输出
         private bool isStreaming = false;
+        // 定义是否在流式翻译输出
+        private volatile bool isTransStreaming = false;
 
         // ====================================================================================================================
         // **构造函数与窗体事件**
@@ -3282,57 +3284,82 @@ namespace TrOCR
 		/// </summary>
 		private void translate_child()
 		{
-			RichBoxBody_T.Visible = false; // 先隐藏
-			
-			RichBoxBody_T.Text = googleTranslate_txt;
-			googleTranslate_txt = "";
-
-			RichBoxBody_T.Visible = true; // 再显示
-
-    		// 翻译完成后的统一自动复制逻辑
-    		bool shouldCopy = false;
-			//截图翻译模式是否自动复制译文
-			if (isScreenshotTranslateMode)
+			try
 			{
-				shouldCopy = StaticValue.AutoCopyScreenshotTranslation;
-			}
-    		// isContentFromOcr 为 true 意味着当前是对OCR结果的翻译（无论是自动还是手动）
-			else if (isContentFromOcr)
-			{
-				// 检查“OCR翻译后复制”选项
-				shouldCopy = StaticValue.AutoCopyOcrTranslation;
-			}
-			else if (isFromClipboardListener)
-			{
-				shouldCopy = StaticValue.AutoCopyListenClipboardTranslation;
-			}
-			else // 两个标志都为 false，则为手动输入,即输入翻译
-			{
-				shouldCopy = StaticValue.AutoCopyInputTranslation;
-			}
+				// 1. 流式输出UI 防闪烁控制
+				// 如果不是流式（普通翻译），可以先隐藏；如果是流式，不隐藏，否则打字机效果打完了会闪一下
+				if (!isTransStreaming)
+				{
+					RichBoxBody_T.Visible = false; // 先隐藏
+				}
 
-    		if (shouldCopy && !string.IsNullOrEmpty(RichBoxBody_T.Text))
-    		{
-				SetClipboardWithLock(RichBoxBody_T.Text);
-				Debug.WriteLine("翻译后复制成功");
 
+				// 2. 赋值逻辑 (防闪烁核心)
+				// 只有在“非流式”或者“流式内容有误(丢包)”的情况下，才强制覆盖文本
+				if (!isTransStreaming || RichBoxBody_T.Text != googleTranslate_txt)
+				{
+					RichBoxBody_T.Text = googleTranslate_txt;
+				}
+				googleTranslate_txt = "";
+
+				RichBoxBody_T.Visible = true; // 再显示
+
+				// 翻译完成后的统一自动复制逻辑
+				bool shouldCopy = false;
+				//截图翻译模式是否自动复制译文
+				if (isScreenshotTranslateMode)
+				{
+					shouldCopy = StaticValue.AutoCopyScreenshotTranslation;
+				}
+				// isContentFromOcr 为 true 意味着当前是对OCR结果的翻译（无论是自动还是手动）
+				else if (isContentFromOcr)
+				{
+					// 检查“OCR翻译后复制”选项
+					shouldCopy = StaticValue.AutoCopyOcrTranslation;
+				}
+				else if (isFromClipboardListener)
+				{
+					shouldCopy = StaticValue.AutoCopyListenClipboardTranslation;
+				}
+				else // 两个标志都为 false，则为手动输入,即输入翻译
+				{
+					shouldCopy = StaticValue.AutoCopyInputTranslation;
+				}
+
+				if (shouldCopy && !string.IsNullOrEmpty(RichBoxBody_T.Text))
+				{
+					SetClipboardWithLock(RichBoxBody_T.Text);
+					Debug.WriteLine("翻译后复制成功");
+
+				}
+
+				// 只有在完成一次OCR翻译流程后，才考虑重置标记。如果不清，连续手动翻译OCR结果和编辑后自动重新翻译也能持续享受自动复制。
+				// 如果希望每次OCR后只有第一次手动翻译能自动复制，可以在这里重置 isContentFromOcr = false;
+				// isContentFromOcr = false;
+
+				// 在每次翻译流程结束后，必须重置监听剪贴板状态标志。否则程序会“卡”在上次的状态，导致后续所有操作逻辑错乱,比如无限翻译。
+				// 只重置“一次性”的事件标志，保留“持续性”的状态标志
+				// 在每次翻译流程结束后，必须重置所有“一次性”的模式标志
+				// 剪贴板监听是一次性事件，必须重置。
+				isFromClipboardListener = false;
+				isScreenshotTranslateMode = false; // 【重要】确保截图翻译的标志也被重置
+
+
+				isOcrTranslation = false; // 重置“自动”翻译标记
+										  
+				
+			}
+			finally
+			{
+                //【状态重置】所有事情做完后，关闭流式标记
+                isTransStreaming = false;
+                if (RichBoxBody_T != null && RichBoxBody_T.richTextBox1 != null)
+                {
+                    RichBoxBody_T.richTextBox1.ReadOnly = false;
+                }
             }
 
-			// 只有在完成一次OCR翻译流程后，才考虑重置标记。如果不清，连续手动翻译OCR结果和编辑后自动重新翻译也能持续享受自动复制。
-			// 如果希望每次OCR后只有第一次手动翻译能自动复制，可以在这里重置 isContentFromOcr = false;
-			// isContentFromOcr = false;
-		
-		 	// 在每次翻译流程结束后，必须重置监听剪贴板状态标志。否则程序会“卡”在上次的状态，导致后续所有操作逻辑错乱,比如无限翻译。
-    		// 只重置“一次性”的事件标志，保留“持续性”的状态标志
-			 // 在每次翻译流程结束后，必须重置所有“一次性”的模式标志
-    		// 剪贴板监听是一次性事件，必须重置。
-    		isFromClipboardListener = false;
-			isScreenshotTranslateMode = false; // 【重要】确保截图翻译的标志也被重置
-
-		 	
-			isOcrTranslation = false; // 重置“自动”翻译标记
-
-		}
+        }
 		private void HandleClipboardChange()
 		{
 			Debug.WriteLine("HandleClipboardChange执行了");

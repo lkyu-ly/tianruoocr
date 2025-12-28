@@ -33,7 +33,8 @@ namespace TrOCR.Helper
             string apiUrl,
             string apiKey,
             string modelName,
-            AIMode mode)
+            AIMode mode,
+            Action<string> onTokenUpdate = null)
         {
             // 1. 基础校验 (由于上层做了兜底，这里只需简单防御)
             //检查_currentCustomTransProvider.也行
@@ -182,6 +183,7 @@ namespace TrOCR.Helper
                                     if (!string.IsNullOrEmpty(content))
                                     {
                                         sb.Append(content);
+                                        onTokenUpdate?.Invoke(content); // <--- 实时通知 UI
                                     }
                                 }
                                 catch { /* 忽略流式解析中的单行错误 */ }

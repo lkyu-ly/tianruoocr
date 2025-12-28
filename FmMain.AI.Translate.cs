@@ -329,6 +329,57 @@ namespace TrOCR
                     PromptOrder = new List<string>(_currentCustomTransMode.PromptOrder)
 
                 };
+                Action<string> streamCallback = null;
+                bool isFirstToken = true;
+
+                // 只有开启流式才挂载回调
+                if (aIMode.stream == true)
+                {
+                    streamCallback = (token) =>
+                    {
+                        // 【关键防御】检查窗口是否已销毁
+                        if (this.IsDisposed || !this.IsHandleCreated) return;
+                        try { 
+                            // 必须 Invoke 到 UI 线程
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                // 二次检查（防止排队期间窗口被关）
+                                if (this.IsDisposed || this.RichBoxBody_T.IsDisposed) return;
+                                // --- 第一个字到达时的初始化 ---
+                                if (isFirstToken)
+                                {
+                                    // 1. 标记开始流式，防止 translate_child 闪烁
+                                    this.isTransStreaming = true;
+
+                                    // 2. 隐藏加载动画 (重要体验优化：字出来了，圈圈就该停了)
+                                    this.PictureBox1.Visible = false;
+                                    this.PictureBox1.SendToBack();
+
+                                    // 3. 清空之前的旧文本，准备接收新翻译
+                                    this.RichBoxBody_T.Text = "";
+                                   
+                                    // 4. 确保翻译框可见
+                                    this.RichBoxBody_T.Visible = true;
+                                    //禁用编辑
+                                    this.RichBoxBody_T.richTextBox1.ReadOnly = true;
+
+
+                                    isFirstToken = false;
+                                }
+
+                                // --- 追加文本 ---
+                                this.RichBoxBody_T.richTextBox1.AppendText(token);
+
+                                // --- 滚动到底部 ---
+                                this.RichBoxBody_T.richTextBox1.SelectionStart = this.RichBoxBody_T.Text.Length;
+                                this.RichBoxBody_T.richTextBox1.ScrollToCaret();
+                            }); 
+                        }
+                        catch (ObjectDisposedException) { /* 忽略，线程安全退出 */ }
+                        catch (InvalidOperationException) { /* 忽略 */ }
+                    };
+                
+                }
                 // 2. 使用 Task.Run 在后台执行耗时操作
                 // 这样主线程不会卡死，而且你可以使用 await 等待它完成
                 string result = await Task.Run(() =>
@@ -339,7 +390,8 @@ namespace TrOCR
                     apiurl,
                     _currentCustomTransProvider.ApiKey,
                     _currentCustomTransProvider.ModelName,
-                    aIMode
+                    aIMode,
+                    streamCallback // <--- 传入回调
                     );
                 });
 
