@@ -361,6 +361,17 @@ namespace TrOCR
 			}
 			if (m.Msg == 274 && (int)m.WParam == 61536)
 			{
+				// ====================【新增：窗口关闭/隐藏时解绑事件】====================
+				// 既然窗口都要隐藏了，肯定不需要监听输入了
+				 // 1. 【核心】解绑事件，防止窗口隐藏/恢复过程中的误触
+				RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+				
+				// 可选：如果你希望关闭窗口时同时也重置翻译界面（恢复单栏），可以调用这个：
+				// Trans_close_Click(null, null, false); 
+				// 但通常仅仅隐藏窗口保留状态体验更好，所以只解绑事件即可
+				 // 2. 【核心】停止自动翻译计时器，防止后台读秒结束触发翻译
+    			if (translationTimer != null) translationTimer.Stop();
+				// ====================【新增结束】====================
 				WindowState = FormWindowState.Minimized;
 				Visible = false;
 				return;
@@ -593,6 +604,10 @@ namespace TrOCR
 				{
 					if (!Visible)
 					{
+						// ====================【新增：恢复事件监听】====================
+						RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+						RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+						// ====================【新增结束】====================
 						TopMost = true;
 						Show();
 						WindowState = FormWindowState.Normal;
@@ -606,6 +621,8 @@ namespace TrOCR
 					}
 					else
 					{
+						// 如果是隐藏窗口的操作，这里也可以顺手解绑（和点X关闭保持一致）
+        				RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 						Hide();
 						Visible = false;
 					}
@@ -1214,6 +1231,11 @@ namespace TrOCR
 		private void trayShowClick(object sender, EventArgs e)
 		{
 			Debug.WriteLine("托盘菜单点击了显示主窗口");
+			// ====================【新增：恢复事件监听】====================
+			// 窗口恢复显示了，必须重新开始监听用户输入
+			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged; // 先解绑防止重复
+			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged; // 重新绑定
+			// ====================【新增结束】====================
             Show();
 			Activate();
 			Visible = true;
@@ -7179,6 +7201,8 @@ namespace TrOCR
             // 如果只有 1 次点击，判定为“单击”，执行“切换显示/隐藏”
 				if (this.Visible)
 				{
+					// 隐藏：先解绑
+            		RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 					// 如果窗口当前可见，则隐藏它
 					this.Hide();
 					this.Visible = false;
