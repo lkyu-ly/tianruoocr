@@ -188,7 +188,6 @@ namespace TrOCR
             }
 
 
-			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
 
 			// ====================【新增代码开始】====================
 			clipboardDebounceTimer = new Timer();
@@ -2740,7 +2739,9 @@ namespace TrOCR
                 }
 
                 // =========================================================
-
+				//开启文本改变事件
+                RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+                RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
                 // 定位加载图标
                 PositionLoadingIcon();
                 RichBoxBody.Focus();
@@ -2970,18 +2971,20 @@ namespace TrOCR
 		{
 			Debug.WriteLine($"Trans_close_Click-----{sender}------{e}");
 			LogState("Trans_close_Click Start"); // <--- 添加这一行
-												 // 只有当这是用户主动点击关闭时 (isUserAction 为 true)，才执行检查
-			// ====================【新增代码】开始 ====================
-			//这里的代码加不加都行，加上虽然更健壮，但是其实TranslationTimer_Tick里的双重检查就足够了
-    		// 1. 强制停止翻译定时器
-    		// 这样即使用户在第 9 秒关闭了窗口，第 10 秒也不会触发请求
-			// if (translationTimer != null)
-			// {
-			// 	translationTimer.Stop();
-			// 	Debug.WriteLine("窗口关闭，已强制停止翻译定时器");
-			// }
-			// ====================【新增代码】结束 ====================
-			if (isUserAction && isOriginalTextHidden)
+            //解绑文本改变事件
+            RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+            // 只有当这是用户主动点击关闭时 (isUserAction 为 true)，才执行检查
+            // ====================【新增代码】开始 ====================
+            //这里的代码加不加都行，加上虽然更健壮，但是其实TranslationTimer_Tick里的双重检查就足够了
+            // 1. 强制停止翻译定时器
+            // 这样即使用户在第 9 秒关闭了窗口，第 10 秒也不会触发请求
+            // if (translationTimer != null)
+            // {
+            // 	translationTimer.Stop();
+            // 	Debug.WriteLine("窗口关闭，已强制停止翻译定时器");
+            // }
+            // ====================【新增代码】结束 ====================
+            if (isUserAction && isOriginalTextHidden)
 			{
 				// 如果原文是隐藏的，则弹出提示，并阻止后续的关闭操作
 				MessageBox.Show("请先点击 ▶ 按钮恢复原文，再关闭翻译窗口。", "操作提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -4242,8 +4245,8 @@ namespace TrOCR
 				}
 				finally
 				{
-				    // --- 步骤 3: 无论如何都要重新连接事件处理程序 ---
-				    RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+				    // 没必要重新绑定了
+				    //RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
 				}
 				
 				
@@ -4850,7 +4853,7 @@ namespace TrOCR
                 {
                     RichBoxBody.Text = finalTextToShow;
                 }
-                RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+                // RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
 				
 
 				// c. 处理竖排文本（如果需要）
@@ -5042,15 +5045,20 @@ namespace TrOCR
 
 				// 1. 无论如何，重置流式标记
 				isStreaming = false;
-				// 【关键】先减后加，或者直接加（前提是你确定之前减过了）
-				// 为了防止重复绑定，最稳妥的写法是先减一次再加一次，或者只加一次
-				// 这里先减后加，绝不会丢失事件。ps：其实直接加也行。
-				this.RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
-				this.RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+				
+                if (transtalate_fla == "开启")
+                {
+                    this.RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+                    this.RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+                }
+                else
+                {
+                    this.RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+                }
 
-				// 2. 无论如何，确保文本框解锁 (防止万一报错导致文本框锁死)
-				// 即使是静默模式，解锁一下也无害
-				if (RichBoxBody != null && RichBoxBody.richTextBox1 != null)
+                // 2. 无论如何，确保文本框解锁 (防止万一报错导致文本框锁死)
+                // 即使是静默模式，解锁一下也无害
+                if (RichBoxBody != null && RichBoxBody.richTextBox1 != null)
 				{
 					//恢复ocr结果框的工具栏
                     RichBoxBody.SetToolbarEnabled(true);
@@ -6725,7 +6733,7 @@ namespace TrOCR
 			SendKeys.Flush();
 			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 			RichBoxBody.Text = Clipboard.GetText();
-			RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+			// RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
             // 1. 先让窗口以正常状态显示出来
             FormBorderStyle = FormBorderStyle.Sizable;
             Visible = true;
@@ -7459,7 +7467,9 @@ namespace TrOCR
 			// 如果翻译功能已开启，则执行翻译
 			if (transtalate_fla == "开启")
 			{
-				typeset_txt = RichBoxBody.Text;
+                RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
+                RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+                typeset_txt = RichBoxBody.Text;
 				PictureBox1.Visible = true;
 				PictureBox1.BringToFront();
 				trans_Calculate();
