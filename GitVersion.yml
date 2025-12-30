@@ -9,8 +9,8 @@ tag-prefix: ""
 branches:
   # 自定义针对 feature/more 的规则
   feature-more:
-    # 正则表达式匹配你的分支名
-    regex: ^feature/more$
+    # 正则表达式匹配你的分支名，只要结尾是 feature/more 就认，不管前面带不带 origin/，方便github action，或者使用：# 修改正则：允许前面有 "origin/" 或者 "refs/heads/"：regex: (origin/|refs/heads/|^)feature/more$
+    regex: feature/more$
     
     # 防止默认给 feature 分支加上 "alpha" 或 "use-branch-name" 等后缀（产品版本）
     # 如果你在 Tag 里已经写了 beta (如 6.0.0-beta)，GitVersion 会自动识别 Tag 中的 beta
@@ -22,6 +22,7 @@ branches:
     # 如果你的仓库默认分支叫 main，就只写 main；如果叫 master，就只写 master
     # 把两个都写上，GitVersion 会自动识别存在的那个
     source-branches: [ 'main']
+    increment: Patch
 
   main:
     regex: ^main$
