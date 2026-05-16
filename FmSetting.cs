@@ -1753,38 +1753,6 @@ namespace TrOCR
 			}
 		}
 		/// <summary>
-		/// 通过HTTP POST请求获取指定URL的响应内容
-		/// </summary>
-		/// <param name="url">需要请求的URL地址</param>
-		/// <returns>服务器返回的响应内容，如果请求失败则返回空字符串</returns>
-
-		public static string Get_html(string url)
-		{
-			string result;
-			var httpWebRequest = WebRequest.Create(url) as HttpWebRequest;
-			httpWebRequest.Method = "POST";
-			httpWebRequest.ContentType = "application/x-www-form-urlencoded";
-			try
-			{
-				using (var httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse())
-				{
-					using (var streamReader = new StreamReader(httpWebResponse.GetResponseStream(), Encoding.UTF8))
-					{
-						result = streamReader.ReadToEnd();
-						streamReader.Close();
-						httpWebResponse.Close();
-					}
-				}
-				httpWebRequest.Abort();
-			}
-			catch
-			{
-				result = "";
-			}
-			return result;
-		}
-
-		/// <summary>
 		/// 标签页选中索引变更事件处理函数，用于调整页面大小以适应内容
 		/// </summary>
 		/// <param name="sender">事件发送者</param>
@@ -1947,15 +1915,6 @@ namespace TrOCR
 				BoxBaimiaoUsername.Text = "";
 				BoxBaimiaoPassword.Text = "";
 			}
-		}
-
-		/// <summary>
-		/// 文件夹浏览器对话框帮助请求事件处理函数
-		/// </summary>
-		/// <param name="sender">事件发送者</param>
-		/// <param name="e">事件参数</param>
-		private void folderBrowserDialog1_HelpRequest(object sender, EventArgs e)
-		{
 		}
 
 		/// <summary>
@@ -2309,16 +2268,6 @@ namespace TrOCR
 				text_服务器.Enabled = true;
 				chbox_代理服务器.Enabled = true;
 			}
-		}
-
-		/// <summary>
-		/// 端口文本框输入拒绝事件处理函数
-		/// 当端口文本框拒绝输入时触发此事件
-		/// </summary>
-		/// <param name="sender">事件发送者</param>
-		/// <param name="e">掩码输入拒绝事件参数</param>
-		private void text_端口_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
-		{
 		}
 
 		/// <summary>
