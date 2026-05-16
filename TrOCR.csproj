@@ -316,7 +316,16 @@
     <Compile Include="FmLoadingExport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FmMain.Other.cs">
+    <Compile Include="FmMain.ImageProcessing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.TableOCR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.TTS.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.Tray.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FmMain.AI.Translate.cs">
