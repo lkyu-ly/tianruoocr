@@ -490,7 +490,7 @@ namespace TrOCR
 		/// <param name="e">事件参数</param>
 		private void 更新Button_check_Click(object sender, EventArgs e)
 		{
-			new Thread(Program.CheckUpdate).Start();
+			new Thread(UpdateChecker.CheckUpdate).Start();
 		}
     }
 }

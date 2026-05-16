@@ -438,7 +438,7 @@ namespace TrOCR
 		/// <param name="e">事件参数</param>
 		public void tray_update_Click(object sender, EventArgs e)
 		{
-			Program.CheckUpdate();
+			UpdateChecker.CheckUpdate();
 		}
 
 		/// <summary>
