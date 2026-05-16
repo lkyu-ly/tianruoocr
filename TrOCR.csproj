@@ -325,6 +325,15 @@
     <Compile Include="FmMain.AI.OCR.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FmMain.OCR.Core.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.OCR.Engines.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.OCR.MenuHandlers.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FmMain.cs">
       <SubType>Form</SubType>
     </Compile>
