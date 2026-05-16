@@ -349,6 +349,15 @@
     <Compile Include="FmMain.TextProcessing.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FmMain.Clipboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.Config.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.Utilities.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FmMain.cs">
       <SubType>Form</SubType>
     </Compile>
