@@ -101,8 +101,7 @@ namespace TrOCR
 			pinyin_flag = false;
 			tranclick = false;
 
-			// 初始化同步事件和图像列表
-			are = new AutoResetEvent(false);
+			// 初始化图像列表
 			imagelist = new List<Image>();
 
 			// 从配置文件读取记录数目并初始化笔记数组
@@ -139,13 +138,10 @@ namespace TrOCR
 			//这个不知道加上有什么用，要不要加：
             // this.UpdateStyles(); // 强制应用样式
 			
-
             //  手动设置一个背景色，防止默认黑底
             // this.BackColor = Color.White;
 			//这个设置的颜色不知道为什么不生效，还是黑底
 			
-			
-
 			// 初始化组件和系统设置
 			InitializeComponent();
 			this.lastNormalSize = this.Size;
@@ -187,8 +183,6 @@ namespace TrOCR
 				translationTimer.Interval = initDelay;
             }
 
-
-
 			// ====================【新增代码开始】====================
 			clipboardDebounceTimer = new Timer();
 			clipboardDebounceTimer.Interval = 150; // 设置一个较短的延迟，150毫秒足够
@@ -214,7 +208,6 @@ namespace TrOCR
 			// MinimumSize = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
 			// 可以调整可拖拽的最小窗口宽高,暂时先不加最小size限制
 			// MinimumSize = new Size((int)(200 * F_factor), (int)(200 * F_factor));
-			speak_copy = false;
 
 			// 初始化OCR功能
 			OCR_foreach("");
@@ -243,7 +236,6 @@ namespace TrOCR
 			// 【新增】订阅翻译框(RichBoxBody_T)的临时翻译请求事件
 			this.RichBoxBody_T.TemporaryTranslateRequested += RichBoxBody_T_OnTemporaryTranslateRequested;
 	
-			
         }
         // FmMain.cs
 
@@ -828,7 +820,6 @@ namespace TrOCR
             this.Size = this.lastNormalSize;
             RichBoxBody.Dock = DockStyle.Fill;
   
-
 		    RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
 		    RichBoxBody.Text = textToShow;
 		    RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
@@ -1482,8 +1473,6 @@ namespace TrOCR
 			}
 		}
 
-		
-
 		/// <summary>
 		/// 使用百度OCR服务识别屏幕截图中的文本内容
 		/// 调用百度OCR通用文字识别API进行文字识别，并根据识别结果更新文本框内容
@@ -1596,7 +1585,6 @@ namespace TrOCR
 			}
 		}
 
-
         /// <summary>
 		/// 处理OCR识别结果
 		/// 将OCR识别出的文本结果进行处理和格式化
@@ -1641,7 +1629,6 @@ namespace TrOCR
 				image_screen?.Dispose();
 				// GC.Collect();
 				// GC.WaitForPendingFinalizers();
-
 
 				if (!string.IsNullOrEmpty(result))
 				{
@@ -1972,7 +1959,6 @@ namespace TrOCR
 		{
 		}
 
-
 		/// <summary>
 		/// 有道OCR接口选择事件处理函数
 		/// 切换当前OCR接口为有道OCR
@@ -2047,7 +2033,6 @@ namespace TrOCR
 			OCR_foreach("RapidOCR");
 		}
 
-		
 		#endregion
 // ====================================================================================================================
 		// **文本操作与格式化**
@@ -2291,7 +2276,6 @@ namespace TrOCR
 			StaticValue.BD_HANDWRITING_API_KEY = TrOCRUtils.LoadSetting("密钥_百度手写", "secret_key", "");
 			StaticValue.BD_HANDWRITING_LANGUAGE = TrOCRUtils.LoadSetting("密钥_百度手写", "language_code", "CHN_ENG");
 
-
 			// 加载腾讯OCR密钥
 			StaticValue.TX_API_ID = TrOCRUtils.LoadSetting("密钥_腾讯", "secret_id","");		
 			StaticValue.TX_API_KEY = TrOCRUtils.LoadSetting("密钥_腾讯", "secret_key","");	
@@ -2314,7 +2298,6 @@ namespace TrOCR
 			// --- 加载白描OCR凭据 ---
 			StaticValue.BaimiaoUsername = TrOCRUtils.LoadSetting("密钥_白描", "username","");
 			StaticValue.BaimiaoPassword = TrOCRUtils.LoadSetting("密钥_白描", "password","");
-
 
 			// 加载持久化的token信息
 			string savedToken = IniHelper.GetValue("密钥_白描", "token");
@@ -2377,7 +2360,6 @@ namespace TrOCR
 			HelpWin32.UnregisterHotKey(Handle, 250);
 			HelpWin32.UnregisterHotKey(Handle, 260);
 			
-
 			WindowState = FormWindowState.Minimized;
 			var fmSetting = new FmSetting();
 			if (settingWindowSize.Width > 574) 
@@ -2389,7 +2371,6 @@ namespace TrOCR
             //设置窗口关闭后
             settingWindowSize = fmSetting.Size; // 窗口关闭后，记录它最后的大小
 
-			
 			 //刷新 AI 菜单，这行代码写在fmsetting里也行，写在这里也行
 			LoadCustomOpenAIMenus();
 			LoadCustomOpenAITransMenus();
@@ -2521,7 +2502,6 @@ namespace TrOCR
 					StaticValue.TX_TABLE_API_KEY = "";
 				}
 				
-
 				StaticValue.BD_ACCURATE_API_ID = IniHelper.GetValue("密钥_百度高精度", "secret_id");
 				if (StaticValue.BD_ACCURATE_API_ID == "发生错误")
 				{
@@ -3352,7 +3332,6 @@ namespace TrOCR
 					RichBoxBody_T.Visible = false; // 先隐藏
 				}
 
-
 				// 2. 赋值逻辑 (防闪烁核心)
 				// 只有在“非流式”或者“流式内容有误(丢包)”的情况下，才强制覆盖文本
 				if (!isTransStreaming || RichBoxBody_T.Text != googleTranslate_txt)
@@ -3403,10 +3382,8 @@ namespace TrOCR
 				isFromClipboardListener = false;
 				isScreenshotTranslateMode = false; // 【重要】确保截图翻译的标志也被重置
 
-
 				isOcrTranslation = false; // 重置“自动”翻译标记
 										  
-				
 			}
 			finally
 			{
@@ -3430,7 +3407,6 @@ namespace TrOCR
     		    return;
     		}
     		
-			
 			// 在程序刚启动时，忽略第一次自动触发的剪贴板消息
 			if (isAppLoading)
 			{
@@ -3585,17 +3561,6 @@ namespace TrOCR
 		}
 
 		/// <summary>
-		/// 检查字符串是否包含英文标点符号
-		/// </summary>
-		/// <param name="str">要检查的字符串</param>
-		/// <returns>如果字符串包含英文标点符号则返回true，否则返回false</returns>
-		public static bool HasenPunctuation(string str)
-		{
-			var pattern = "[\\;\\,\\.\\!\\?]";
-			return Regex.IsMatch(str, pattern);
-		}
-
-		/// <summary>
 		/// 删除文本中的多余空格
 		/// </summary>
 		/// <param name="text">需要处理的文本</param>
@@ -3624,7 +3589,6 @@ namespace TrOCR
 		{
 			new Thread(TTS_thread).Start();
 		}
-
 
 		/// <summary>
 		/// TTS文本朗读线程函数，负责获取文本内容、检测语言、下载语音数据并调用播放方法
@@ -3761,32 +3725,6 @@ namespace TrOCR
 			}
 		}
 
-
-		/// <summary>
-		/// 将CookieCollection对象转换为字符串格式的Cookie
-		/// </summary>
-		/// <param name="cookie">要转换的Cookie集合</param>
-		/// <returns>字符串格式的Cookie，格式为"name=value;"</returns>
-		public static string CookieCollectionToStrCookie(CookieCollection cookie)
-		{
-			string result;
-			if (cookie == null)
-			{
-				result = string.Empty;
-			}
-			else
-			{
-				var text = string.Empty;
-				foreach (var obj in cookie)
-				{
-					var cookie2 = (Cookie)obj;
-					text += string.Format("{0}={1};", cookie2.Name, cookie2.Value);
-				}
-				result = text;
-			}
-			return result;
-		}
-
 		/// <summary>
 		/// 扫描屏幕图像中的二维码内容
 		/// </summary>
@@ -3830,16 +3768,6 @@ namespace TrOCR
 		}
 
 		/// <summary>
-		/// 检查字符串是否包含日文字符
-		/// </summary>
-		/// <param name="str">要检查的字符串</param>
-		/// <returns>如果包含日文字符则返回true，否则返回false</returns>
-		public static bool contain_jap(string str)
-		{
-			return Regex.IsMatch(str, "[\\u3040-\\u309F]") || Regex.IsMatch(str, "[\\u30A0-\\u30FF]");
-		}
-
-		/// <summary>
 		/// 检查字符串是否包含韩文字符
 		/// </summary>
 		/// <param name="str">要检查的字符串</param>
@@ -3847,79 +3775,6 @@ namespace TrOCR
 		public static bool contain_kor(string str)
 		{
 			return Regex.IsMatch(str, "[\\uac00-\\ud7ff]");
-		}
-
-		/// <summary>
-		/// 删除字符串中的中文字符
-		/// </summary>
-		/// <param name="str">要处理的字符串</param>
-		/// <returns>删除中文字符后的字符串</returns>
-		public static string Del_ch(string str)
-		{
-			var text = str;
-			if (Regex.IsMatch(str, "[\\u4e00-\\u9fa5]"))
-			{
-				text = string.Empty;
-				var array = str.ToCharArray();
-				for (var i = 0; i < array.Length; i++)
-				{
-					if (array[i] < '一' || array[i] > '龥')
-					{
-						text += array[i].ToString();
-					}
-				}
-			}
-			return text;
-		}
-
-		/// <summary>
-		/// 移除字符串中的标点符号并转换为大写
-		/// </summary>
-		/// <param name="hexData">要处理的字符串</param>
-		/// <returns>移除标点符号并转为大写的字符串</returns>
-		private static string replaceStr(string hexData)
-		{
-			return Regex.Replace(hexData, "[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×┊ ]", "").ToUpper();
-		}
-
-		/// <summary>
-		/// 移除字符串中的各种标点符号
-		/// </summary>
-		/// <param name="str">要处理的字符串</param>
-		/// <returns>移除标点符号后的字符串</returns>
-		public static string RemovePunctuation(string str)
-		{
-			str = str.Replace(",", "").Replace("，", "").Replace(".", "").Replace("。", "").Replace("!", "").Replace("！", "").Replace("?", "").Replace("？", "").Replace(":", "").Replace("：", "").Replace(";", "").Replace("；", "").Replace("～", "").Replace("-", "").Replace("_", "").Replace("——", "").Replace("—", "").Replace("--", "").Replace("【", "").Replace("】", "").Replace("\\", "").Replace("(", "").Replace(")", "").Replace("（", "").Replace("）", "").Replace("#", "").Replace("$", "").Replace("、", "").Replace("‘", "").Replace("’", "").Replace("“", "").Replace("”", "");
-			return str;
-		}
-
-		/// <summary>
-		/// 获取唯一的文件名，如果文件已存在则在文件名后添加序号
-		/// </summary>
-		/// <param name="fullName">完整文件路径</param>
-		/// <returns>唯一文件名</returns>
-		public static string GetUniqueFileName(string fullName)
-		{
-			string result;
-			if (!File.Exists(fullName))
-			{
-				result = fullName;
-			}
-			else
-			{
-				var directoryName = Path.GetDirectoryName(fullName);
-				var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fullName);
-				var extension = Path.GetExtension(fullName);
-				var num = 1;
-				string text;
-				do
-				{
-					text = Path.Combine(directoryName, string.Format("{0}[{1}].{2}", fileNameWithoutExtension, num++, extension));
-				}
-				while (File.Exists(text));
-				result = text;
-			}
-			return result;
 		}
 
 		/// <summary>
@@ -4110,32 +3965,6 @@ namespace TrOCR
 		//              允许用户在任何地方通过快捷键触发程序功能（如截图、翻译）。
 		// ====================================================================================================================
 #region 热键管理
-		/// <summary>
-		/// 解析快捷键字符串并返回修饰键和按键数组
-		/// </summary>
-		/// <param name="text">修饰键（如Ctrl、Alt等）</param>
-		/// <param name="text2">按键（如A、B、F1等）</param>
-		/// <param name="value">完整的快捷键字符串，格式如"Ctrl+Alt+A"或"Alt+A"</param>
-		/// <returns>包含修饰键和按键的字符串数组</returns>
-		public string[] hotkey(string text, string text2, string value)
-		{
-			var array = (value + "+").Split('+');
-			if (array.Length == 3)
-			{
-				text = array[0];
-				text2 = array[1];
-			}
-			if (array.Length == 2)
-			{
-				text = "None";
-				text2 = value;
-			}
-			return new[]
-			{
-				text,
-				text2
-			};
-		}
 
 		/// <summary>
 		/// 设置并注册全局热键
@@ -4320,8 +4149,6 @@ namespace TrOCR
 				    // 没必要重新绑定了
 				    //RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
 				}
-				
-				
 				
 				// 重置窗口大小和边框样式
 				// Size = new Size((int)font_base.Width * 23, (int)font_base.Height * 24);
@@ -4916,7 +4743,6 @@ namespace TrOCR
                 }
                 // RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
 				
-
 				// c. 处理竖排文本（如果需要）
 				if (interface_flag == "从右向左")
 				{
@@ -5187,46 +5013,6 @@ namespace TrOCR
 		}
 
 		/// <summary>
-		/// 获取指定URL的网页HTML内容
-		/// </summary>
-		/// <param name="url">需要获取HTML内容的网址</param>
-		/// <returns>返回从指定URL获取的HTML内容，如果获取失败则返回null</returns>
-		public string Get_GoogletHtml(string url)
-		{
-			var text = "";
-			var httpWebRequest = WebRequest.Create(url) as HttpWebRequest;
-			httpWebRequest.Method = "GET";
-			httpWebRequest.Timeout = 5000;
-			httpWebRequest.Headers.Add("Accept-Language: zh-CN;q=0.8,en-US;q=0.6,en;q=0.4");
-			httpWebRequest.Headers.Add("Accept-Encoding: gzip,deflate");
-			httpWebRequest.Headers.Add("Accept-Charset: utf-8");
-			httpWebRequest.ContentType = "application/x-www-form-urlencoded; charset=utf-8";
-			httpWebRequest.Host = "translate.google.cn";
-			httpWebRequest.Accept = "*/*";
-			httpWebRequest.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)";
-			string result;
-			try
-			{
-				using (var httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse())
-				{
-					using (var streamReader = new StreamReader(httpWebResponse.GetResponseStream(), Encoding.UTF8))
-					{
-						text = streamReader.ReadToEnd();
-						streamReader.Close();
-						httpWebResponse.Close();
-					}
-				}
-				result = text;
-			}
-			catch
-			{
-				result = null;
-			}
-			return result;
-		}
-
-
-		/// <summary>
 		/// 检查并处理字符串中的标点符号
 		/// </summary>
 		/// <param name="text">需要处理的文本</param>
@@ -5269,140 +5055,6 @@ namespace TrOCR
 				}
 			}
 			return new string(array);
-		}
-
-		/// <summary>
-		/// 通过POST方式向搜狗图片识别服务发送请求
-		/// </summary>
-		/// <param name="url">请求的目标URL</param>
-		/// <param name="cookie">请求中使用的Cookie容器</param>
-		/// <param name="content">要发送的字节内容</param>
-		/// <returns>服务器响应的字符串结果，如果发生异常则返回null</returns>
-		public string OCR_sougou_SogouPost(string url, CookieContainer cookie, byte[] content)
-		{
-			var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-			httpWebRequest.Method = "POST";
-			httpWebRequest.CookieContainer = cookie;
-			httpWebRequest.Timeout = 10000;
-			httpWebRequest.Referer = "http://pic.sogou.com/resource/pic/shitu_intro/index.html";
-			httpWebRequest.ContentType = "multipart/form-data; boundary=----WebKitFormBoundary1ZZDB9E4sro7pf0g";
-			httpWebRequest.Accept = "*/*";
-			httpWebRequest.Headers.Add("Origin: http://pic.sogou.com");
-			httpWebRequest.Headers.Add("Accept-Encoding: gzip,deflate");
-			httpWebRequest.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)";
-			httpWebRequest.ServicePoint.Expect100Continue = false;
-			httpWebRequest.ProtocolVersion = new Version(1, 1);
-			httpWebRequest.ContentLength = content.Length;
-			var requestStream = httpWebRequest.GetRequestStream();
-			requestStream.Write(content, 0, content.Length);
-			requestStream.Close();
-			string result;
-			try
-			{
-				var text = "";
-				using (var httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse())
-				{
-					var stream = httpWebResponse.GetResponseStream();
-					// 处理gzip压缩的内容
-					if (httpWebResponse.ContentEncoding.ToLower().Contains("gzip"))
-					{
-						stream = new GZipStream(stream, CompressionMode.Decompress);
-					}
-					using (var streamReader = new StreamReader(stream, Encoding.UTF8))
-					{
-						text = streamReader.ReadToEnd();
-						streamReader.Close();
-						httpWebResponse.Close();
-					}
-				}
-				result = text;
-			}
-			catch
-			{
-				result = null;
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// 通过GET方式向搜狗图片识别服务发送请求
-		/// </summary>
-		/// <param name="url">请求的目标URL</param>
-		/// <param name="cookie">请求中使用的Cookie容器</param>
-		/// <param name="refer">请求的Referer头信息</param>
-		/// <returns>服务器响应的字符串结果，如果发生异常则返回null</returns>
-		public string OCR_sougou_SogouGet(string url, CookieContainer cookie, string refer)
-		{
-			var text = "";
-			var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
-			httpWebRequest.Method = "GET";
-			httpWebRequest.CookieContainer = cookie;
-			httpWebRequest.Referer = refer;
-			httpWebRequest.Timeout = 10000;
-			httpWebRequest.Accept = "application/json";
-			httpWebRequest.Headers.Add("X-Requested-With: XMLHttpRequest");
-			httpWebRequest.Headers.Add("Accept-Encoding: gzip,deflate");
-			httpWebRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-			httpWebRequest.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)";
-			httpWebRequest.ServicePoint.Expect100Continue = false;
-			httpWebRequest.ProtocolVersion = new Version(1, 1);
-			string result;
-			try
-			{
-				using (var httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse())
-				{
-					var stream = httpWebResponse.GetResponseStream();
-					// 处理gzip压缩的内容
-					if (httpWebResponse.ContentEncoding.ToLower().Contains("gzip"))
-					{
-						stream = new GZipStream(stream, CompressionMode.Decompress);
-					}
-					using (var streamReader = new StreamReader(stream, Encoding.UTF8))
-					{
-						text = streamReader.ReadToEnd();
-						streamReader.Close();
-						httpWebResponse.Close();
-					}
-				}
-				result = text;
-			}
-			catch
-			{
-				result = null;
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// 使用搜狗OCR服务识别图片中的文字
-		/// </summary>
-		/// <param name="img">需要识别的图片</param>
-		/// <returns>OCR识别结果的字符串，如果发生异常则返回null</returns>
-		public string OCR_sougou_SogouOCR(Image img)
-		{
-			var cookie = new CookieContainer();
-			var url = "http://pic.sogou.com/pic/upload_pic.jsp";
-			var str = OCR_sougou_SogouPost(url, cookie, OCR_sougou_Content_Length(img));
-			var url2 = "http://pic.sogou.com/pic/ocr/ocrOnline.jsp?query=" + str;
-			var refer = "http://pic.sogou.com/resource/pic/shitu_intro/word_1.html?keyword=" + str;
-			return OCR_sougou_SogouGet(url2, cookie, refer);
-		}
-
-		/// <summary>
-		/// 将图像转换为搜狗OCR识别所需的字节数据格式
-		/// </summary>
-		/// <param name="img">需要进行OCR识别的图像</param>
-		/// <returns>包含图像数据和表单信息的字节数组</returns>
-		public byte[] OCR_sougou_Content_Length(Image img)
-		{
-			var bytes = Encoding.UTF8.GetBytes("------WebKitFormBoundary1ZZDB9E4sro7pf0g\r\nContent-Disposition: form-data; name=\"pic_path\"; filename=\"test2018.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n");
-			var array = OcrHelper.ImgToBytes(img);
-			var bytes2 = Encoding.UTF8.GetBytes("\r\n------WebKitFormBoundary1ZZDB9E4sro7pf0g--\r\n");
-			var array2 = new byte[bytes.Length + array.Length + bytes2.Length];
-			bytes.CopyTo(array2, 0);
-			array.CopyTo(array2, bytes.Length);
-			bytes2.CopyTo(array2, bytes.Length + array.Length);
-			return array2;
 		}
 
 		/// <summary>
@@ -5648,7 +5300,6 @@ namespace TrOCR
 
 			}
 			
-
 			// --- 【核心判断逻辑：检查是否在冲突引擎间切换】 ---
 			// 1. 定义哪些引擎是互相冲突的
 			var conflictingEngines = new[] { "PaddleOCR", "PaddleOCR2" };
@@ -5688,7 +5339,6 @@ namespace TrOCR
 				try
 				{
 					PaddleOCRHelper.Reset();
-
 
 				}
 				catch (Exception ex)
@@ -5941,128 +5591,6 @@ namespace TrOCR
 		}
 
 		/// <summary>
-		/// 使用百度OCR API进行文字识别
-		/// 该函数通过百度云OCR服务对屏幕截图进行文字识别，并将识别结果保存到相关变量中
-		/// </summary>
-		public void OCR_baidu_acc()
-		{
-			split_txt = "";
-			var text = "";
-			try
-			{
-				// 获取百度云API访问令牌
-				baidu_vip = CommonHelper.GetHtmlContent(string.Format("{0}?{1}", "https://aip.baidubce.com/oauth/2.0/token", "grant_type=client_credentials&client_id=" + StaticValue.BD_API_ID + "&client_secret=" + StaticValue.BD_API_KEY));
-				if (baidu_vip == "")
-				{
-					MessageBox.Show("请检查密钥输入是否正确！", "提醒");
-				}
-				else
-				{
-					split_txt = "";
-					var img = image_screen;
-					var inArray = OcrHelper.ImgToBytes(img);
-					var s = "image=" + HttpUtility.UrlEncode(Convert.ToBase64String(inArray));
-					var bytes = Encoding.UTF8.GetBytes(s);
-					// 创建百度OCR请求
-					var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=" + ((JObject)JsonConvert.DeserializeObject(baidu_vip))["access_token"]);
-					httpWebRequest.Method = "POST";
-					httpWebRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-					httpWebRequest.Timeout = 8000;
-					httpWebRequest.ReadWriteTimeout = 5000;
-					ServicePointManager.DefaultConnectionLimit = 512;
-					using (var requestStream = httpWebRequest.GetRequestStream())
-					{
-						requestStream.Write(bytes, 0, bytes.Length);
-					}
-					// 获取并解析OCR识别结果
-					var responseStream = ((HttpWebResponse)httpWebRequest.GetResponse()).GetResponseStream();
-					var value = text = new StreamReader(responseStream, Encoding.GetEncoding("utf-8")).ReadToEnd();
-					responseStream.Close();
-					var jarray = JArray.Parse(((JObject)JsonConvert.DeserializeObject(value))["words_result"].ToString());
-					var text2 = "";
-					for (var i = 0; i < jarray.Count; i++)
-					{
-						var jobject = JObject.Parse(jarray[i].ToString());
-						text2 += jobject["words"].ToString().Replace("\r", "").Replace("\n", "");
-					}
-					shupai_Right_txt = shupai_Right_txt + text2 + "\r\n";
-					Thread.Sleep(600);
-				}
-			}
-			catch
-			{
-				MessageBox.Show(text, "提醒");
-				StaticValue.IsCapture = false;
-				esc = "退出";
-				fmloading.FmlClose = "窗体已关闭";
-				esc_thread.Abort();
-			}
-		}
-
-		/// <summary>
-		/// 使用腾讯OCR API进行手写文字识别
-		/// 该函数尝试通过腾讯云OCR服务对手写文字进行识别，但目前功能暂不可用
-		/// </summary>
-		public void OCR_Tencent_handwriting()
-		{
-			try
-			{
-				split_txt = "";
-				var image = image_screen;
-				// 根据图像尺寸调整图像大小以适应OCR识别要求
-				if (image.Width > 90 && image.Height < 90)
-				{
-					var bitmap = new Bitmap(image.Width, 300);
-					var graphics = Graphics.FromImage(bitmap);
-					graphics.DrawImage(image, 5, 0, image.Width, image.Height);
-					graphics.Save();
-					graphics.Dispose();
-					image = new Bitmap(bitmap);
-				}
-				else if (image.Width <= 90 && image.Height >= 90)
-				{
-					var bitmap2 = new Bitmap(300, image.Height);
-					var graphics2 = Graphics.FromImage(bitmap2);
-					graphics2.DrawImage(image, 0, 5, image.Width, image.Height);
-					graphics2.Save();
-					graphics2.Dispose();
-					image = new Bitmap(bitmap2);
-				}
-				else if (image.Width < 90 && image.Height < 90)
-				{
-					var bitmap3 = new Bitmap(300, 300);
-					var graphics3 = Graphics.FromImage(bitmap3);
-					graphics3.DrawImage(image, 5, 5, image.Width, image.Height);
-					graphics3.Save();
-					graphics3.Dispose();
-					image = new Bitmap(bitmap3);
-				}
-				else
-				{
-					image = image_screen;
-				}
-				var url = "https://ai.qq.com/cgi-bin/appdemo_handwritingocr";
-				// This is a demo URL, and likely does not work with the new Tencent method.
-				// For now, let's just show an error message.
-				// In a future step, we would need to implement the correct API for handwriting.
-				// 腾讯手写OCR功能当前不可用
-				typeset_txt = "***腾讯手写功能暂不可用***";
-			}
-			catch
-			{
-				if (esc != "退出")
-				{
-					RichBoxBody.Text = "***该区域未发现文本***";
-				}
-				else
-				{
-					RichBoxBody.Text = "***该区域未发现文本***";
-					esc = "";
-				}
-			}
-		}
-		
-		/// <summary>
 		/// 在输入图像中查找轮廓并为每个轮廓绘制边界框，将结果绘制到目标图像上
 		/// </summary>
 		/// <param name="src">输入的灰度图像，用于查找轮廓</param>
@@ -6208,83 +5736,6 @@ namespace TrOCR
 		}
 
 		/// <summary>
-		/// 捕获并保存图像的一部分到指定文件
-		/// 该函数创建一个新的位图，在其中绘制指定区域的图像，然后保存到文件系统并进行OCR识别
-		/// </summary>
-		/// <param name="width">目标图像的宽度</param>
-		/// <param name="gImage">源图像</param>
-		/// <param name="saveFilePath">保存文件的路径</param>
-		/// <param name="rect">要从源图像中截取的矩形区域</param>
-		public void Captureimage(int width, Image gImage, string saveFilePath, Rectangle rect)
-		{
-			var bitmap = new Bitmap(width + 70, gImage.Size.Height);
-			var graphics = Graphics.FromImage(bitmap);
-			graphics.FillRectangle(Brushes.White, 0, 0, bitmap.Size.Width, bitmap.Size.Height);
-			graphics.DrawImage(gImage, 30, 0, rect, GraphicsUnit.Pixel);
-			var bitmap2 = Image.FromHbitmap(bitmap.GetHbitmap());
-			bitmap2.Save(saveFilePath, ImageFormat.Jpeg);
-			image_screen = bitmap2;
-			BaiduOcr();
-			bitmap2.Dispose();
-			bitmap.Dispose();
-			graphics.Dispose();
-		}
-
-		/// <summary>
-		/// 使用百度OCR服务识别屏幕截图中的文字内容，并将识别结果分别存储为左右排列格式
-		/// </summary>
-		public void BaiduOcr()
-		{
-			split_txt = "";
-			try
-			{
-				// 设置OCR语言类型为中英文混合
-				var str = "CHN_ENG";
-				split_txt = "";
-				// 获取待识别的图像
-				var image = image_screen;
-				// 将图像转换为字节数组
-				var array = OcrHelper.ImgToBytes(image);
-				// 构造POST数据，包含图像数据和语言类型
-				var data = "type=general_location&image=data" + HttpUtility.UrlEncode(":image/jpeg;base64," + Convert.ToBase64String(array)) + "&language_type=" + str;
-				// 向百度OCR接口发送请求并获取响应
-				var value = CommonHelper.PostStrData("http://ai.baidu.com/tech/ocr/general", data);
-				// 解析返回的JSON数据，提取文字识别结果
-				var jArray = JArray.Parse(((JObject)JsonConvert.DeserializeObject(value))["data"]["words_result"].ToString());
-				var text = "";
-				// 创建字符串数组存储每行识别结果
-				var words = new string[jArray.Count];
-				// 遍历识别结果，处理每行文字
-				for (var i = 0; i < jArray.Count; i++)
-				{
-					var jObject = JObject.Parse(jArray[i].ToString());
-					// 将识别的文字拼接到text变量中，并移除换行符
-					text += jObject["words"].ToString().Replace("\r", "").Replace("\n", "");
-					// 将识别的文字按倒序存储到words数组中，并移除换行符
-					words[jArray.Count - 1 - i] = jObject["words"].ToString().Replace("\r", "").Replace("\n", "");
-				}
-				// 构造倒序排列的文本内容
-				var text2 = "";
-				foreach (var t in words)
-				{
-					text2 += t;
-				}
-				// 将识别结果添加到右侧文本内容中，并避免出现连续的换行符
-				shupai_Right_txt = (shupai_Right_txt + text + "\r\n").Replace("\r\n\r\n", "");
-				// 处理左侧文本内容，避免出现连续的换行符
-				shupai_Left_txt = text2.Replace("\r\n\r\n", "");
-				// 显示识别结果
-				MessageBox.Show(shupai_Left_txt);
-				// 短暂延迟
-				Thread.Sleep(10);
-			}
-			catch
-			{
-				// 异常处理
-			}
-		}
-
-		/// <summary>
 		/// 判断指定字符是否为段落分隔符
 		/// </summary>
 		/// <param name="text">需要判断的字符</param>
@@ -6401,8 +5852,6 @@ namespace TrOCR
 			image_ori.Dispose();
 		}
 
-		
-
 		/// <summary>
 		/// 删除指定路径的文件或目录
 		/// </summary>
@@ -6416,40 +5865,6 @@ namespace TrOCR
 			}
 			File.Delete(path);
 		}
-
-		/// <summary>
-		/// 使用百度OCR识别图片内容
-		/// </summary>
-		/// <param name="image">需要识别的图片</param>
-		/// <param name="strImage">图片字符串参数（未使用）</param>
-		public void OCR_baidu_image(Image image, string strImage)
-		{
-			try
-			{
-				var str = "CHN_ENG";
-				var array = OcrHelper.ImgToBytes(image);
-				var data = "type=general_location&image=data" + HttpUtility.UrlEncode(":image/jpeg;base64," + Convert.ToBase64String(array)) + "&language_type=" + str;
-				var url = "http://ai.baidu.com/aidemo";
-				var referer = "http://ai.baidu.com/tech/ocr/general";
-				var value = CommonHelper.PostStrData(url, data, "", referer);
-				var jArray = JArray.Parse(((JObject)JsonConvert.DeserializeObject(value))["data"]["words_result"].ToString());
-				var text = "";
-				var array2 = new string[jArray.Count];
-				for (var i = 0; i < jArray.Count; i++)
-				{
-					var jObject = JObject.Parse(jArray[i].ToString());
-					text += jObject["words"].ToString().Replace("\r", "").Replace("\n", "");
-					array2[jArray.Count - 1 - i] = jObject["words"].ToString().Replace("\r", "").Replace("\n", "");
-				}
-				Thread.Sleep(10);
-			}
-			catch (Exception)
-			{
-				//
-			}
-		}
-
-		
 
 		/// <summary>
 		/// 处理image_num[1]到image_num[2]范围内的图片文件，使用OcrBdUseC进行OCR识别
@@ -6848,106 +6263,6 @@ namespace TrOCR
 				array[i].Save(filename, ImageFormat.Png);
 			}
 			return array;
-		}
-
-		/// <summary>
-		/// 检查在给定的二维布尔数组中指定坐标位置是否存在且值为true
-		/// </summary>
-		/// <param name="colors">二维布尔数组</param>
-		/// <param name="x">要检查位置的x坐标</param>
-		/// <param name="y">要检查位置的y坐标</param>
-		/// <returns>如果坐标在有效范围内且对应值为true则返回true，否则返回false</returns>
-		public bool Exist(bool[][] colors, int x, int y)
-		{
-			return x >= 0 && y >= 0 && x < colors.Length && y < colors[0].Length && colors[x][y];
-		}
-
-		/// <summary>
-		/// 检查矩形右侧是否存在值为true的相邻元素
-		/// </summary>
-		/// <param name="colors">二维布尔数组</param>
-		/// <param name="rect">要检查的矩形区域</param>
-		/// <returns>如果矩形右侧存在值为true的相邻元素则返回true，否则返回false</returns>
-		public bool R_Exist(bool[][] colors, Rectangle rect)
-		{
-			if (rect.Right >= colors[0].Length || rect.Left < 0)
-			{
-				return false;
-			}
-			for (var i = 0; i < rect.Height; i++)
-			{
-				if (Exist(colors, rect.Top + i, rect.Right + 1))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// 检查矩形底侧是否存在值为true的相邻元素
-		/// </summary>
-		/// <param name="colors">二维布尔数组</param>
-		/// <param name="rect">要检查的矩形区域</param>
-		/// <returns>如果矩形底侧存在值为true的相邻元素则返回true，否则返回false</returns>
-		public bool D_Exist(bool[][] colors, Rectangle rect)
-		{
-			if (rect.Bottom >= colors.Length || rect.Top < 0)
-			{
-				return false;
-			}
-			for (var i = 0; i < rect.Width; i++)
-			{
-				if (Exist(colors, rect.Bottom + 1, rect.Left + i))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// 检查矩形左侧是否存在值为true的相邻元素
-		/// </summary>
-		/// <param name="colors">二维布尔数组</param>
-		/// <param name="rect">要检查的矩形区域</param>
-		/// <returns>如果矩形左侧存在值为true的相邻元素则返回true，否则返回false</returns>
-		public bool L_Exist(bool[][] colors, Rectangle rect)
-		{
-			if (rect.Right >= colors[0].Length || rect.Left < 0)
-			{
-				return false;
-			}
-			for (var i = 0; i < rect.Height; i++)
-			{
-				if (Exist(colors, rect.Top + i, rect.Left - 1))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// 检查矩形顶侧是否存在值为true的相邻元素
-		/// </summary>
-		/// <param name="colors">二维布尔数组</param>
-		/// <param name="rect">要检查的矩形区域</param>
-		/// <returns>如果矩形顶侧存在值为true的相邻元素则返回true，否则返回false</returns>
-		public bool U_Exist(bool[][] colors, Rectangle rect)
-		{
-			if (rect.Bottom >= colors.Length || rect.Top < 0)
-			{
-				return false;
-			}
-			for (var i = 0; i < rect.Width; i++)
-			{
-				if (Exist(colors, rect.Top - 1, rect.Left + i))
-				{
-					return true;
-				}
-			}
-			return false;
 		}
 
 		/// <summary>
@@ -7522,9 +6837,6 @@ namespace TrOCR
 				ai_menu_trans.Text = "AI√";
 			}
 
-
-
-
 			// 保存翻译接口配置
 			IniHelper.SetValue("配置", "翻译接口", name);
 			
@@ -7627,8 +6939,6 @@ namespace TrOCR
 				return $"[百度翻译]：发生未知错误 - {ex.Message}";
 			}
 		}
-
-
 
 		/// <summary>
 		/// 腾讯翻译实现函数
@@ -7744,12 +7054,10 @@ namespace TrOCR
 				var image = image_screen;
 				var imageBytes = OcrHelper.ImgToBytes(image);
 
-
 				// 调用新的表格识别方法
 				// string result = BaiduOcrHelper.TableRecognition(imageBytes, out this.lastRecognizedTable, out this.lastRecognizedHeader, out this.lastRecognizedFooter, false, false);
 				DataTable dummyTable; // DataTable 现在只是个附属品
 				string result = BaiduOcrHelper.TableRecognition(imageBytes, out dummyTable, out this.lastRecognizedHeader, out this.lastRecognizedFooter, out this.lastBaiduCells, false, false);
-
 
 				// 检查识别结果
 				if (string.IsNullOrWhiteSpace(result))
@@ -7818,66 +7126,6 @@ namespace TrOCR
 		public void OCR_table_Click(object sender, EventArgs e)
 		{
 			OCR_foreach("表格");
-		}
-
-		/// <summary>
-		/// 解析并处理表格OCR结果数据
-		/// 该方法将OCR识别结果解析为二维表格数据，并计算每列宽度，最后设置到剪贴板
-		/// </summary>
-		/// <param name="str">包含表格OCR识别结果的JSON字符串</param>
-		private void get_table(string str)
-		{
-			// 解析JSON数据，提取表格内容
-			var jArray = JArray.Parse(((JObject)JsonConvert.DeserializeObject(((JObject)JsonConvert.DeserializeObject(str))["result"]["result_data"].ToString().Replace("\\", "")))["forms"][0]["body"].ToString());
-			var array = new int[jArray.Count];
-			var array2 = new int[jArray.Count];
-			// 提取行列信息
-			for (var i = 0; i < jArray.Count; i++)
-			{
-				var jObject = JObject.Parse(jArray[i].ToString());
-				var value = jObject["column"].ToString().Replace("[", "").Replace("]", "").Replace("\r", "").Replace("\n", "").Trim();
-				var value2 = jObject["row"].ToString().Replace("[", "").Replace("]", "").Replace("\r", "").Replace("\n", "").Trim();
-				array[i] = Convert.ToInt32(value);
-				array2[i] = Convert.ToInt32(value2);
-			}
-			// 创建二维数组存储表格数据
-			var array3 = new string[array2.Max() + 1, array.Max() + 1];
-			for (var j = 0; j < jArray.Count; j++)
-			{
-				var jObject = JObject.Parse(jArray[j].ToString());
-				var value3 = jObject["column"].ToString().Replace("[", "").Replace("]", "").Replace("\r", "").Replace("\n", "").Trim();
-				var value4 = jObject["row"].ToString().Replace("[", "").Replace("]", "").Replace("\r", "").Replace("\n", "").Trim();
-				array[j] = Convert.ToInt32(value3);
-				array2[j] = Convert.ToInt32(value4);
-				var text = jObject["word"].ToString().Replace("[", "").Replace("]", "").Replace("\r", "").Replace("\n", "").Trim();
-				array3[Convert.ToInt32(value4), Convert.ToInt32(value3)] = text;
-			}
-			// 计算每列的最佳显示宽度
-			var graphics = CreateGraphics();
-			var array4 = new int[array.Max() + 1];
-			var num = 0;
-			var size = new SizeF(10f, 10f);
-			var num2 = Screen.PrimaryScreen.Bounds.Width / 4;
-			for (var k = 0; k < array3.GetLength(1); k++)
-			{
-				for (var l = 0; l < array3.GetLength(0); l++)
-				{
-					size = graphics.MeasureString(array3[l, k], new Font("宋体", 12f));
-					if (num < (int)size.Width)
-					{
-						num = (int)size.Width;
-					}
-					if (num > num2)
-					{
-						num = num2;
-					}
-				}
-				array4[k] = num;
-				num = 0;
-			}
-			graphics.Dispose();
-			// 将表格数据设置到剪贴板
-			setClipboard_Table(array3, array4);
 		}
 
 		/// <summary>
@@ -8026,49 +7274,6 @@ namespace TrOCR
 			}
 			
 		}
-
-		/// <summary>
-		/// 将表格数据转换为RTF格式并设置到RichBoxBody中
-		/// </summary>
-		/// <param name="wordo">包含表格数据的二维字符串数组</param>
-		/// <param name="cc">包含每列宽度的整型数组</param>
-		private void setClipboard_Table(string[,] wordo, int[] cc)
-		{
-			var str = "{\\rtf1\\ansi\\ansicpg936\\deff0\\deflang1033\\deflangfe2052{\\fonttbl{\\f0\\fnil\\fprq2\\fcharset134";
-			str += "\\'cb\\'ce\\'cc\\'e5;}{\\f1\\fnil\\fcharset134 \\'cb\\'ce\\'cc\\'e5;}}\\viewkind4\\uc1\\trowd\\trgaph108\\trleft-108";
-			str += "\\trbrdrt\\brdrs\\brdrw10 \\trbrdrl\\brdrs\\brdrw10 \\trbrdrb\\brdrs\\brdrw10 \\trbrdrb\\brdrs\\brdrw10 ";
-			var num = 0;
-			// 构造RTF表格列定义
-			for (var i = 1; i <= cc.Length; i++)
-			{
-				num += cc[i - 1] * 17;
-				str = str + "\\clbrdrt\\brdrw15\\brdrs\\clbrdrl\\brdrw15\\brdrs\\clbrdrb\\brdrw15\\brdrs\\clbrdrr\\brdrw15\\brdrs \\cellx" + num;
-			}
-			var text = "";
-			var str2 = "\\pard\\intbl\\kerning2\\f0";
-			var str3 = "\\row\\pard\\lang2052\\kerning0\\f1\\fs18\\par}";
-			// 构造RTF表格内容
-			for (var j = 0; j < wordo.GetLength(0); j++)
-			{
-				for (var k = 0; k < wordo.GetLength(1); k++)
-				{
-					if (k == 0)
-					{
-						text = text + "\\fs24 " + wordo[j, k];
-					}
-					else
-					{
-						text = text + "\\cell " + wordo[j, k];
-					}
-				}
-				if (j != wordo.GetLength(0) - 1)
-				{
-					text += "\\row\\intbl";
-				}
-			}
-			RichBoxBody.Rtx1Rtf = str + str2 + text + str3;
-		}
-
 
 		/// <summary>
 		/// 百度表格OCR识别按钮点击事件处理函数
@@ -8402,19 +7607,12 @@ namespace TrOCR
 		/// 语言标识，用于标识当前处理的文本语言类型
 		public string language;
 
-		
 		/// 分割文本内容，用于存储OCR识别后经过分割处理的文本
 		public string split_txt;
 
-	
-		/// 注释文本内容
-		public string note;
-
-		
 		/// 空格字符，用于文本处理时的空格表示
 		public string spacechar;
 
-		
 		/// RichTextBox1的注释内容
 		public string richTextBox1_note;
 
@@ -8457,14 +7655,8 @@ namespace TrOCR
 		/// 朗读状态标识，用于标识是否正在进行文本朗读
 		public bool speaking;
 
-		/// 朗读复制标识，用于标识是否需要复制并朗读文本
-		public static bool speak_copy;
-
 		/// 朗读复制标志，用于控制朗读复制功能
 		public string speak_copyb;
-
-		/// 朗读停止标志，用于控制文本朗读的停止
-		public string speak_stop;
 
 		/// TTS数据，用于存储文本转语音的音频数据
 		public byte[] ttsData;
@@ -8502,155 +7694,69 @@ namespace TrOCR
 		/// ESC定时器，用于ESC相关操作的定时控制
 		public Timer esc_timer;
 
-	
 		/// ESC线程，用于执行ESC相关操作
 		public Thread esc_thread;
 
-		
 		/// ESC标志，用于标识ESC操作的状态
 		public string esc;
 
-	
 		/// 语言标志，用于标识当前使用的语言类型
 		private string languagle_flag;
 
-	
-		/// 获取TKK的JavaScript代码，用于Google翻译相关功能
-		public static string GetTkkJS;
-
-	
 		/// 排版文本，用于存储经过排版处理的文本内容
 		public string typeset_txt;
 
-	
 		/// 百度标志，用于标识百度相关功能的状态
 		public string baidu_flags;
 
-		
-		/// 截图排斥标识，用于控制截图功能的排斥行为
-		public bool 截图排斥;
-
-		
 		/// 原始图像，用于存储处理前的原始图像内容
 		private Image image_ori;
 
-		
 		/// 竖排右侧文本，用于存储竖排文本的右侧内容
 		public string shupai_Right_txt;
-
-		
-		/// 自动重置事件，用于线程同步控制
-		private AutoResetEvent are;
-
-		
-		/// 百度Cookie，用于百度相关服务的身份验证
-		public string baiducookies;
-
 
 		/// 竖排左侧文本，用于存储竖排文本的左侧内容
 		public string shupai_Left_txt;
 
-		
-		/// 图像数组，用于存储多个图像对象
-		public Image[] image_arr;
-
-		
 		/// 百度OCR参数A，用于百度OCR服务的参数配置
 		public string OCR_baidu_a;
 
-		
 		/// 百度OCR参数B，用于百度OCR服务的参数配置
 		public string OCR_baidu_b;
 
-		
-		/// 图像数组列表，用于存储图像对象列表
-		public List<Image> imgArr;
-
-		
 		/// 图像列表，用于存储图像对象集合
 		public List<Image> imagelist;
 
-		
 		/// 图像列表长度，用于存储图像列表的长度信息
 		public int imagelist_lenght;
 
-		
 		/// 百度OCR参数D，用于百度OCR服务的参数配置
 		public string OCR_baidu_d;
 
-		
 		/// 百度OCR参数C，用于百度OCR服务的参数配置
 		public string OCR_baidu_c;
 
-		
 		/// 百度OCR参数E，用于百度OCR服务的参数配置
 		public string OCR_baidu_e;
 
-		
 		/// 图像编号数组，用于存储图像的编号信息
 		public int[] image_num;
 
-		
-		/// 代理标志，用于标识代理设置的状态
-		public string Proxy_flag;
-
-		
-		/// 代理URL，用于配置代理服务器地址
-		public string Proxy_url;
-
-		
-		/// 代理端口，用于配置代理服务器端口
-		public string Proxy_port;
-
-		
-		/// 代理用户名，用于代理服务器身份验证
-		public string Proxy_name;
-
-		
-		/// 代理密码，用于代理服务器身份验证
-		public string Proxy_password;
-
-		
 		/// 拼音标志，用于标识是否启用拼音功能
 		public bool pinyin_flag;
 
-		
 		/// 分割标志，用于标识文本分割功能是否启用
 		public bool set_split;
 
-		
 		/// 合并标志，用于标识文本合并功能是否启用
 		public bool set_merge;
 
-		
 		/// 翻译点击标识，用于标识翻译功能的点击状态
 		public bool tranclick;
 
-		
-		/// 自定义文本框内容，用于存储自定义文本框的文本
-		public string myjsTextBox;
-
-		
-		/// OCR订单标志，用于标识OCR订单相关状态
-		private string flags_ocrorder;
-
-		
-		/// 首行标识，用于标识首行相关设置
-		public int first_line;
-
-		
 		/// 段落标识，用于标识段落处理状态
 		public bool paragraph;
 
-		
-		/// Web浏览器控件，用于内嵌浏览器功能
-		private WebBrowser webBrowser;
-
-		
-		/// 腾讯Cookie，用于腾讯相关服务的身份验证
-		public string tencent_cookie;
-
-		
 		/// 阿里表格实例，用于处理阿里表格相关功能
 		private AliTable ailibaba;
 
@@ -8684,157 +7790,6 @@ namespace TrOCR
 		public delegate void Translate();
 
 		public delegate void OcrThread();
-
-		public delegate int Dllinput(string command);
-
-		public class AutoClosedMsgBox
-		{
-
-			[DllImport("user32.dll", CharSet = CharSet.Auto)]
-			private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
-			[DllImport("user32.dll")]
-			private static extern bool EndDialog(IntPtr hDlg, int nResult);
-
-			[DllImport("user32.dll")]
-			private static extern int MessageBoxTimeout(IntPtr hwnd, string txt, string caption, int wtype, int wlange, int dwtimeout);
-
-			public static int Show(string text, string caption, int milliseconds, MsgBoxStyle style)
-			{
-				return MessageBoxTimeout(IntPtr.Zero, text, caption, (int)style, 0, milliseconds);
-			}
-
-			public static int Show(string text, string caption, int milliseconds, int style)
-			{
-				return MessageBoxTimeout(IntPtr.Zero, text, caption, style, 0, milliseconds);
-			}
-
-			private const int WM_CLOSE = 16;
-		}
-
-		public enum MsgBoxStyle
-		{
-
-			OK,
-
-			OKCancel,
-
-			AbortRetryIgnore,
-
-			YesNoCancel,
-
-			YesNo,
-
-			RetryCancel,
-
-			CancelRetryContinue,
-
-			RedCritical_OK = 16,
-
-			RedCritical_OKCancel,
-
-			RedCritical_AbortRetryIgnore,
-
-			RedCritical_YesNoCancel,
-
-			RedCritical_YesNo,
-
-			RedCritical_RetryCancel,
-
-			RedCritical_CancelRetryContinue,
-
-			BlueQuestion_OK = 32,
-
-			BlueQuestion_OKCancel,
-
-			BlueQuestion_AbortRetryIgnore,
-
-			BlueQuestion_YesNoCancel,
-
-			BlueQuestion_YesNo,
-
-			BlueQuestion_RetryCancel,
-
-			BlueQuestion_CancelRetryContinue,
-
-			YellowAlert_OK = 48,
-
-			YellowAlert_OKCancel,
-
-			YellowAlert_AbortRetryIgnore,
-
-			YellowAlert_YesNoCancel,
-
-			YellowAlert_YesNo,
-
-			YellowAlert_RetryCancel,
-
-			YellowAlert_CancelRetryContinue,
-
-			BlueInfo_OK = 64,
-
-			BlueInfo_OKCancel,
-
-			BlueInfo_AbortRetryIgnore,
-
-			BlueInfo_YesNoCancel,
-
-			BlueInfo_YesNo,
-
-			BlueInfo_RetryCancel,
-
-			BlueInfo_CancelRetryContinue
-		}
-
-		[Serializable]
-		public class TransObj
-		{
-
-			public string From
-			{
-				get => from;
-				set => from = value;
-			}
-
-			public string To
-			{
-				get => to;
-				set => to = value;
-			}
-
-			public List<TransResult> Data
-			{
-				get => data;
-				set => data = value;
-			}
-
-			public List<TransResult> data;
-
-			public string from;
-
-			public string to;
-		}
-
-		[Serializable]
-		public class TransResult
-		{
-
-			public string Src
-			{
-				get => src;
-				set => src = value;
-			}
-
-			public string Dst
-			{
-				get => dst;
-				set => dst = value;
-			}
-
-			public string dst;
-
-			public string src;
-		}
 
 		private class HtmlToText
 		{
