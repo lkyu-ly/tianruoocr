@@ -379,6 +379,30 @@
     <Compile Include="FmSetting.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FmSetting.Init.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.AI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.Save.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.ApiKeys.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.General.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.OcrModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.WebDav.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.Misc.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FmSetting.Designer.cs">
       <DependentUpon>FmSetting.cs</DependentUpon>
     </Compile>
