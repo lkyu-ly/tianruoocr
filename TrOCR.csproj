@@ -475,6 +475,7 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>AdvRichTextBox.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LogicalName>TrOCR.AdvRichTextBox.resources</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Dialogs\FmHelp.resx">
       <DependentUpon>FmHelp.cs</DependentUpon>
