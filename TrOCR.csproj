@@ -316,13 +316,46 @@
     <Compile Include="FmLoadingExport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FmMain.Other.cs">
+    <Compile Include="FmMain.ImageProcessing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.TableOCR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.TTS.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.Tray.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FmMain.AI.Translate.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FmMain.AI.OCR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.OCR.Core.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.OCR.Engines.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.OCR.MenuHandlers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.Translation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.TextProcessing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.Clipboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.Config.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmMain.Utilities.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FmMain.cs">
@@ -344,6 +377,30 @@
       <DependentUpon>FmScreenPaste.cs</DependentUpon>
     </Compile>
     <Compile Include="FmSetting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.Init.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.AI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.Save.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.ApiKeys.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.General.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.OcrModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.WebDav.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FmSetting.Misc.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FmSetting.Designer.cs">
@@ -389,6 +446,7 @@
     <Compile Include="Messageload.Designer.cs">
       <DependentUpon>Messageload.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helper\UpdateChecker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
