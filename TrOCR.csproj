@@ -94,27 +94,6 @@
     <!-- <Reference Include="pangu.cs, Version=1.1.6.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\PanguSpacing.1.1.6\lib\netstandard2.0\pangu.cs.dll</HintPath>
     </Reference> -->
-    <!-- <Reference Include="Sdcb.PaddleOCR.Models.Local, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Sdcb.PaddleOCR.Models.Local.3.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.Models.Local.dll</HintPath>
-      <Private>False</Private>
-      <Private Condition="'$(Platform)' == 'x64'">True</Private>
-    </Reference> -->
-    <!-- <Reference Include="Sdcb.PaddleOCR.Models.LocalV3, Version=2.7.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Sdcb.PaddleOCR.Models.LocalV3.2.7.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.Models.LocalV3.dll</HintPath>
-      <Private>False</Private>
-      <Private Condition="'$(Platform)' == 'x64'">True</Private>
-    </Reference>
-    <Reference Include="Sdcb.PaddleOCR.Models.LocalV4, Version=2.7.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Sdcb.PaddleOCR.Models.LocalV4.2.7.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.Models.LocalV4.dll</HintPath>
-      <Private>False</Private>
-      <Private Condition="'$(Platform)' == 'x64'">True</Private>
-    </Reference>
-    <Reference Include="Sdcb.PaddleOCR.Models.LocalV5, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Sdcb.PaddleOCR.Models.LocalV5.3.0.0\lib\netstandard2.0\Sdcb.PaddleOCR.Models.LocalV5.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
-      <Private Condition="'$(Platform)' == 'x64'">True</Private>
-    </Reference> -->
     <Reference Include="ShareX.HelpersLib">
       <HintPath>DLL\ShareX\ShareX.HelpersLib.dll</HintPath>
     </Reference>
@@ -389,52 +368,6 @@
   <Target Name="ShowMyPaths" BeforeTargets="Build">
     <Message Text="诊断信息：Solution Directory (解决方案根目录) 的真实路径是 ==&gt; $(SolutionDir)" Importance="high" />
   </Target>
-  <ItemGroup Condition="'$(Platform)' == 'x64'">
-    <Content Include="$(SolutionDir)packages\Paddle.Runtime.win_x64.3.1.0\build\win_x64\*.*">
-      <Link>PaddleOCR_data\win_x64\%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="$(SolutionDir)packages\PaddleOCRSharp.5.1.0\build\PaddleOCRLib\inference\**\*.*">
-      <Link>PaddleOCR_data\win_x64\inference\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <!-- <Content Include="$(SolutionDir)packages\Sdcb.PaddleInference.runtime.win64.openblas-noavx.3.1.0.54\runtimes\win-x64\native\**\*.*">
-      <Link>PaddleOCR2_data\win_x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="$(SolutionDir)packages\OpenCvSharp4.runtime.win.4.11.0.20250507\runtimes\win-x64\native\**\*.*">
-      <Link>PaddleOCR2_data\win_x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content> -->
-    <Content Include="$(SolutionDir)packages\Sdcb.PaddleInference.runtime.win64.openblas-noavx.3.1.0.54\runtimes\win-x64\native\**\*.*">
-      <Link>dll\x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="$(SolutionDir)packages\OpenCvSharp4.runtime.win.4.11.0.20250507\runtimes\win-x64\native\**\*.*">
-      <Link>dll\x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <!-- <Content Include="$(SolutionDir)packages\Paddle.Runtime.win_x64.3.1.0\build\win_x64\*.*">
-      <Link>RapidOCR_data\win_x64\%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="$(SolutionDir)packages\PaddleOCRSharp.5.1.0\build\PaddleOCRLib\inference\**\*.*">
-      <Link>RapidOCR_data\win_x64\inference\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content> -->
-  </ItemGroup>
-  <ItemGroup Condition="'$(Platform)' == 'x64'" />
-  <ItemGroup>
-    <Folder Include="DLL\x64\" />
-    <Folder Include="PaddleOCR_data\win_x64\inference\ch_PP-OCRv4_det_infer\" />
-    <Folder Include="PaddleOCR_data\win_x64\inference\ch_PP-OCRv4_rec_infer\" />
-    <Folder Include="PaddleOCR_data\win_x64\inference\ch_ppocr_mobile_v2.0_cls_infer\" />
-    <Folder Include="PaddleOCR_data\win_x64\inference\ch_ppocr_mobile_v5.0_cls_infer\" />
-    <Folder Include="PaddleOCR_data\win_x64\inference\ch_ppstructure_mobile_v2.0_SLANet_infer\" />
-    <Folder Include="PaddleOCR_data\win_x64\inference\picodet_lcnet_x1_0_fgd_layout_infer\" />
-    <Folder Include="PaddleOCR_data\win_x64\inference\PP-OCRv5_mobile_det_infer\" />
-    <Folder Include="PaddleOCR_data\win_x64\inference\PP-OCRv5_mobile_rec_infer\" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML">
       <Version>0.105.0</Version>
@@ -455,25 +388,33 @@
     </PackageReference>
     <PackageReference Include="OpenCvSharp4.runtime.win">
       <Version>4.11.0.20250507</Version>
+      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets Condition="'$(Platform)' == 'x86'">native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="PaddleOCRSharp">
       <Version>5.1.0</Version>
-      <ExcludeAssets Condition="'$(Platform)' == 'x86'">build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Sdcb.PaddleInference.runtime.win64.mkl">
       <Version>3.1.0.54</Version>
+      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas-noavx">
       <Version>3.1.0.54</Version>
+      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Sdcb.PaddleOCR">
       <Version>3.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Sdcb.PaddleOCR.Models.Local">
-      <Version>3.0.1</Version>
+      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Sdcb.PaddleOCR.Models.Online">
       <Version>3.0.1</Version>
+      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="System.Drawing.Common">
       <Version>9.0.9</Version>
@@ -510,6 +451,7 @@
     )
     IF EXIST "$(TargetDir)dll" ( RD /S /Q "$(TargetDir)dll" )
     IF EXIST "$(TargetDir)PaddleOCR_data" ( RD /S /Q "$(TargetDir)PaddleOCR_data" )
+    IF EXIST "$(TargetDir)inference" ( RD /S /Q "$(TargetDir)inference" )
 
     if not exist "$(TargetDir)Data\modes" mkdir "$(TargetDir)Data\modes"
     copy /Y "$(ProjectDir)docs\modeconfigs\OCRModes.json" "$(TargetDir)Data\modes\"
