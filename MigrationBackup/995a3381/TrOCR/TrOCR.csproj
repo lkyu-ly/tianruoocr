@@ -1,0 +1,622 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- <Import Project="packages\Sdcb.PaddleInference.runtime.win64.openblas-noavx.3.1.0.54\build\net45\Sdcb.PaddleInference.runtime.win64.openblas-noavx.props" Condition="Exists('packages\Sdcb.PaddleInference.runtime.win64.openblas-noavx.3.1.0.54\build\net45\Sdcb.PaddleInference.runtime.win64.openblas-noavx.props') And '$(Platform)' == 'x64'" /> -->
+  <!-- <Import Project="packages\OpenCvSharp4.runtime.win.4.11.0.20250507\build\net48\OpenCvSharp4.runtime.win.props" Condition="Exists('packages\OpenCvSharp4.runtime.win.4.11.0.20250507\build\net48\OpenCvSharp4.runtime.win.props') And '$(Platform)' == 'x64'" /> -->
+  <!-- <Import Project="packages\Sdcb.PaddleInference.runtime.win64.mkl.3.1.0.54\build\net45\Sdcb.PaddleInference.runtime.win64.mkl.props" Condition="Exists('packages\Sdcb.PaddleInference.runtime.win64.mkl.3.1.0.54\build\net45\Sdcb.PaddleInference.runtime.win64.mkl.props') And '$(Platform)' == 'x64'" /> -->
+  <!-- <Import Project="packages\GitVersion.MsBuild.5.12.0\build\GitVersion.MsBuild.props" Condition="Exists('packages\GitVersion.MsBuild.5.12.0\build\GitVersion.MsBuild.props')" /> -->
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B130A49B-6676-465D-BAD4-B83666DFFA44}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TrOCR</RootNamespace>
+    <AssemblyName>天若OCR文字识别</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <LangVersion>9.0</LangVersion>
+    <ApplicationIcon>天若OCR文字识别.ico</ApplicationIcon>
+    <StartupObject>TrOCR.Program</StartupObject>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <!-- 解决使用pathmap无法调试的问题：只在release配置下使用pathmap，这样debug配置下调试，断点就正常了 -->
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PathMap>$(SolutionDir)=/src/</PathMap>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PathMap>$(SolutionDir)=/src/</PathMap>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ClosedXML, Version=0.105.0.0, Culture=neutral, PublicKeyToken=fd1eb21b62ae805b, processorArchitecture=MSIL">
+      <HintPath>packages\ClosedXML.0.105.0\lib\netstandard2.0\ClosedXML.dll</HintPath>
+    </Reference>
+    <Reference Include="ClosedXML.Parser, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1d5f7376574c51ec, processorArchitecture=MSIL">
+      <HintPath>packages\ClosedXML.Parser.2.0.0\lib\netstandard2.0\ClosedXML.Parser.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=3.1.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.3.1.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml.Framework, Version=3.1.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.Framework.3.1.1\lib\net46\DocumentFormat.OpenXml.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.Bitmap, Version=4.5.5.4823, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <HintPath>packages\Emgu.CV.Bitmap.4.5.5.4823\lib\netstandard2.0\Emgu.CV.Bitmap.dll</HintPath>
+    </Reference>
+    <Reference Include="Emgu.CV.Platform.NetStandard, Version=4.5.5.4823, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
+      <HintPath>packages\Emgu.CV.4.5.5.4823\lib\netstandard2.0\Emgu.CV.Platform.NetStandard.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelNumberFormat, Version=1.1.0.0, Culture=neutral, PublicKeyToken=23c6f5d73be07eca, processorArchitecture=MSIL">
+      <HintPath>packages\ExcelNumberFormat.1.1.0\lib\net20\ExcelNumberFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf, Version=3.29.3.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>packages\Google.Protobuf.3.29.3\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="GTranslate, Version=2.3.1.0, Culture=neutral, PublicKeyToken=33eae8e9dc71348b, processorArchitecture=MSIL">
+      <HintPath>packages\GTranslate.2.3.1\lib\netstandard2.0\GTranslate.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.9.0.2\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Bcl.HashCode.1.1.1\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
+    <!-- <Reference Include="Microsoft.VisualBasic" /> -->
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="OcrLib" Condition="'$(Platform)' == 'x64'">
+      <HintPath>$(SolutionDir)libs\OcrLib\x64\必需的\必须放在程序运行目录的\OcrLib.dll</HintPath>
+      <!-- <Private>False</Private> -->
+    </Reference>
+    <Reference Include="OcrLib" Condition="'$(Platform)' == 'x86'">
+      <HintPath>$(SolutionDir)libs\OcrLib\x86\必需的\必须放在程序运行目录的\OcrLib.dll</HintPath>
+      <!-- <Private>False</Private> -->
+    </Reference>
+    <Reference Include="Ookii.Dialogs.WinForms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=66aa232afad40158, processorArchitecture=MSIL">
+      <HintPath>packages\Ookii.Dialogs.WinForms.4.0.0\lib\net462\Ookii.Dialogs.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
+      <HintPath>packages\OpenCvSharp4.4.11.0.20250507\lib\net48\OpenCvSharp.dll</HintPath>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference>
+    <Reference Include="PaddleOCRSharp, Version=5.1.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>packages\PaddleOCRSharp.5.1.0\lib\net48\PaddleOCRSharp.dll</HintPath>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference>
+    <Reference Include="RBush, Version=4.0.0.0, Culture=neutral, PublicKeyToken=c77e27b81f4d0187, processorArchitecture=MSIL">
+      <HintPath>packages\RBush.Signed.4.0.0\lib\net47\RBush.dll</HintPath>
+    </Reference>
+    <!-- <Reference Include="pangu.cs, Version=1.1.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\PanguSpacing.1.1.6\lib\netstandard2.0\pangu.cs.dll</HintPath>
+    </Reference> -->
+    <Reference Include="Sdcb.PaddleInference, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Sdcb.PaddleInference.3.0.1\lib\net45\Sdcb.PaddleInference.dll</HintPath>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference>
+    <Reference Include="Sdcb.PaddleOCR, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Sdcb.PaddleOCR.3.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.dll</HintPath>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference>
+    <!-- <Reference Include="Sdcb.PaddleOCR.Models.Local, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Sdcb.PaddleOCR.Models.Local.3.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.Models.Local.dll</HintPath>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference> -->
+    <!-- <Reference Include="Sdcb.PaddleOCR.Models.LocalV3, Version=2.7.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Sdcb.PaddleOCR.Models.LocalV3.2.7.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.Models.LocalV3.dll</HintPath>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference>
+    <Reference Include="Sdcb.PaddleOCR.Models.LocalV4, Version=2.7.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Sdcb.PaddleOCR.Models.LocalV4.2.7.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.Models.LocalV4.dll</HintPath>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference>
+    <Reference Include="Sdcb.PaddleOCR.Models.LocalV5, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Sdcb.PaddleOCR.Models.LocalV5.3.0.0\lib\netstandard2.0\Sdcb.PaddleOCR.Models.LocalV5.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference> -->
+    <Reference Include="Sdcb.PaddleOCR.Models.Online, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Sdcb.PaddleOCR.Models.Online.3.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.Models.Online.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference>
+    <Reference Include="Sdcb.PaddleOCR.Models.Shared, Version=2.7.0.1, Culture=neutral, processorArchitecture=MSIL" Condition="'$(Platform)' == 'x64'">
+      <HintPath>packages\Sdcb.PaddleOCR.Models.Shared.2.7.0.1\lib\netstandard2.0\Sdcb.PaddleOCR.Models.Shared.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+      <Private Condition="'$(Platform)' == 'x64'">True</Private>
+    </Reference>
+    <Reference Include="ShareX.HelpersLib">
+      <HintPath>DLL\ShareX\ShareX.HelpersLib.dll</HintPath>
+    </Reference>
+    <Reference Include="ShareX.ScreenCaptureLib">
+      <HintPath>DLL\ShareX\ShareX.ScreenCaptureLib.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpCompress, Version=0.40.0.0, Culture=neutral, PublicKeyToken=afb0a02973931d96, processorArchitecture=MSIL">
+      <HintPath>packages\SharpCompress.0.40.0\lib\net481\SharpCompress.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.Fonts, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">
+      <HintPath>packages\SixLabors.Fonts.1.0.0\lib\netstandard2.0\SixLabors.Fonts.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Drawing.Common.9.0.9\lib\net462\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.IO.Pipelines, Version=9.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.IO.Pipelines.9.0.2\lib\net462\System.IO.Pipelines.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Json, Version=9.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Net.Http.Json.9.0.2\lib\net462\System.Net.Http.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Resources.Extensions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Resources.Extensions.6.0.0\lib\net461\System.Resources.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
+    <!-- <Reference Include="System.Runtime.Serialization" /> -->
+    <Reference Include="System.Security" />
+    <Reference Include="System.Text.Encodings.Web, Version=9.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Encodings.Web.9.0.2\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=9.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Text.Json.9.0.2\lib\net462\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+    <!-- <Reference Include="System.Xml.Serialization" />
+    <Reference Include="System.Xml.XmlSerializer" /> -->
+    <Reference Include="TencentCloudCommon, Version=3.0.1276.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\TencentCloudSDK.Common.3.0.1276\lib\net45\TencentCloudCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="TencentCloudTmt, Version=3.0.1276.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\TencentCloudSDK.Tmt.3.0.1276\lib\net45\TencentCloudTmt.dll</HintPath>
+    </Reference>
+    <Reference Include="WeChatOcr, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\WeChatOcr.1.0.3\lib\net481\WeChatOcr.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="YamlDotNet, Version=16.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>packages\YamlDotNet.16.3.0\lib\net47\YamlDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="ZstdSharp, Version=0.8.5.0, Culture=neutral, PublicKeyToken=8d151af33a4ad5cf, processorArchitecture=MSIL">
+      <HintPath>packages\ZstdSharp.Port.0.8.5\lib\net462\ZstdSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing">
+      <HintPath>DLL\zxing.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\AdvRichTextBox.Designer.cs">
+      <DependentUpon>AdvRichTextBox.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Forms\Dialogs\AliTable.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\AliTable.designer.cs">
+      <DependentUpon>AliTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\CustomAITransProvider.cs" />
+    <Compile Include="Models\CustomAIProvider.cs" />
+    <Compile Include="Forms\Dialogs\Fmflags.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\Fmflags.Designer.cs">
+      <DependentUpon>Fmflags.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Dialogs\FmHelp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\FmHelp.Designer.cs">
+      <DependentUpon>FmHelp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Dialogs\Fmloading.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\Fmloading.Designer.cs">
+      <DependentUpon>Fmloading.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Dialogs\FmLoadingExport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.ImageProcessing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.TableOCR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.TTS.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.Tray.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.AI.Translate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.AI.OCR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.OCR.Core.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.OCR.Engines.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.OCR.MenuHandlers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.Translation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.TextProcessing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.Clipboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.Config.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.Utilities.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Main\FmMain.Designer.cs">
+      <DependentUpon>FmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Dialogs\Fmnote.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\Fmnote.Designer.cs">
+      <DependentUpon>Fmnote.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Dialogs\FmScreenPaste.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\FmScreenPaste.Designer.cs">
+      <DependentUpon>FmScreenPaste.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.Init.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.AI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.Save.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.ApiKeys.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.General.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.OcrModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.WebDav.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.Misc.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings\FmSetting.Designer.cs">
+      <DependentUpon>FmSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Dialogs\FmTempTranslate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\FmTempTranslate.Designer.cs">
+      <DependentUpon>FmTempTranslate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Services\Translation\BaiduTranslator2Helper.cs" />
+    <Compile Include="Utilities\CommonHelper.cs" />
+    <Compile Include="Utilities\ExcelHelper.cs" />
+    <Compile Include="Utilities\HanzToPinyin.cs" />
+    <Compile Include="Utilities\HelpRepaint.cs" />
+    <Compile Include="Utilities\HelpWin32.cs" />
+    <Compile Include="Utilities\HttpHelper.cs" />
+    <Compile Include="Utilities\IniHelper.cs" />
+    <Compile Include="Models\AIModels.cs" />
+    <Compile Include="Utilities\NetworkInitializer.cs" />
+    <Compile Include="Services\OCR\OcrHelper.cs" />
+    <Compile Include="Services\Translation\OpenAICompatibleTranslate.cs" />
+    <Compile Include="Services\OCR\OpenAICompatibleHelper.cs" />
+    <Compile Include="Utilities\Pangu.cs" />
+    <Compile Include="Services\Translation\TranslateHelper.cs" />
+    <Compile Include="Services\Translation\BingTranslator.cs" />
+    <Compile Include="Services\Translation\BingTranslator2.cs" />
+    <Compile Include="Services\Translation\TencentTranslator.cs" />
+    <Compile Include="Services\Translation\CaiyunTranslator.cs" />
+    <Compile Include="Services\Translation\VolcanoTranslator.cs" />
+    <Compile Include="Services\Translation\CaiyunTranslator2.cs" />
+    <Compile Include="Services\OCR\BaiduOcrHelper.cs" />
+    <Compile Include="Services\OCR\TencentOcrHelper.cs" />
+    <Compile Include="Services\OCR\PaddleOCRHelper.cs" />
+    <Compile Include="Services\OCR\PaddleOCR2Helper.cs" />
+    <Compile Include="Services\OCR\RapidOCRHelper.cs" />
+    <Compile Include="Utilities\TrOCRUtils.cs" />
+    <Compile Include="Utilities\WebDavHelper.cs" />
+    <Compile Include="Forms\Dialogs\Messageload.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\Messageload.Designer.cs">
+      <DependentUpon>Messageload.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\UpdateChecker.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <DependentUpon>Resources.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <DependentUpon>Settings.settings</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Forms\Dialogs\ReplaceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Dialogs\ReplaceForm.Designer.cs">
+      <DependentUpon>ReplaceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RichTextBoxEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Utilities\StaticValue.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\AdvRichTextBox.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AdvRichTextBox.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+      <LogicalName>TrOCR.AdvRichTextBox.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Dialogs\FmHelp.resx">
+      <DependentUpon>FmHelp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Dialogs\Fmloading.resx">
+      <DependentUpon>Fmloading.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Main\FmMain.resx">
+      <DependentUpon>FmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Settings\FmSetting.resx">
+      <DependentUpon>FmSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Dialogs\FmTempTranslate.resx">
+      <DependentUpon>FmTempTranslate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="app.manifest" />
+    <None Include="GitVersion.yml" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\screenshot.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\update.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="wco_data\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="DLL\pinyin.txt" />
+  </ItemGroup>
+  <Target Name="ShowMyPaths" BeforeTargets="Build">
+    <Message Text="诊断信息：Solution Directory (解决方案根目录) 的真实路径是 ==&gt; $(SolutionDir)" Importance="high" />
+  </Target>
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
+    <Content Include="$(SolutionDir)packages\Paddle.Runtime.win_x64.3.1.0\build\win_x64\*.*">
+      <Link>PaddleOCR_data\win_x64\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(SolutionDir)packages\PaddleOCRSharp.5.1.0\build\PaddleOCRLib\inference\**\*.*">
+      <Link>PaddleOCR_data\win_x64\inference\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- <Content Include="$(SolutionDir)packages\Sdcb.PaddleInference.runtime.win64.openblas-noavx.3.1.0.54\runtimes\win-x64\native\**\*.*">
+      <Link>PaddleOCR2_data\win_x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(SolutionDir)packages\OpenCvSharp4.runtime.win.4.11.0.20250507\runtimes\win-x64\native\**\*.*">
+      <Link>PaddleOCR2_data\win_x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content> -->
+    <Content Include="$(SolutionDir)packages\Sdcb.PaddleInference.runtime.win64.openblas-noavx.3.1.0.54\runtimes\win-x64\native\**\*.*">
+      <Link>dll\x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(SolutionDir)packages\OpenCvSharp4.runtime.win.4.11.0.20250507\runtimes\win-x64\native\**\*.*">
+      <Link>dll\x64\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- <Content Include="$(SolutionDir)packages\Paddle.Runtime.win_x64.3.1.0\build\win_x64\*.*">
+      <Link>RapidOCR_data\win_x64\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="$(SolutionDir)packages\PaddleOCRSharp.5.1.0\build\PaddleOCRLib\inference\**\*.*">
+      <Link>RapidOCR_data\win_x64\inference\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content> -->
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)' == 'x64'" />
+  <ItemGroup>
+    <Folder Include="DLL\x64\" />
+    <Folder Include="PaddleOCR_data\win_x64\inference\ch_PP-OCRv4_det_infer\" />
+    <Folder Include="PaddleOCR_data\win_x64\inference\ch_PP-OCRv4_rec_infer\" />
+    <Folder Include="PaddleOCR_data\win_x64\inference\ch_ppocr_mobile_v2.0_cls_infer\" />
+    <Folder Include="PaddleOCR_data\win_x64\inference\ch_ppocr_mobile_v5.0_cls_infer\" />
+    <Folder Include="PaddleOCR_data\win_x64\inference\ch_ppstructure_mobile_v2.0_SLANet_infer\" />
+    <Folder Include="PaddleOCR_data\win_x64\inference\picodet_lcnet_x1_0_fgd_layout_infer\" />
+    <Folder Include="PaddleOCR_data\win_x64\inference\PP-OCRv5_mobile_det_infer\" />
+    <Folder Include="PaddleOCR_data\win_x64\inference\PP-OCRv5_mobile_rec_infer\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- <Import Project="packages\Paddle.Runtime.win_x64.3.1.0\build\Paddle.Runtime.win_x64.targets" Condition="Exists('packages\Paddle.Runtime.win_x64.3.1.0\build\Paddle.Runtime.win_x64.targets') And '$(Platform)' == 'x64'" /> -->
+  <!-- <Import Project="packages\PaddleOCRSharp.5.1.0\build\PaddleOCRSharp.targets" Condition="Exists('packages\PaddleOCRSharp.5.1.0\build\PaddleOCRSharp.targets') And '$(Platform)' == 'x64'" /> -->
+  <!-- <Import Project="packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" /> -->
+  <PropertyGroup>
+    <!-- <PostBuildEvent>if /I "$(PlatformName)" == "x86" (
+    echo Deleting x64-only WeChatOcr components for x86 build...
+
+    rem 删除 WeChatOcr 的托管DLL
+    if exist "$(TargetDir)WeChatOcr.dll" (
+        del /F /Q "$(TargetDir)WeChatOcr.dll"
+    )
+
+    rem 删除 WeChatOcr 依赖的 wco_data 文件夹
+    if exist "$(TargetDir)wco_data" (
+        rmdir /S /Q "$(TargetDir)wco_data"
+    )
+)</PostBuildEvent> -->
+    <PostBuildEvent>if /I "$(PlatformName)" == "x86" (
+    echo Deleting x64-only WeChatOcr components for x86 build...
+    
+    rem 删除 WeChatOcr 依赖的 wco_data 文件夹
+    if exist "$(TargetDir)wco_data" (
+        rmdir /S /Q "$(TargetDir)wco_data"
+    )
+)
+IF EXIST "$(TargetDir)dll" ( RD /S /Q "$(TargetDir)dll" )
+IF EXIST "$(TargetDir)PaddleOCR_data" ( RD /S /Q "$(TargetDir)PaddleOCR_data" )
+
+
+if not exist "$(TargetDir)Data\modes" mkdir "$(TargetDir)Data\modes"
+copy /Y "$(ProjectDir)docs\modeconfigs\OCRModes.json" "$(TargetDir)Data\modes\"
+copy /Y "$(ProjectDir)docs\modeconfigs\TranslateModes.json" "$(TargetDir)Data\modes\"
+
+if not exist "$(TargetDir)lib" mkdir "$(TargetDir)lib"
+move "$(TargetDir)*.dll" "$(TargetDir)lib\"
+move /Y "$(TargetDir)*.pdb" "$(TargetDir)lib\"
+move /Y "$(TargetDir)*.xml" "$(TargetDir)lib\"
+move /Y "$(TargetDir)lib\天若OCR文字识别.pdb" "$(TargetDir)"
+if /I "$(PlatformName)" == "x64" (
+move /Y "$(TargetDir)lib\Sdcb.*.dll" "$(TargetDir)"
+move /Y "$(TargetDir)lib\Sdcb.*.xml" "$(TargetDir)"
+)
+</PostBuildEvent>
+  </PropertyGroup>
+  <!-- <Import Project="packages\GitVersion.MsBuild.5.12.0\build\GitVersion.MsBuild.targets" Condition="Exists('packages\GitVersion.MsBuild.5.12.0\build\GitVersion.MsBuild.targets')" /> -->
+</Project>
