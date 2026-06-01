@@ -6,10 +6,16 @@
 
 		protected override void Dispose(bool disposing)
 		{
-			bool flag = disposing && this.components != null;
-			if (flag)
+			if (disposing)
 			{
-				this.components.Dispose();
+				var image = pasteImage;
+				pasteImage = null;
+				image?.Dispose();
+
+				if (components != null)
+				{
+					components.Dispose();
+				}
 			}
 			base.Dispose(disposing);
 		}

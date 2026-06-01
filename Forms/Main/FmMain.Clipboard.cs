@@ -116,12 +116,17 @@ namespace TrOCR
 				SendKeys.SendWait("^c");
 				SendKeys.Flush();
 			}
-			var text = Clipboard.GetText();
-			text = (string.IsNullOrWhiteSpace(text) ? null : text);
-			// 如果获取到文本内容，则清空剪贴板
-			if (text != null)
+				if (!ClipboardHelper.TryGetText(out var text, out var clipError))
 			{
-				Clipboard.Clear();
+				Debug.WriteLine(clipError);
+				CommonHelper.ShowHelpMsg("剪贴板被占用，读取失败", 1600u);
+				return null;
+			}
+
+			text = string.IsNullOrWhiteSpace(text) ? null : text;
+			if (text != null && !ClipboardHelper.TryClear(out clipError))
+			{
+				Debug.WriteLine(clipError);
 			}
 			return text;
 		}
@@ -132,10 +137,8 @@ namespace TrOCR
         /// <param name="data">要复制到剪贴板的对象 (可以是 string, DataObject, Image 等)。</param>
         public void SetClipboardWithLock(object data)
         {
-            // 检查传入的对象是否为 null
             if (data == null) return;
 
-            // 如果传入的是字符串，额外检查它是否为空或仅包含空白字符
             if (data is string textData && string.IsNullOrWhiteSpace(textData))
             {
                 return;
@@ -143,22 +146,24 @@ namespace TrOCR
 
             try
             {
-                // 1. 激活状态锁
                 isAutoCopying = true;
                 Debug.WriteLine("--- 剪贴板锁已激活 ---");
 
-                // 2. 执行复制操作
-                // 这个调用现在是通用的，可以处理 string、DataObject 等多种类型
-                Clipboard.SetDataObject(data, true, 5, 100);
+                if (!ClipboardHelper.TrySetDataObject(data, out var errorMessage))
+                {
+                    CommonHelper.ShowHelpMsg("剪贴板被占用，复制失败", 1600u);
+                    Debug.WriteLine(errorMessage);
+                    isAutoCopying = false;
+                    autoCopyLockTimer.Stop();
+                    return;
+                }
 
-                // 3. 启动定时器，创建静默期
-                autoCopyLockTimer.Stop(); // 确保定时器被重置
+                autoCopyLockTimer.Stop();
                 autoCopyLockTimer.Start();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"带锁设置剪贴板失败: {ex.Message}");
-                // 如果复制失败，必须立即解除锁定
+                Debug.WriteLine($"带锁设置剪贴板失败: {ex.Message}");
                 isAutoCopying = false;
                 autoCopyLockTimer.Stop();
             }
@@ -177,14 +182,22 @@ namespace TrOCR
             {
                 isAutoCopying = true;
                 Debug.WriteLine("--- 剪贴板锁已激活 (Data) ---");
-                // 此调用处理 Clipboard.SetData 的情况
-                Clipboard.SetData(format, data);
+
+                if (!ClipboardHelper.TrySetData(format, data, out var errorMessage))
+                {
+                    CommonHelper.ShowHelpMsg("剪贴板被占用，复制失败", 1600u);
+                    Debug.WriteLine(errorMessage);
+                    isAutoCopying = false;
+                    autoCopyLockTimer.Stop();
+                    return;
+                }
+
                 autoCopyLockTimer.Stop();
                 autoCopyLockTimer.Start();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"带锁设置剪贴板数据失败: {ex.Message}");
+                Debug.WriteLine($"带锁设置剪贴板数据失败: {ex.Message}");
                 isAutoCopying = false;
                 autoCopyLockTimer.Stop();
             }
