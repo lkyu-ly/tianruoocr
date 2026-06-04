@@ -22,19 +22,14 @@ namespace TrOCR
 			if (isAppLoading)
 			{
 				isAppLoading = false; // 将标志位置为false，确保此逻辑只执行一次
-                // 使用 try-catch 保护剪贴板读取，防止启动时其他程序占用剪贴板导致崩溃
-                try
+                if (!ClipboardHelper.TryGetText(out var startupClipboardText, out var startupClipboardError))
                 {
-                    if (Clipboard.ContainsText())
-                    {
-                        // 同步初始的剪贴板内容，以便下一次真正的复制可以被正确比较
-                        lastClipboardText = Clipboard.GetText();
-                    }
+                    Debug.WriteLine(startupClipboardError);
                 }
-                catch (Exception ex)
+                else if (!string.IsNullOrEmpty(startupClipboardText))
                 {
-                    Debug.WriteLine("程序启动时同步剪贴板状态失败: " + ex.Message);
-                    // 启动时读取失败没关系，直接忽略即可，不影响后续监听
+                    // 同步初始的剪贴板内容，以便下一次真正的复制可以被正确比较
+                    lastClipboardText = startupClipboardText;
                 }
                 return; // 关键：直接退出，不执行任何后续的翻译操作
 			}
@@ -57,19 +52,10 @@ namespace TrOCR
 		    // 1. 首先停止定时器，防止重复执行
 		    clipboardDebounceTimer.Stop();
 
-            string clipboardText = null;
-
-            // 2. 将 ContainsText 和 GetText 全部放入 try-catch 中
-            try
+            // 2. 通过 ClipboardHelper 读取剪贴板，统一获得重试与诊断
+            if (!ClipboardHelper.TryGetText(out var clipboardText, out var clipboardError))
             {
-                if (Clipboard.ContainsText())
-                {
-                    clipboardText = Clipboard.GetText();
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("获取剪贴板文本失败，可能被其他程序占用: " + ex.Message);
+                Debug.WriteLine(clipboardError);
                 return; // 获取失败则直接返回，等待下一次用户复制
             }
 

@@ -7,6 +7,10 @@ using TrOCR.Helper;
 
 namespace TrOCR.Tests
 {
+    /// <summary>
+    /// 验证 <see cref="ClipboardHelper"/> 在剪贴板被占用、参数异常等边界条件下的行为。
+    /// 确保重试机制和诊断消息按预期工作，不会因外部剪贴板竞争导致未处理异常。
+    /// </summary>
     [TestFixture]
     public class ClipboardHelperTests
     {
@@ -16,6 +20,10 @@ namespace TrOCR.Tests
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool CloseClipboard();
 
+        /// <summary>
+        /// 当传入 null 数据时，TrySetDataObject 应视为无操作并返回成功，不产生错误消息。
+        /// 防御调用方未做空值检查就透传给 ClipboardHelper 的场景。
+        /// </summary>
         [Test]
         public void TrySetDataObject_NullData_ReturnsTrueWithoutError()
         {
@@ -25,6 +33,10 @@ namespace TrOCR.Tests
             Assert.That(errorMessage, Is.Null);
         }
 
+        /// <summary>
+        /// 验证诊断消息构建方法包含用户友好提示和原始异常信息，
+        /// 确保开发者和用户都能从消息中获得有效信息。
+        /// </summary>
         [Test]
         public void BuildClipboardErrorMessage_IncludesOriginalErrorMessage()
         {
@@ -34,6 +46,11 @@ namespace TrOCR.Tests
             Assert.That(message, Does.Contain("open clipboard failed"));
         }
 
+        /// <summary>
+        /// 模拟另一线程持有剪贴板锁的场景，验证 TrySetDataObject 在重试耗尽后
+        /// 返回 false 并提供包含诊断信息的错误消息，而非抛出异常。
+        /// 标记为 Explicit：使用全局 Windows 剪贴板，需手动运行。
+        /// </summary>
         [Test]
         [Explicit("Uses the global Windows clipboard. Run manually when validating clipboard-lock behavior.")]
         [Apartment(ApartmentState.STA)]
