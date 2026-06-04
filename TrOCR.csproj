@@ -258,13 +258,16 @@
       <DependentUpon>FmTempTranslate.cs</DependentUpon>
     </Compile>
     <Compile Include="Services\Translation\BaiduTranslator2Helper.cs" />
+    <Compile Include="Utilities\ClipboardHelper.cs" />
     <Compile Include="Utilities\CommonHelper.cs" />
     <Compile Include="Utilities\ExcelHelper.cs" />
     <Compile Include="Utilities\HanzToPinyin.cs" />
     <Compile Include="Utilities\HelpRepaint.cs" />
     <Compile Include="Utilities\HelpWin32.cs" />
     <Compile Include="Utilities\HttpHelper.cs" />
+    <Compile Include="Utilities\ImageHelper.cs" />
     <Compile Include="Utilities\IniHelper.cs" />
+    <Compile Include="Utilities\OwnedImage.cs" />
     <Compile Include="Models\AIModels.cs" />
     <Compile Include="Utilities\NetworkInitializer.cs" />
     <Compile Include="Services\OCR\OcrHelper.cs" />

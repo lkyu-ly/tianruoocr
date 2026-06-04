@@ -839,7 +839,14 @@ namespace TrOCR
 			SendKeys.SendWait("^c");
 			SendKeys.Flush();
 			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged;
-			RichBoxBody.Text = Clipboard.GetText();
+			if (!ClipboardHelper.TryGetText(out var clipText, out var clipErr))
+			{
+				Debug.WriteLine(clipErr);
+				CommonHelper.ShowHelpMsg("剪贴板被占用，读取失败", 1600u);
+				RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
+				return;
+			}
+			RichBoxBody.Text = clipText;
 			// RichBoxBody.richTextBox1.TextChanged += RichBoxBody_TextChanged;
             // 1. 先让窗口以正常状态显示出来
             FormBorderStyle = FormBorderStyle.Sizable;

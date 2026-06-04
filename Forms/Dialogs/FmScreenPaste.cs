@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -6,31 +6,38 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using TrOCR.Helper;
 
 namespace TrOCR
 {
 
 	public partial class FmScreenPaste : Form
 	{
+		private OwnedImage pasteImage;
+		private bool isClosing;
 
 		public FmScreenPaste(Image img, Point LocationPoint)
 		{
+			if (img == null)
+			{
+				throw new ArgumentNullException(nameof(img));
+			}
+
 			m_aeroEnabled = false;
 			InitializeComponent();
-			BackgroundImage = img;
+			DoubleBuffered = true;
+
+			pasteImage = new OwnedImage(img);
 			Location = LocationPoint;
 			FormBorderStyle = FormBorderStyle.None;
 			MouseDown += Form1_MouseDown;
 			MouseMove += Form1_MouseMove;
 			MouseUp += Form1_MouseUp;
-			var size = img.Size;
-			MaximumSize = (MinimumSize = size);
+
+			var size = pasteImage.Size;
+			MaximumSize = MinimumSize = size;
 			Size = size;
 			MouseDoubleClick += 双击_MouseDoubleClick;
-		}
-
-		private void Form_MouseWheel(object sender, MouseEventArgs e)
-		{
 		}
 
 		private void RightCMS_Opening(object sender, CancelEventArgs e)
@@ -53,45 +60,96 @@ namespace TrOCR
 
 		private void 关闭ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			BackgroundImage.Dispose();
-			GC.Collect();
-			Close();
+			CloseAndDisposeImage();
 		}
 
 		private void 复制toolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			Clipboard.SetImage(BackgroundImage);
+			if (pasteImage == null || !pasteImage.IsUsable)
+			{
+				CommonHelper.ShowHelpMsg("贴图已失效");
+				CloseAndDisposeImage();
+				return;
+			}
+
+			using (var copy = pasteImage.CloneBitmap())
+			{
+				if (!ClipboardHelper.TrySetDataObject(copy, out var errorMessage))
+				{
+					CommonHelper.ShowHelpMsg("复制失败：剪贴板被占用", 1600u);
+					System.Diagnostics.Debug.WriteLine(errorMessage);
+				}
+			}
 		}
 
 		private void 保存toolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			var saveFileDialog = new SaveFileDialog();
-			saveFileDialog.Filter = "jpg图片(*.jpg)|*.jpg|png图片(*.png)|*.jpg|bmp图片(*.bmp)|*.bmp";
-			saveFileDialog.AddExtension = false;
-			saveFileDialog.FileName = string.Concat("tianruo_", DateTime.Now.Year.ToString(), "-", DateTime.Now.Month.ToString(), "-", DateTime.Now.Day.ToString(), "-", DateTime.Now.Ticks.ToString());
-			saveFileDialog.Title = "保存图片";
-			saveFileDialog.FilterIndex = 1;
-			saveFileDialog.RestoreDirectory = true;
-			var flag = saveFileDialog.ShowDialog() == DialogResult.OK;
-			if (flag)
+			if (pasteImage == null || !pasteImage.IsUsable)
 			{
+				CommonHelper.ShowHelpMsg("贴图已失效");
+				CloseAndDisposeImage();
+				return;
+			}
+
+			using (var saveFileDialog = new SaveFileDialog())
+			{
+				saveFileDialog.Filter = "jpg图片(*.jpg)|*.jpg|png图片(*.png)|*.png|bmp图片(*.bmp)|*.bmp";
+				saveFileDialog.AddExtension = false;
+				saveFileDialog.FileName = string.Concat("tianruo_", DateTime.Now.Year, "-", DateTime.Now.Month, "-", DateTime.Now.Day, "-", DateTime.Now.Ticks);
+				saveFileDialog.Title = "保存图片";
+				saveFileDialog.FilterIndex = 1;
+				saveFileDialog.RestoreDirectory = true;
+
+				if (saveFileDialog.ShowDialog() != DialogResult.OK)
+				{
+					return;
+				}
+
 				var extension = Path.GetExtension(saveFileDialog.FileName);
-				var flag2 = extension.Equals(".jpg");
-				if (flag2)
+				var format = GetImageFormat(extension);
+				if (format == null)
 				{
-					BackgroundImage.Save(saveFileDialog.FileName, ImageFormat.Jpeg);
+					CommonHelper.ShowHelpMsg("不支持的图片格式");
+					return;
 				}
-				var flag3 = extension.Equals(".png");
-				if (flag3)
+
+				try
 				{
-					BackgroundImage.Save(saveFileDialog.FileName, ImageFormat.Png);
+					pasteImage.Bitmap.Save(saveFileDialog.FileName, format);
 				}
-				var flag4 = extension.Equals(".bmp");
-				if (flag4)
+				catch (ExternalException ex)
 				{
-					BackgroundImage.Save(saveFileDialog.FileName, ImageFormat.Bmp);
+					CommonHelper.ShowHelpMsg("保存失败");
+					System.Diagnostics.Debug.WriteLine("贴图保存失败: " + ex);
+				}
+				catch (ArgumentException ex)
+				{
+					CommonHelper.ShowHelpMsg("贴图已失效");
+					System.Diagnostics.Debug.WriteLine("贴图保存失败: " + ex);
+					CloseAndDisposeImage();
 				}
 			}
+		}
+
+		private static ImageFormat GetImageFormat(string extension)
+		{
+			if (string.Equals(extension, ".jpg", StringComparison.OrdinalIgnoreCase) ||
+				string.Equals(extension, ".jpeg", StringComparison.OrdinalIgnoreCase))
+			{
+				return ImageFormat.Jpeg;
+			}
+
+			if (string.Equals(extension, ".png", StringComparison.OrdinalIgnoreCase))
+			{
+				return ImageFormat.Png;
+			}
+
+			if (string.Equals(extension, ".bmp", StringComparison.OrdinalIgnoreCase))
+			{
+				return ImageFormat.Bmp;
+			}
+
+			return null;
 		}
 
 		[DllImport("user32.dll")]
@@ -180,8 +238,17 @@ namespace TrOCR
 
 		private void 双击_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			BackgroundImage.Dispose();
-			GC.Collect();
+			CloseAndDisposeImage();
+		}
+
+		private void CloseAndDisposeImage()
+		{
+			if (isClosing)
+			{
+				return;
+			}
+
+			isClosing = true;
 			Close();
 		}
 
@@ -224,23 +291,44 @@ namespace TrOCR
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			DoubleBuffered = true;
-			var flag = BackgroundImage != null;
-			if (flag)
+			if (pasteImage == null || !pasteImage.IsUsable)
 			{
-				e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
-				e.Graphics.DrawImage(BackgroundImage, new Rectangle(0, 0, Width, Height), 0, 0, BackgroundImage.Width, BackgroundImage.Height, GraphicsUnit.Pixel);
+				base.OnPaint(e);
+				return;
 			}
+
+			try
+			{
+				var image = pasteImage.Bitmap;
+				e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
+				e.Graphics.DrawImage(
+					image,
+					new Rectangle(0, 0, Width, Height),
+					0,
+					0,
+					image.Width,
+					image.Height,
+					GraphicsUnit.Pixel);
+			}
+			catch (ArgumentException ex)
+			{
+				System.Diagnostics.Debug.WriteLine("贴图窗口绘制失败: " + ex.Message);
+				CloseAndDisposeImage();
+				return;
+			}
+			catch (ObjectDisposedException ex)
+			{
+				System.Diagnostics.Debug.WriteLine("贴图窗口图像已释放: " + ex.Message);
+				CloseAndDisposeImage();
+				return;
+			}
+
 			base.OnPaint(e);
 		}
 
 		protected override void OnPaintBackground(PaintEventArgs e)
 		{
 		}
-
-		private int zoomLevel;
-
-		private string ScreenshotLastSavePath;
 
 		private bool m_aeroEnabled;
 

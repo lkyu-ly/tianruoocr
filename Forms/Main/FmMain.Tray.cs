@@ -509,10 +509,11 @@ namespace TrOCR
 			RichBoxBody.richTextBox1.TextChanged -= RichBoxBody_TextChanged; // 关键：在设置文本前，先断开事件处理，避免触发不必要的逻辑
 			try
 			{
-				if (StaticValue.InputTranslateClipboard && Clipboard.ContainsText())
+				string clipboardText = null;
+				string clipboardError = null;
+				if (StaticValue.InputTranslateClipboard && ClipboardHelper.TryGetText(out clipboardText, out clipboardError) && !string.IsNullOrEmpty(clipboardText))
 				{
-					string clipboardText = Clipboard.GetText();
-					string textToDisplay = clipboardText; // 默认显示原始剪贴板文本
+					string textToDisplay = clipboardText;
 
 					// --- 新增的核心逻辑：检查并执行自动合并 ---
 					if (bool.Parse(IniHelper.GetValue("工具栏", "合并"))) // 检查是否开启了自动合并
@@ -549,6 +550,10 @@ namespace TrOCR
 				}
 				else
 				{
+					if (!string.IsNullOrEmpty(clipboardError))
+					{
+						Debug.WriteLine(clipboardError);
+					}
 					RichBoxBody.Text = "";
 				}
 			}

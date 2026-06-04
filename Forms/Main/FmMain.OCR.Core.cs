@@ -223,8 +223,24 @@ namespace TrOCR
 								}
 								if (modeFlag == "截图")
 								{
-									// 截图模式：将图像复制到剪贴板
-									Clipboard.SetImage(image_screen);
+									using (var copy = ImageHelper.CloneBitmap(image_screen))
+									{
+										if (!ClipboardHelper.TrySetDataObject(copy, out var errorMessage))
+										{
+											CommonHelper.ShowHelpMsg("剪贴板被占用，截图复制失败", 1600u);
+											Debug.WriteLine(errorMessage);
+										}
+										else
+										{
+											if (IniHelper.GetValue("截图音效", "粘贴板") == "True")
+											{
+												PlaySong(IniHelper.GetValue("截图音效", "音效路径"));
+											}
+
+											CommonHelper.ShowHelpMsg("已复制截图");
+										}
+									}
+
 									if (IniHelper.GetValue("快捷键", "翻译文本") != "请按下快捷键")
 									{
 										var value5 = IniHelper.GetValue("快捷键", "翻译文本");
@@ -234,11 +250,6 @@ namespace TrOCR
 									}
 									HelpWin32.UnregisterHotKey(Handle, 222);
 									StaticValue.IsCapture = false;
-									if (IniHelper.GetValue("截图音效", "粘贴板") == "True")
-									{
-										PlaySong(IniHelper.GetValue("截图音效", "音效路径"));
-									}
-									CommonHelper.ShowHelpMsg("已复制截图");
 								}
 								else if (modeFlag == "自动保存" && IniHelper.GetValue("配置", "自动保存") == "True")
 								{

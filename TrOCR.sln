@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36401.2 d17.14
+VisualStudioVersion = 17.14.36401.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrOCR", "TrOCR.csproj", "{B130A49B-6676-465D-BAD4-B83666DFFA44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrOCR.Tests", "Tests\TrOCR.Tests.csproj", "{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,9 +37,28 @@ Global
 		{B130A49B-6676-465D-BAD4-B83666DFFA44}.Release|x64.Build.0 = Release|x64
 		{B130A49B-6676-465D-BAD4-B83666DFFA44}.Release|x86.ActiveCfg = Release|x86
 		{B130A49B-6676-465D-BAD4-B83666DFFA44}.Release|x86.Build.0 = Release|x86
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Debug|x64.Build.0 = Debug|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Debug|x86.Build.0 = Debug|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Release|x64.ActiveCfg = Release|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Release|x64.Build.0 = Release|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Release|x86.ActiveCfg = Release|Any CPU
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B8C62AAF-FB5A-4DA5-B84D-57DC9EDE162C} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0D78471A-2E8B-4745-9404-B8AFFC757936}

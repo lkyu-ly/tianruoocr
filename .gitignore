@@ -27,6 +27,13 @@ nuget.exe
 # Serena LSP cache
 .serena/
 
-# Claude AI documentation (local-only)
+# AI documentation
 CLAUDE.md
 **/CLAUDE.md
+.claude/
+
+AGENTS.md
+
+# Test project build artifacts
+Tests/bin/
+Tests/obj/
