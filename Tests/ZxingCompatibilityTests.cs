@@ -6,9 +6,16 @@ using ZXing.QrCode;
 
 namespace TrOCR.Tests
 {
+    /// <summary>
+    /// ZXing NuGet 包兼容性测试：验证从本地 DLL 迁移为 NuGet 包引用后
+    /// 二维码编解码功能和程序集版本均正常。
+    /// </summary>
     [TestFixture]
     public class ZxingCompatibilityTests
     {
+        /// <summary>
+        /// 端到端验证：生成 QR 码并立即解码，确认 NuGet 版本的编解码路径完整可用。
+        /// </summary>
         [Test]
         public void QrCode_CanRoundTripUsingCurrentReaderPath()
         {
@@ -35,6 +42,9 @@ namespace TrOCR.Tests
             }
         }
 
+        /// <summary>
+        /// 验证 ZXing 程序集版本为 0.16.11+，防止意外降级到旧版本。
+        /// </summary>
         [Test]
         public void Zxing_AssemblyVersionIsModern()
         {

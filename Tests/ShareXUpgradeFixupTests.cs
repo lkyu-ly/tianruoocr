@@ -5,9 +5,17 @@ using NUnit.Framework;
 
 namespace TrOCR.Tests
 {
+    /// <summary>
+    /// ShareX 源码集成验证测试：确保适配层隔离、子模块路径正确、
+    /// 卫星资源不泄漏、以及悬停截图逻辑已正确注入。
+    /// </summary>
     [TestFixture]
     public class ShareXUpgradeFixupTests
     {
+        /// <summary>
+        /// 验证 Forms 层源码中不直接引用 ShareX.ScreenCaptureLib 的任何公共类型，
+        /// 保证业务代码完全通过 IScreenCaptureService 适配层访问截图功能。
+        /// </summary>
         [Test]
         public void Forms_DoNotReferenceShareXTypesDirectly()
         {
@@ -38,6 +46,10 @@ namespace TrOCR.Tests
                 + string.Join(Environment.NewLine, violations));
         }
 
+        /// <summary>
+        /// 验证 ShareX 子模块 ProjectReference 路径为 external\ShareX\，
+        /// 确保从旧路径 references\ShareX\ 迁移后不会回退。
+        /// </summary>
         [Test]
         public void ShareXProjectReferences_UseExternalPath()
         {
@@ -48,6 +60,10 @@ namespace TrOCR.Tests
             Assert.That(project, Does.Not.Contain(@"references\ShareX\"));
         }
 
+        /// <summary>
+        /// 验证 x64 Release 构建产物中不包含 ShareX 的多语言卫星资源程序集，
+        /// 确认 RemoveShareXSatelliteResourcesFromOutput 清理目标正常工作。
+        /// </summary>
         [Test]
         public void ReleaseOutput_DoesNotContainShareXSatelliteResourceAssemblies()
         {
@@ -67,6 +83,10 @@ namespace TrOCR.Tests
                 "ShareX satellite resource assemblies should not be shipped.");
         }
 
+        /// <summary>
+        /// 验证 ShareX fork 中天若快捷键映射使用了悬停感知的 CloseTianruoRegionWindow()，
+        /// 确保用户未拖选矩形时按 Space/A/Q 能正确捕获当前悬停区域而非返回 null。
+        /// </summary>
         [Test]
         public void ShareXFork_TianruoRegionShortcutsUseHoverAwareClose()
         {
