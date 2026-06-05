@@ -119,9 +119,6 @@
     <!-- <Reference Include="System.Xml.Serialization" />
     <Reference Include="System.Xml.XmlSerializer" /> -->
     <Reference Include="WindowsBase" />
-    <Reference Include="zxing">
-      <HintPath>DLL\zxing.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <AppDesigner Include="Properties\" />
@@ -378,6 +375,12 @@
     </PackageReference>
     <PackageReference Include="Emgu.CV.Bitmap">
       <Version>4.5.5.4823</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.4</Version>
+    </PackageReference>
+    <PackageReference Include="ZXing.Net">
+      <Version>0.16.11</Version>
     </PackageReference>
     <PackageReference Include="GitVersion.MsBuild">
       <Version>5.12.0</Version>

@@ -28,13 +28,27 @@ namespace TrOCR.Tests
         }
 
         [Test]
-        public void DllDirectory_CurrentlyContainsKnownLegacyResearchArtifacts()
+        public void DllDirectory_DoesNotContainLegacyNewtonsoftAfterUpgrade()
         {
             var root = FindRepositoryRoot();
 
-            Assert.That(File.Exists(Path.Combine(root, "DLL", "Newtonsoft", "Newtonsoft.Json.dll")), Is.True);
-            Assert.That(File.Exists(Path.Combine(root, "DLL", "Emgu", "CV", "Emgu.CV.World.dll")), Is.True);
-            Assert.That(File.Exists(Path.Combine(root, "DLL", "zxing.dll")), Is.True);
+            Assert.That(File.Exists(Path.Combine(root, "DLL", "Newtonsoft", "Newtonsoft.Json.dll")), Is.False);
+        }
+
+        [Test]
+        public void DllDirectory_DoesNotContainLegacyZxingAfterUpgrade()
+        {
+            var root = FindRepositoryRoot();
+
+            Assert.That(File.Exists(Path.Combine(root, "DLL", "zxing.dll")), Is.False);
+        }
+
+        [Test]
+        public void DllDirectory_DoesNotContainLegacyEmguWorldAfterCleanup()
+        {
+            var root = FindRepositoryRoot();
+
+            Assert.That(File.Exists(Path.Combine(root, "DLL", "Emgu", "CV", "Emgu.CV.World.dll")), Is.False);
         }
 
         [Test]
@@ -44,8 +58,8 @@ namespace TrOCR.Tests
             var assemblies = DependencyDiagnostics.FindManagedDlls(dllDirectory);
 
             Assert.That(assemblies.Select(item => item.Name), Does.Contain("ShareX.ScreenCaptureLib"));
-            Assert.That(assemblies.Select(item => item.Name), Does.Contain("Newtonsoft.Json"));
-            Assert.That(assemblies.Select(item => item.Name), Does.Contain("zxing"));
+            Assert.That(assemblies.Select(item => item.Name), Does.Not.Contain("Newtonsoft.Json"));
+            Assert.That(assemblies.Select(item => item.Name), Does.Not.Contain("zxing"));
         }
 
         private static string FindRepositoryRoot()
