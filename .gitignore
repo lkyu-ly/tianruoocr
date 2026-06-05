@@ -38,6 +38,9 @@ AGENTS.md
 Tests/bin/
 Tests/obj/
 
-# reference project code
+# reference project code used only for research/audit
 references/*
-!references/ShareX/
+
+# build-time external source dependencies
+external/*
+!external/ShareX/

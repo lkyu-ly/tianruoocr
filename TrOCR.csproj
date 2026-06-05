@@ -278,6 +278,7 @@
     <Compile Include="Services\OCR\PaddleOCR2Helper.cs" />
     <Compile Include="Services\OCR\RapidOCRHelper.cs" />
     <Compile Include="Services\ScreenCapture\ScreenCaptureResult.cs" />
+    <Compile Include="Services\ScreenCapture\ScreenCaptureRequest.cs" />
     <Compile Include="Services\ScreenCapture\IScreenCaptureService.cs" />
     <Compile Include="Services\ScreenCapture\ShareXScreenCaptureService.cs" />
     <Compile Include="Utilities\TrOCRUtils.cs" />
@@ -473,18 +474,34 @@
     )
     </PostBuildEvent>
   </PropertyGroup>
+  <!-- ShareX 构建配置说明：
+       通过 sln 构建时，MSBuild 的 AssignProjectConfiguration 会向 SDK-style ProjectReference
+       添加 GlobalPropertiesToRemove=Configuration;Platform，导致 SetConfiguration/AdditionalProperties
+       设置的值被移除。因此 ShareX 子项目的 Configuration 由其 Directory.Build.props 兜底设定
+       （空值时默认 Release），而非依赖此处的 ProjectReference 元数据传递。 -->
   <ItemGroup>
-    <ProjectReference Include="references\ShareX\ShareX.HelpersLib\ShareX.HelpersLib.csproj">
+    <ProjectReference Include="external\ShareX\ShareX.HelpersLib\ShareX.HelpersLib.csproj">
       <Name>ShareX.HelpersLib</Name>
     </ProjectReference>
-    <ProjectReference Include="references\ShareX\ShareX.ImageEffectsLib\ShareX.ImageEffectsLib.csproj">
+    <ProjectReference Include="external\ShareX\ShareX.ImageEffectsLib\ShareX.ImageEffectsLib.csproj">
       <Name>ShareX.ImageEffectsLib</Name>
     </ProjectReference>
-    <ProjectReference Include="references\ShareX\ShareX.MediaLib\ShareX.MediaLib.csproj">
+    <ProjectReference Include="external\ShareX\ShareX.MediaLib\ShareX.MediaLib.csproj">
       <Name>ShareX.MediaLib</Name>
     </ProjectReference>
-    <ProjectReference Include="references\ShareX\ShareX.ScreenCaptureLib\ShareX.ScreenCaptureLib.csproj">
+    <ProjectReference Include="external\ShareX\ShareX.ScreenCaptureLib\ShareX.ScreenCaptureLib.csproj">
       <Name>ShareX.ScreenCaptureLib</Name>
     </ProjectReference>
   </ItemGroup>
+  <!-- ShareX 多语言 satellite resource 清理：
+       ShareX 子项目构建时会输出 ar-YE/de/zh-CN 等文化目录下的 .resources.dll，
+       天若主程序不使用 ShareX 的多语言资源，此 Target 在 PostBuild 后精确删除
+       ShareX.*.resources.dll，再清理因此变空的文化目录（非空目录不受影响）。 -->
+  <Target Name="RemoveShareXSatelliteResourcesFromOutput" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <ShareXSatelliteResourceFiles Include="$(TargetDir)**\ShareX.*.resources.dll" />
+    </ItemGroup>
+    <Delete Files="@(ShareXSatelliteResourceFiles)" />
+    <Exec Command="for /d %%d in (&quot;$(TargetDir)*&quot;) do (dir /b &quot;%%d&quot; | findstr . &gt;nul || rd &quot;%%d&quot;)" IgnoreExitCode="true" />
+  </Target>
 </Project>

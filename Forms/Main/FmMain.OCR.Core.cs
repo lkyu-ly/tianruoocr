@@ -16,8 +16,8 @@ using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ShareX.ScreenCaptureLib;
 using TrOCR.Helper;
+using TrOCR.Services.ScreenCapture;
 
 namespace TrOCR
 {
@@ -100,13 +100,7 @@ namespace TrOCR
 				StaticValue.IsCapture = true;
 				image_screen?.Dispose();
 				// 调用截图功能获取屏幕图像
-				var captureResult = screenCaptureService.CaptureForOcr(new RegionCaptureOptions
-				{
-					ShowMagnifier = false,
-					UseSquareMagnifier = false,
-					MagnifierPixelCount = 15,
-					MagnifierPixelSize = 10
-				});
+				var captureResult = screenCaptureService.CaptureForOcr(ScreenCaptureRequest.ForOcr());
 
 				image_screen = captureResult.Image;
 				var modeFlag = captureResult.ModeFlag;
@@ -122,18 +116,12 @@ namespace TrOCR
 				// 如果是高级截图模式，则启动高级截图窗体
 				if (modeFlag == "高级截图")
 				{
-					var mode = RegionCaptureMode.Annotation;
-					var options = new RegionCaptureOptions();
-					using (var regionCaptureForm = new RegionCaptureForm(mode, options, (Bitmap)image_screen))
-					{
-						regionCaptureForm.Image_get = false;
-						regionCaptureForm.ShowDialog();
-						image_screen = null;
-						image_screen = regionCaptureForm.GetResultImage();
-						modeFlag = regionCaptureForm.Mode_flag;
-					}
+					var annotationResult = screenCaptureService.CaptureAnnotation(image_screen);
+					image_screen?.Dispose();
+					image_screen = annotationResult.Image;
+					modeFlag = annotationResult.ModeFlag;
 				}
-				
+
 				// 注册ESC键作为退出截图的热键
 				HelpWin32.RegisterHotKey(Handle, 222, HelpWin32.KeyModifiers.None, Keys.Escape);
 				

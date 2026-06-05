@@ -21,7 +21,6 @@ using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ShareX.ScreenCaptureLib;
 using TrOCR.Helper;
 using TrOCR.Services.ScreenCapture;
 using PaddleOCRSharp;

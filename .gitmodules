@@ -1,4 +1,4 @@
-[submodule "references/ShareX"]
-	path = references/ShareX
+[submodule "external/ShareX"]
+	path = external/ShareX
 	url = https://github.com/lkyu-ly/ShareX
 	branch = tianruo/net48-screen-capture-contract
