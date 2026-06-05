@@ -39,7 +39,8 @@ namespace TrOCR.Services.ScreenCapture
                 ShowMagnifier = r.ShowMagnifier,
                 UseSquareMagnifier = r.UseSquareMagnifier,
                 MagnifierPixelCount = r.MagnifierPixelCount,
-                MagnifierPixelSize = r.MagnifierPixelSize
+                MagnifierPixelSize = r.MagnifierPixelSize,
+                InputDelay = 0
             };
         }
     }

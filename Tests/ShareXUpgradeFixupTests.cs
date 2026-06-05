@@ -104,6 +104,27 @@ namespace TrOCR.Tests
             Assert.That(source, Does.Contain("ShapeManager.CurrentHoverShape.AddShapePath(regionFillPath)"));
         }
 
+        /// <summary>
+        /// 验证天若截图快捷键不受 ShareX 启动输入延迟拦截。
+        /// ShareX 的默认 InputDelay 会吞掉截图窗显示后 500ms 内的首个按键，
+        /// 但天若的 Space/A/Q/C 等悬停快捷键需要在截图窗出现后立即响应。
+        /// </summary>
+        [Test]
+        public void ShareXFork_TianruoRegionShortcutsBypassStartupInputDelay()
+        {
+            var root = FindRepositoryRoot();
+            var screenCaptureServicePath = Path.Combine(root, "Services", "ScreenCapture", "ShareXScreenCaptureService.cs");
+            if (!File.Exists(screenCaptureServicePath))
+            {
+                Assert.Inconclusive("ShareX screen capture adapter not found.");
+                return;
+            }
+
+            var source = File.ReadAllText(screenCaptureServicePath);
+
+            Assert.That(source, Does.Contain("InputDelay = 0"));
+        }
+
         private static string FindRepositoryRoot()
         {
             var directory = TestContext.CurrentContext.TestDirectory;
