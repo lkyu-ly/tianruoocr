@@ -362,7 +362,7 @@
     <Content Include="Data\update.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="DLL\pinyin.txt" />
+    <None Include="Data\pinyin.txt" />
   </ItemGroup>
   <Target Name="ShowMyPaths" BeforeTargets="Build">
     <Message Text="诊断信息：Solution Directory (解决方案根目录) 的真实路径是 ==&gt; $(SolutionDir)" Importance="high" />
@@ -391,35 +391,30 @@
     <PackageReference Include="Ookii.Dialogs.WinForms">
       <Version>4.0.0</Version>
     </PackageReference>
+    <!-- 离线 OCR native 资产由外置数据包提供，无条件排除 build/native 防止 .props 注入大体积 DLL -->
     <PackageReference Include="OpenCvSharp4.runtime.win">
       <Version>4.11.0.20250507</Version>
-      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
-      <ExcludeAssets Condition="'$(Platform)' == 'x86'">native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="PaddleOCRSharp">
       <Version>5.1.0</Version>
-      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
-      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Sdcb.PaddleInference.runtime.win64.mkl">
       <Version>3.1.0.54</Version>
-      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
-      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Sdcb.PaddleInference.runtime.win64.openblas-noavx">
       <Version>3.1.0.54</Version>
-      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
-      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Sdcb.PaddleOCR">
       <Version>3.0.1</Version>
-      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
-      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Sdcb.PaddleOCR.Models.Online">
       <Version>3.0.1</Version>
-      <ExcludeAssets Condition="'$(Platform)' == 'x86'">runtime;native;build;buildTransitive</ExcludeAssets>
-      <ExcludeAssets Condition="'$(Platform)' == 'x64'">native;build;buildTransitive</ExcludeAssets>
+      <ExcludeAssets>native;build;buildTransitive</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="System.Drawing.Common">
       <Version>9.0.9</Version>
