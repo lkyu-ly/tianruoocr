@@ -37,3 +37,7 @@ AGENTS.md
 # Test project build artifacts
 Tests/bin/
 Tests/obj/
+
+# reference project code
+references/*
+!references/ShareX/

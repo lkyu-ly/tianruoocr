@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ShareX.ScreenCaptureLib;
 using TrOCR.Helper;
+using TrOCR.Services.ScreenCapture;
 using PaddleOCRSharp;
 using ZXing;
 using ZXing.Common;
@@ -93,6 +94,7 @@ namespace TrOCR
         /// </summary>
         public FmMain()
 		{
+			screenCaptureService = new ShareXScreenCaptureService();
 			// 初始化标志位
 			set_merge = false;
 			set_split = false;
@@ -931,6 +933,8 @@ namespace TrOCR
 
 		/// 屏幕截图图像，用于存储屏幕截图内容
 		public Image image_screen;
+
+		private readonly IScreenCaptureService screenCaptureService;
 
 		/// 语音计数器，用于记录语音相关操作的次数
 		public int voice_count;

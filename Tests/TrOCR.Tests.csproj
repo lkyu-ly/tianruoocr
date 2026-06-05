@@ -24,6 +24,7 @@
     <Compile Include="..\Utilities\OwnedImage.cs" Link="Production\Utilities\OwnedImage.cs" />
     <Compile Include="..\Utilities\ClipboardHelper.cs" Link="Production\Utilities\ClipboardHelper.cs" />
     <Compile Include="..\Utilities\DependencyDiagnostics.cs" Link="Production\Utilities\DependencyDiagnostics.cs" />
+    <Compile Include="..\Services\ScreenCapture\ScreenCaptureResult.cs" Link="Production\Services\ScreenCapture\ScreenCaptureResult.cs" />
     <Compile Include="..\Forms\Dialogs\FmScreenPaste.cs" Link="Production\Forms\Dialogs\FmScreenPaste.cs" />
     <Compile Include="..\Forms\Dialogs\FmScreenPaste.Designer.cs" Link="Production\Forms\Dialogs\FmScreenPaste.Designer.cs" />
   </ItemGroup>

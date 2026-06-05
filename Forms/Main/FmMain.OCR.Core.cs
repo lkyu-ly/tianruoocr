@@ -100,13 +100,18 @@ namespace TrOCR
 				StaticValue.IsCapture = true;
 				image_screen?.Dispose();
 				// 调用截图功能获取屏幕图像
-				image_screen = RegionCaptureTasks.GetRegionImage_Mo(new RegionCaptureOptions
+				var captureResult = screenCaptureService.CaptureForOcr(new RegionCaptureOptions
 				{
 					ShowMagnifier = false,
 					UseSquareMagnifier = false,
 					MagnifierPixelCount = 15,
 					MagnifierPixelSize = 10
-				}, out var modeFlag, out var point, out var buildRects);
+				});
+
+				image_screen = captureResult.Image;
+				var modeFlag = captureResult.ModeFlag;
+				var point = captureResult.FlagLocation;
+				var buildRects = captureResult.SelectedRectangles;
 
 				// 如果是静默模式，强制进行OCR，忽略截图工具栏的其他按钮功能
 				if (isSilentMode && image_screen != null)
@@ -119,10 +124,9 @@ namespace TrOCR
 				{
 					var mode = RegionCaptureMode.Annotation;
 					var options = new RegionCaptureOptions();
-					using (var regionCaptureForm = new RegionCaptureForm(mode, options))
+					using (var regionCaptureForm = new RegionCaptureForm(mode, options, (Bitmap)image_screen))
 					{
 						regionCaptureForm.Image_get = false;
-						regionCaptureForm.Prepare(image_screen);
 						regionCaptureForm.ShowDialog();
 						image_screen = null;
 						image_screen = regionCaptureForm.GetResultImage();

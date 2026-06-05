@@ -94,12 +94,6 @@
     <!-- <Reference Include="pangu.cs, Version=1.1.6.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\PanguSpacing.1.1.6\lib\netstandard2.0\pangu.cs.dll</HintPath>
     </Reference> -->
-    <Reference Include="ShareX.HelpersLib">
-      <HintPath>DLL\ShareX\ShareX.HelpersLib.dll</HintPath>
-    </Reference>
-    <Reference Include="ShareX.ScreenCaptureLib">
-      <HintPath>DLL\ShareX\ShareX.ScreenCaptureLib.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -283,6 +277,9 @@
     <Compile Include="Services\OCR\PaddleOCRHelper.cs" />
     <Compile Include="Services\OCR\PaddleOCR2Helper.cs" />
     <Compile Include="Services\OCR\RapidOCRHelper.cs" />
+    <Compile Include="Services\ScreenCapture\ScreenCaptureResult.cs" />
+    <Compile Include="Services\ScreenCapture\IScreenCaptureService.cs" />
+    <Compile Include="Services\ScreenCapture\ShareXScreenCaptureService.cs" />
     <Compile Include="Utilities\TrOCRUtils.cs" />
     <Compile Include="Utilities\WebDavHelper.cs" />
     <Compile Include="Forms\Dialogs\Messageload.cs">
@@ -476,4 +473,18 @@
     )
     </PostBuildEvent>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="references\ShareX\ShareX.HelpersLib\ShareX.HelpersLib.csproj">
+      <Name>ShareX.HelpersLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="references\ShareX\ShareX.ImageEffectsLib\ShareX.ImageEffectsLib.csproj">
+      <Name>ShareX.ImageEffectsLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="references\ShareX\ShareX.MediaLib\ShareX.MediaLib.csproj">
+      <Name>ShareX.MediaLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="references\ShareX\ShareX.ScreenCaptureLib\ShareX.ScreenCaptureLib.csproj">
+      <Name>ShareX.ScreenCaptureLib</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

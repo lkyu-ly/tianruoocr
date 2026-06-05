@@ -52,14 +52,45 @@ namespace TrOCR.Tests
         }
 
         [Test]
+        public void DllDirectory_DoesNotContainLegacyShareXBinariesAfterSourceMigration()
+        {
+            var root = FindRepositoryRoot();
+
+            Assert.That(File.Exists(Path.Combine(root, "DLL", "ShareX", "ShareX.HelpersLib.dll")), Is.False);
+            Assert.That(File.Exists(Path.Combine(root, "DLL", "ShareX", "ShareX.ScreenCaptureLib.dll")), Is.False);
+        }
+
+        [Test]
         public void DependencyDiagnostics_DetectsManagedDlls()
         {
             var dllDirectory = Path.Combine(FindRepositoryRoot(), "DLL");
             var assemblies = DependencyDiagnostics.FindManagedDlls(dllDirectory);
 
-            Assert.That(assemblies.Select(item => item.Name), Does.Contain("ShareX.ScreenCaptureLib"));
+            Assert.That(assemblies.Select(item => item.Name), Does.Not.Contain("ShareX.ScreenCaptureLib"));
             Assert.That(assemblies.Select(item => item.Name), Does.Not.Contain("Newtonsoft.Json"));
             Assert.That(assemblies.Select(item => item.Name), Does.Not.Contain("zxing"));
+        }
+
+        [Test]
+        public void Forms_DoNotCallShareXRegionCaptureTasksDirectly()
+        {
+            var root = FindRepositoryRoot();
+            var formsDirectory = Path.Combine(root, "Forms");
+
+            var violations = Directory
+                .EnumerateFiles(formsDirectory, "*.cs", SearchOption.AllDirectories)
+                .SelectMany(file => File.ReadLines(file)
+                    .Select((line, index) => new { file, line, lineNumber = index + 1 }))
+                .Where(item => item.line.Contains("RegionCaptureTasks.GetRegionImage_Mo"))
+                .Select(item => item.file + ":" + item.lineNumber + ": " + item.line.Trim())
+                .ToArray();
+
+            Assert.That(
+                violations,
+                Is.Empty,
+                "Forms code should use IScreenCaptureService instead of ShareX private API:"
+                + Environment.NewLine
+                + string.Join(Environment.NewLine, violations));
         }
 
         private static string FindRepositoryRoot()
