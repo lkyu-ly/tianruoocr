@@ -23,7 +23,7 @@ namespace TrOCR.Services.ScreenCapture
                 return new ScreenCaptureResult(null, string.Empty, Point.Empty, Array.Empty<Rectangle>());
 
             using (var canvas = new Bitmap(image))
-            using (var form = new RegionCaptureForm(RegionCaptureMode.Annotation, new RegionCaptureOptions(), canvas))
+            using (var form = new RegionCaptureForm(RegionCaptureMode.Annotation, CreateOptions(ScreenCaptureRequest.ForOcr()), canvas))
             {
                 form.Image_get = false;
                 form.ShowDialog();

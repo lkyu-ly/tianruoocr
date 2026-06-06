@@ -61,11 +61,10 @@ namespace TrOCR.Tests
         }
 
         /// <summary>
-        /// 验证 x64 Release 构建产物中不包含 ShareX 的多语言卫星资源程序集，
-        /// 确认 RemoveShareXSatelliteResourcesFromOutput 清理目标正常工作。
+        /// 验证 x64 Release 构建产物中只保留 zh-CN 的 ShareX satellite resource assemblies。
         /// </summary>
         [Test]
-        public void ReleaseOutput_DoesNotContainShareXSatelliteResourceAssemblies()
+        public void ReleaseOutput_KeepsOnlyZhCnShareXSatelliteResourceAssemblies()
         {
             var root = FindRepositoryRoot();
             var releaseDirectory = Path.Combine(root, "bin", "x64", "Release");
@@ -77,10 +76,31 @@ namespace TrOCR.Tests
 
             var shareXResourceAssemblies = Directory
                 .EnumerateFiles(releaseDirectory, "ShareX.*.resources.dll", SearchOption.AllDirectories)
+                .Select(file => ToRepositoryRelativePath(releaseDirectory, file))
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
 
-            Assert.That(shareXResourceAssemblies, Is.Empty,
-                "ShareX satellite resource assemblies should not be shipped.");
+            var nonZhCnAssemblies = shareXResourceAssemblies
+                .Where(path => !path.StartsWith("lib/zh-CN/", StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+
+            Assert.That(nonZhCnAssemblies, Is.Empty,
+                "Only Simplified Chinese ShareX satellite resources should be shipped:"
+                + Environment.NewLine
+                + string.Join(Environment.NewLine, nonZhCnAssemblies));
+
+            var expectedZhCnAssemblies = new[]
+            {
+                "lib/zh-CN/ShareX.HelpersLib.resources.dll",
+                "lib/zh-CN/ShareX.ImageEffectsLib.resources.dll",
+                "lib/zh-CN/ShareX.MediaLib.resources.dll",
+                "lib/zh-CN/ShareX.ScreenCaptureLib.resources.dll"
+            };
+
+            foreach (var expected in expectedZhCnAssemblies)
+            {
+                Assert.That(shareXResourceAssemblies, Does.Contain(expected));
+            }
         }
 
         /// <summary>
@@ -105,24 +125,157 @@ namespace TrOCR.Tests
         }
 
         /// <summary>
-        /// 验证天若截图快捷键不受 ShareX 启动输入延迟拦截。
-        /// ShareX 的默认 InputDelay 会吞掉截图窗显示后 500ms 内的首个按键，
-        /// 但天若的 Space/A/Q/C 等悬停快捷键需要在截图窗出现后立即响应。
+        /// 验证 GetRegionCaptureOptions 克隆时保留 InputDelay 字段。
+        /// </summary>
+        [Test]
+        public void ShareXFork_RegionCaptureOptionsClonePreservesInputDelay()
+        {
+            var source = ReadRepositoryText("external", "ShareX", "ShareX.ScreenCaptureLib", "RegionCaptureTasks.cs");
+            var methodBody = ExtractMethodBody(source, "private static RegionCaptureOptions GetRegionCaptureOptions");
+
+            Assert.That(methodBody, Does.Contain("InputDelay = options.InputDelay"));
+        }
+
+        /// <summary>
+        /// 验证天若快捷键统一绕过 ShareX 启动输入延迟。
         /// </summary>
         [Test]
         public void ShareXFork_TianruoRegionShortcutsBypassStartupInputDelay()
         {
-            var root = FindRepositoryRoot();
-            var screenCaptureServicePath = Path.Combine(root, "Services", "ScreenCapture", "ShareXScreenCaptureService.cs");
-            if (!File.Exists(screenCaptureServicePath))
+            var source = ReadRepositoryText("external", "ShareX", "ShareX.ScreenCaptureLib", "Forms", "RegionCaptureForm.cs");
+            var keyDownBody = ExtractMethodBody(source, "internal void RegionCaptureForm_KeyDown");
+            var shortcutBody = ExtractMethodBody(source, "private static bool IsTianruoShortcut");
+
+            Assert.That(keyDownBody, Does.Contain("bool isTianruoShortcut = imageGet && IsTianruoShortcut(e.KeyData);"));
+            Assert.That(keyDownBody, Does.Contain("!isTianruoShortcut && timerStart.ElapsedMilliseconds < Options.InputDelay"));
+
+            var expectedKeys = new[]
             {
-                Assert.Inconclusive("ShareX screen capture adapter not found.");
-                return;
+                "Keys.Tab",
+                "Keys.Space",
+                "Keys.A",
+                "Keys.S",
+                "Keys.Q",
+                "Keys.C",
+                "Keys.B",
+                "Keys.E",
+                "Keys.D1",
+                "Keys.D2"
+            };
+
+            foreach (var expectedKey in expectedKeys)
+            {
+                Assert.That(shortcutBody, Does.Contain(expectedKey));
+            }
+        }
+
+        /// <summary>
+        /// 验证 TryHandleTianruoShortcut 覆盖所有截图模式且不排除多选状态。
+        /// </summary>
+        [Test]
+        public void ShareXFork_TianruoShortcutHandlerCoversAllScreenshotModes()
+        {
+            var source = ReadRepositoryText("external", "ShareX", "ShareX.ScreenCaptureLib", "Forms", "RegionCaptureForm.cs");
+            var handlerBody = ExtractMethodBody(source, "private bool TryHandleTianruoShortcut");
+
+            Assert.That(handlerBody, Does.Not.Contain("modeFlag != \"区域多选\""));
+
+            var expectedTokens = new[]
+            {
+                "case Keys.Tab:",
+                "case Keys.Space:",
+                "case Keys.A:",
+                "case Keys.S:",
+                "case Keys.Q:",
+                "case Keys.C:",
+                "case Keys.B:",
+                "case Keys.E:",
+                "case Keys.D1:",
+                "case Keys.D2:",
+                "\"区域多选\"",
+                "\"截图\"",
+                "\"自动保存\"",
+                "\"多区域自动保存\"",
+                "\"保存\"",
+                "\"贴图\"",
+                "\"取色\"",
+                "\"百度\"",
+                "\"高级截图\"",
+                "\"拆分\"",
+                "\"合并\""
+            };
+
+            foreach (var expectedToken in expectedTokens)
+            {
+                Assert.That(handlerBody, Does.Contain(expectedToken));
+            }
+        }
+
+        /// <summary>
+        /// 验证 Program.cs 在 WinForms 初始化之前设置 zh-CN UI Culture。
+        /// </summary>
+        [Test]
+        public void Program_ConfiguresZhCnUiCultureBeforeWinFormsInitialization()
+        {
+            var source = ReadRepositoryText("Program.cs");
+
+            var callIndex = source.IndexOf("ConfigureDefaultUiCulture();", StringComparison.Ordinal);
+            var winFormsIndex = source.IndexOf("Application.EnableVisualStyles();", StringComparison.Ordinal);
+
+            Assert.That(callIndex, Is.GreaterThanOrEqualTo(0));
+            Assert.That(winFormsIndex, Is.GreaterThanOrEqualTo(0));
+            Assert.That(callIndex, Is.LessThan(winFormsIndex));
+
+            var methodBody = ExtractMethodBody(source, "private static void ConfigureDefaultUiCulture");
+            Assert.That(methodBody, Does.Contain("CultureInfo.GetCultureInfo(\"zh-CN\")"));
+            Assert.That(methodBody, Does.Contain("Thread.CurrentThread.CurrentUICulture = zhCnCulture;"));
+            Assert.That(methodBody, Does.Contain("CultureInfo.DefaultThreadCurrentUICulture = zhCnCulture;"));
+        }
+
+        private static string ReadRepositoryText(params string[] relativeParts)
+        {
+            var parts = new string[relativeParts.Length + 1];
+            parts[0] = FindRepositoryRoot();
+            Array.Copy(relativeParts, 0, parts, 1, relativeParts.Length);
+            return File.ReadAllText(Path.Combine(parts));
+        }
+
+        private static string ToRepositoryRelativePath(string root, string path)
+        {
+            var relative = path.Substring(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length)
+                .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return relative.Replace(Path.DirectorySeparatorChar, '/').Replace(Path.AltDirectorySeparatorChar, '/');
+        }
+
+        private static string ExtractMethodBody(string source, string signature)
+        {
+            var signatureIndex = source.IndexOf(signature, StringComparison.Ordinal);
+            if (signatureIndex < 0)
+                Assert.Fail("Method signature not found: " + signature);
+
+            var bodyStart = source.IndexOf('{', signatureIndex);
+            if (bodyStart < 0)
+                Assert.Fail("Method body not found: " + signature);
+
+            var depth = 0;
+            for (var i = bodyStart; i < source.Length; i++)
+            {
+                if (source[i] == '{')
+                {
+                    depth++;
+                }
+                else if (source[i] == '}')
+                {
+                    depth--;
+                    if (depth == 0)
+                    {
+                        return source.Substring(bodyStart, i - bodyStart + 1);
+                    }
+                }
             }
 
-            var source = File.ReadAllText(screenCaptureServicePath);
-
-            Assert.That(source, Does.Contain("InputDelay = 0"));
+            Assert.Fail("Method body is not balanced: " + signature);
+            return string.Empty;
         }
 
         private static string FindRepositoryRoot()

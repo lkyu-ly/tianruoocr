@@ -488,15 +488,22 @@
       <Name>ShareX.ScreenCaptureLib</Name>
     </ProjectReference>
   </ItemGroup>
-  <!-- ShareX 多语言 satellite resource 清理：
-       ShareX 子项目构建时会输出 ar-YE/de/zh-CN 等文化目录下的 .resources.dll，
-       天若主程序不使用 ShareX 的多语言资源，此 Target 在 PostBuild 后精确删除
-       ShareX.*.resources.dll，再清理因此变空的文化目录（非空目录不受影响）。 -->
-  <Target Name="RemoveShareXSatelliteResourcesFromOutput" AfterTargets="PostBuildEvent">
+  <!-- ShareX 简体中文 satellite resource 保留：
+       高级截图使用 ShareX.ScreenCaptureLib 的标注 UI，需要 zh-CN 资源显示中文。
+       主程序集在 PostBuild 中移动到 lib，因此 zh-CN satellite assemblies 也移动到 lib\zh-CN。
+       其他文化资源继续删除，避免输出体积回退。 -->
+  <Target Name="KeepOnlyShareXZhCnSatelliteResourcesInOutput" AfterTargets="PostBuildEvent">
     <ItemGroup>
-      <ShareXSatelliteResourceFiles Include="$(TargetDir)**\ShareX.*.resources.dll" />
+      <ShareXZhCnSatelliteResourceFiles Include="$(TargetDir)zh-CN\ShareX.*.resources.dll" />
+      <ShareXSatelliteResourceFilesToDelete Include="$(TargetDir)**\ShareX.*.resources.dll"
+                                             Exclude="$(TargetDir)zh-CN\ShareX.*.resources.dll;$(TargetDir)lib\zh-CN\ShareX.*.resources.dll" />
     </ItemGroup>
-    <Delete Files="@(ShareXSatelliteResourceFiles)" />
+    <MakeDir Directories="$(TargetDir)lib\zh-CN" Condition="'@(ShareXZhCnSatelliteResourceFiles)' != ''" />
+    <Copy SourceFiles="@(ShareXZhCnSatelliteResourceFiles)"
+          DestinationFolder="$(TargetDir)lib\zh-CN\"
+          SkipUnchangedFiles="true" />
+    <Delete Files="@(ShareXZhCnSatelliteResourceFiles)" />
+    <Delete Files="@(ShareXSatelliteResourceFilesToDelete)" />
     <Exec Command="for /d %%d in (&quot;$(TargetDir)*&quot;) do (dir /b &quot;%%d&quot; | findstr . &gt;nul || rd &quot;%%d&quot;)" IgnoreExitCode="true" />
   </Target>
 </Project>
